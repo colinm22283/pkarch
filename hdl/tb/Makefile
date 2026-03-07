@@ -1,5 +1,5 @@
-TBS+=hello_world
-TBS+=bus
+TBS+=example
+TBS+=decoder
 
 .PHONY: all
 all: $(foreach t, $(TBS), run-$t)
