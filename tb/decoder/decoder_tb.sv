@@ -1,17 +1,26 @@
 `timescale 1ns/100ps
 
+`include "isa.svh"
+
 module decoder_tb();
 
-    wire clk, nrst;
-    clk_rst_m clk_rst(
-        .clk_o(clk),
-        .nrst_o(nrst)
+    inst_t inst;
+    dec_inst_t decoded;
+
+    decoder_m dut(
+        .inst_i(inst),
+        .decoded_o(decoded)
     );
 
     initial begin
-        clk_rst.RESET();
+        inst.opcode = 7'b0110011;
 
-        #10000;
+        #100;
+
+        inst.opcode = 7'b1101111;
+
+        #100;
+
         $finish;
     end
 
