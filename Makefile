@@ -13,6 +13,7 @@ include dsn/sources.mk
 
 TBS+=example
 TBS+=decoder
+TBS+=rob
 
 .PHONY: all
 all: $(foreach t, $(TBS), run-$t)

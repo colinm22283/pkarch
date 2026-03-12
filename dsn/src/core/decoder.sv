@@ -89,15 +89,46 @@ module decoder_m(
     end
 
     // imm
-    always_comb begin
+    always_comb begin : IMM_COMB
+        reg signed [11:0] imm_i;
+        reg signed [11:0] imm_s;
+        reg signed [11:0] imm_b;
+        reg signed [19:0] imm_j;
+        reg signed [19:0] imm_u;
+
+        imm_i = $signed(inst_i.t.i.imm0);
+        imm_s = $signed({ inst_i.t.s.imm1, inst_i.t.s.imm0 });
+        imm_b = $signed({ inst_i.t.b.imm3, inst_i.t.b.imm2, inst_i.t.b.imm1, inst_i.t.b.imm0 });
+        imm_u = $signed({ inst_i.t.u.imm0 });
+        imm_j = $signed({ inst_i.t.j.imm3, inst_i.t.j.imm2, inst_i.t.j.imm1, inst_i.t.j.imm0 });
+
         case (inst_type)
             TYPE_R: decoded_o.imm = IMM_ERROR;
-            TYPE_I: decoded_o.imm = inst_i.t.i.imm0;
-            TYPE_S: decoded_o.imm = { inst_i.t.s.imm1, inst_i.t.s.imm0 };
+            TYPE_I: decoded_o.imm = 32'(imm_i);
+            TYPE_S: decoded_o.imm = 32'(imm_s << 1);
+            TYPE_B: decoded_o.imm = 32'(imm_b << 1);
+            TYPE_U: decoded_o.imm = 32'(imm_u << 12);
+            TYPE_J: decoded_o.imm = 32'(imm_j << 1);
 
             default: decoded_o.imm = IMM_ERROR;
         endcase
     end
+
+    // funct
+    always_comb begin
+        case (inst_type)
+            TYPE_R: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.r.funct3, inst_i.t.r.funct7);
+            TYPE_I: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.i.funct3, 7'h00);
+            TYPE_S: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.s.funct3, 7'h00);
+            TYPE_B: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.b.funct3, 7'h00);
+            TYPE_U: decoded_o.funct = `FUNCT_CONCAT(3'h0, 7'h00);
+            TYPE_J: decoded_o.funct = `FUNCT_CONCAT(3'h0, 7'h00);
+
+            default: decoded_o.funct = 10'hxxx;
+        endcase
+    end
+
+    always_comb decoded_o.opcode = inst_i.opcode;
 
 endmodule
 

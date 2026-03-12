@@ -38,14 +38,16 @@ typedef enum logic [4:0] {
     REG_ERROR = 5'hxx
 } reg_t;
 
-typedef logic [21:0] imm_t;
+typedef logic [31:0] imm_t;
 
-parameter IMM_ERROR = 22'hXXXXXX;
+parameter IMM_ERROR = 32'hXXXXXX;
+
+typedef logic [6:0] opcode_t;
 
 typedef struct packed {
     union packed {
         struct packed {
-            bit [6:0] funct;
+            bit [6:0] funct7;
             reg_t rs2;
             reg_t rs1;
             bit [2:0] funct3;
@@ -90,12 +92,31 @@ typedef struct packed {
             reg_t rd;
         } j;
     } t;
-    bit [6:0] opcode;
+    opcode_t opcode;
 } inst_t;
+
+`define FUNCT_CONCAT(f3, f7) ({ (f3), (f7) })
+
+typedef logic [9:0] funct_t;
+
+parameter FUNCT_ADD  = (`FUNCT_CONCAT(3'h0, 7'h00));
+parameter FUNCT_SUB  = (`FUNCT_CONCAT(3'h0, 7'h20));
+parameter FUNCT_XOR  = (`FUNCT_CONCAT(3'h4, 7'h00));
+parameter FUNCT_OR   = (`FUNCT_CONCAT(3'h6, 7'h00));
+parameter FUNCT_AND  = (`FUNCT_CONCAT(3'h7, 7'h00));
+parameter FUNCT_SLL  = (`FUNCT_CONCAT(3'h1, 7'h00));
+parameter FUNCT_SRL  = (`FUNCT_CONCAT(3'h5, 7'h20));
+parameter FUNCT_SRA  = (`FUNCT_CONCAT(3'h5, 7'h00));
+parameter FUNCT_SLT  = (`FUNCT_CONCAT(3'h2, 7'h00));
+parameter FUNCT_SLTU = (`FUNCT_CONCAT(3'h3, 7'h00));
 
 typedef struct packed {
     reg_t rs1, rs2, rd;
     imm_t imm;
+
+    funct_t funct;
+
+    opcode_t opcode;
 } dec_inst_t;
 
 `endif

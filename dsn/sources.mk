@@ -1,4 +1,5 @@
 SRCS+=core/decoder.sv
+SRCS+=core/rob.sv
 
 SRCS+=test/clk_rst.v
 
