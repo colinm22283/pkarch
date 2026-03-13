@@ -32,11 +32,23 @@ module rob_m(
             if (dispatch_any_ready) begin
                 for (int i = 0; i < ROB_WIDTH; i++) begin
                     if (dispatch_i[i].valid) begin
-                        
+                        entries[tail].valid  <= 1;
+                        entries[tail].busy   <= 1;
+                        entries[tail].except <= 0;
                     end
+                    else begin
+                        entries[tail].valid <= 0;
+                    end
+
+                    tail <= tail + 1;
                 end
             end
         end
+    end
+
+    always_comb begin
+        dispatch_o.ready = size != ROB_SIZE;
+        dispatch_o.id    = tail;
     end
 
 endmodule
