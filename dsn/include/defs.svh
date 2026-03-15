@@ -1,7 +1,9 @@
 `ifndef DEFS_SVH
 `define DEFS_SVH
 
-typedef logic [31:0] word_t;
+parameter WORD_WIDTH = 32;
+
+typedef logic [WORD_WIDTH - 1:0] word_t;
 
 `endif
 

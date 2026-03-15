@@ -15,6 +15,7 @@ TBS+=example
 TBS+=decoder
 TBS+=rob
 TBS+=prf
+TBS+=bus
 
 .PHONY: all
 all: $(foreach t, $(TBS), run-$t)

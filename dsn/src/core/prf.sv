@@ -12,7 +12,7 @@ module prf_m(
 
     word_t [PRF_SIZE - 1:0] mem;
 
-    always_latch @(posedge clk_i) begin
+    always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
         end
         else begin
