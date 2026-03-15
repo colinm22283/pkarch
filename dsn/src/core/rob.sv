@@ -16,11 +16,13 @@ module rob_m(
 
     rob_entry_t [ROB_SIZE - 1:0] entries;
 
-    logic dispatch_any_ready;
+    logic dispatch_any_valid;
     always_comb begin
-        dispatch_any_ready = 1;
-        for (int i = 0; i < ROB_WIDTH; i++) dispatch_any_ready |= dispatch_i[i].valid;
+        dispatch_any_valid = 1;
+        for (int i = 0; i < ROB_WIDTH; i++) dispatch_any_valid |= dispatch_i[i].valid;
     end
+
+    logic dispatch_ready;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -29,7 +31,7 @@ module rob_m(
             size <= 0;
         end
         else begin
-            if (dispatch_any_ready) begin
+            if (dispatch_any_valid) begin
                 for (int i = 0; i < ROB_WIDTH; i++) begin
                     if (dispatch_i[i].valid) begin
                         entries[tail].valid  <= 1;
@@ -47,8 +49,12 @@ module rob_m(
     end
 
     always_comb begin
-        dispatch_o.ready = size != ROB_SIZE;
-        dispatch_o.id    = tail;
+        dispatch_ready = size != ROB_SIZE;
+
+        for (int i = 0; i < ROB_WIDTH; i++) begin
+            dispatch_o[i].ready = dispatch_ready;
+            dispatch_o[i].id    = tail;
+        end
     end
 
 endmodule
