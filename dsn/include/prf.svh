@@ -12,11 +12,7 @@ typedef struct packed {
     prf_addr_t addr;
     word_t data;
     bit we;
-} prf_port_i_t;
-
-typedef struct packed {
-    word_t data;
-} prf_port_o_t;
+} prf_wport_i_t;
 
 `endif
 

@@ -16,6 +16,8 @@ TBS+=decoder
 TBS+=rob
 TBS+=prf
 TBS+=bus
+TBS+=rename
+TBS+=commit
 
 .PHONY: all
 all: $(foreach t, $(TBS), run-$t)

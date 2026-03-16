@@ -2,8 +2,11 @@
 `define ROB_SVH
 
 `include "isa.svh"
+`include "prf.svh"
 
-typedef logic [$clog2(ROB_SIZE) - 1:0] rob_id_t;
+parameter ROB_ID_WIDTH = $clog2(ROB_SIZE);
+
+typedef logic [ROB_ID_WIDTH - 1:0] rob_id_t;
 
 typedef struct packed {
     bit valid;
@@ -17,8 +20,23 @@ typedef struct packed {
 
 typedef struct packed {
     bit valid;
+
+    rob_id_t rob_id;
+    reg_addr_t isa_addr;
+    prf_addr_t prf_addr;
+} rob_commit_i_t;
+
+typedef struct packed {
+    bit ready;
+} rob_commit_o_t;
+
+typedef struct packed {
+    bit valid;
     bit busy;
     bit except;
+
+    reg_addr_t isa_rd;
+    prf_addr_t prf_rd;
 } rob_entry_t;
 
 `endif

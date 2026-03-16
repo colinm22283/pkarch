@@ -1,6 +1,10 @@
 SRCS+=core/decoder.sv
 SRCS+=core/rob.sv
 SRCS+=core/prf.sv
+SRCS+=core/rename.sv
+SRCS+=core/commit.sv
+
+SRCS+=fu/alu.sv
 
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv

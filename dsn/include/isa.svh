@@ -1,7 +1,10 @@
 `ifndef ISA_SVH
 `define ISA_SVH
 
-typedef enum logic [4:0] {
+parameter REG_COUNT = 32;
+parameter REG_ADDR_WIDTH = $clog2(REG_COUNT);
+
+typedef enum logic [REG_ADDR_WIDTH - 1:0] {
     REG_ZERO = 5'h00,
     REG_RA   = 5'h01,
     REG_SP   = 5'h02,
@@ -36,7 +39,7 @@ typedef enum logic [4:0] {
     REG_T6   = 5'h1F,
 
     REG_ERROR = 5'hxx
-} reg_t;
+} reg_addr_t;
 
 typedef logic [31:0] imm_t;
 
@@ -48,23 +51,23 @@ typedef struct packed {
     union packed {
         struct packed {
             bit [6:0] funct7;
-            reg_t rs2;
-            reg_t rs1;
+            reg_addr_t rs2;
+            reg_addr_t rs1;
             bit [2:0] funct3;
-            reg_t rd;
+            reg_addr_t rd;
         } r;
 
         struct packed {
             bit [11:0] imm0;
-            reg_t rs1;
+            reg_addr_t rs1;
             bit [2:0] funct3;
-            reg_t rd;
+            reg_addr_t rd;
         } i;
 
         struct packed {
             bit [6:0] imm1;
-            reg_t rs1;
-            reg_t rs2;
+            reg_addr_t rs1;
+            reg_addr_t rs2;
             bit [2:0] funct3;
             reg [4:0] imm0;
         } s;
@@ -72,8 +75,8 @@ typedef struct packed {
         struct packed {
             bit [0:0] imm3;
             bit [5:0] imm1;
-            reg_t rs2;
-            reg_t rs1;
+            reg_addr_t rs2;
+            reg_addr_t rs1;
             bit [2:0] funct3;
             bit [3:0] imm0;
             bit [0:0] imm2;
@@ -81,7 +84,7 @@ typedef struct packed {
 
         struct packed {
             bit [31:12] imm0;
-            reg_t rd;
+            reg_addr_t rd;
         } u;
 
         struct packed {
@@ -89,7 +92,7 @@ typedef struct packed {
             bit [9:0] imm0;
             bit [0:0] imm1;
             bit [7:0] imm2;
-            reg_t rd;
+            reg_addr_t rd;
         } j;
     } t;
     opcode_t opcode;
@@ -111,7 +114,8 @@ parameter FUNCT_SLT  = (`FUNCT_CONCAT(3'h2, 7'h00));
 parameter FUNCT_SLTU = (`FUNCT_CONCAT(3'h3, 7'h00));
 
 typedef struct packed {
-    reg_t rs1, rs2, rd;
+    bit rs1_a, rs2_a, rd_a;
+    reg_addr_t rs1, rs2, rd;
     imm_t imm;
 
     funct_t funct;

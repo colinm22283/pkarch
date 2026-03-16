@@ -45,42 +45,63 @@ module decoder_m(
     always_comb begin
         case (inst_type)
             TYPE_R: begin
+                decoded_o.rs1_a = 1'b1;
+                decoded_o.rs2_a = 1'b1;
+                decoded_o.rd_a  = 1'b1;
                 decoded_o.rs1 = inst_i.t.r.rs1;
                 decoded_o.rs2 = inst_i.t.r.rs2;
                 decoded_o.rd = inst_i.t.r.rd;
             end
 
             TYPE_I: begin
-                decoded_o.rs1 = inst_i.t.i.rs1;
-                decoded_o.rs2 = REG_ERROR;
-                decoded_o.rd = inst_i.t.i.rd;
+                decoded_o.rs1_a = 1'b1;
+                decoded_o.rs2_a = 1'b0;
+                decoded_o.rd_a  = 1'b1;
+                decoded_o.rs1   = inst_i.t.i.rs1;
+                decoded_o.rs2   = REG_ERROR;
+                decoded_o.rd    = inst_i.t.i.rd;
             end
 
             TYPE_S: begin
+                decoded_o.rs1_a = 1'b1;
+                decoded_o.rs2_a = 1'b1;
+                decoded_o.rd_a  = 1'b0;
                 decoded_o.rs1 = inst_i.t.s.rs1;
                 decoded_o.rs2 = inst_i.t.s.rs2;
                 decoded_o.rd  = REG_ERROR;
             end
 
             TYPE_B: begin
+                decoded_o.rs1_a = 1'b1;
+                decoded_o.rs2_a = 1'b1;
+                decoded_o.rd_a  = 1'b0;
                 decoded_o.rs1 = inst_i.t.b.rs1;
                 decoded_o.rs2 = inst_i.t.b.rs2;
                 decoded_o.rd  = REG_ERROR;
             end
 
             TYPE_U: begin
+                decoded_o.rs1_a = 1'b0;
+                decoded_o.rs2_a = 1'b0;
+                decoded_o.rd_a  = 1'b1;
                 decoded_o.rs1 = REG_ERROR;
                 decoded_o.rs2 = REG_ERROR;
                 decoded_o.rd  = inst_i.t.u.rd;
             end
 
             TYPE_J: begin
+                decoded_o.rs1_a = 1'b0;
+                decoded_o.rs2_a = 1'b0;
+                decoded_o.rd_a  = 1'b1;
                 decoded_o.rs1 = REG_ERROR;
                 decoded_o.rs2 = REG_ERROR;
                 decoded_o.rd  = inst_i.t.j.rd;
             end
 
             default: begin
+                decoded_o.rs1_a = 1'bx;
+                decoded_o.rs2_a = 1'bx;
+                decoded_o.rd_a  = 1'bx;
                 decoded_o.rs1 = REG_ERROR;
                 decoded_o.rs2 = REG_ERROR;
                 decoded_o.rd  = REG_ERROR;
