@@ -14,5 +14,27 @@ typedef struct packed {
     bit we;
 } prf_wport_i_t;
 
+typedef struct packed {
+    prf_addr_t addr;
+} prf_rport_i_t;
+
+typedef struct packed {
+    bit valid;
+
+    word_t data;
+} prf_rport_o_t;
+
+typedef struct packed {
+    bit rel;
+
+    prf_addr_t addr;
+} prf_rel_i_t;
+
+typedef struct packed {
+    bit valid;
+
+    word_t data;
+} prf_entry_t;
+
 `endif
 

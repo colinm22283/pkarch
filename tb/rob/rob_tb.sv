@@ -63,7 +63,7 @@ module rob_tb();
         RDISPATCH(0, REG_S1, prf_addr[1]);
         RDISPATCH_WRITE(0, REG_S2, prf_addr[2]);
 
-        DISPATCH(0, rob_id[0]);
+        DISPATCH(0, rob_id[1]);
         RDISPATCH(0, REG_S2, prf_addr[3]);
         RDISPATCH(0, REG_S3, prf_addr[4]);
         RDISPATCH_WRITE(0, REG_S4, prf_addr[5]);

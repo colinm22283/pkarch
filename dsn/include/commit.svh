@@ -8,6 +8,7 @@ typedef struct packed {
 
     rob_id_t rob_id;
 
+    reg_addr_t isa_addr;
     prf_addr_t rd;
     word_t value;
 } commit_i_t;

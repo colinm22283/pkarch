@@ -10,7 +10,9 @@ module rename_m(
     output rename_dispatch_o_t [RENAME_WIDTH - 1:0] dispatch_o,
 
     input  rename_commit_i_t [COMMIT_WIDTH - 1:0] commit_i,
-    output rename_commit_o_t [COMMIT_WIDTH - 1:0] commit_o
+    output rename_commit_o_t [COMMIT_WIDTH - 1:0] commit_o,
+
+    output prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_o
 );
 
     prf_addr_t freelist_head;
@@ -97,6 +99,12 @@ module rename_m(
 
         for (int i = 0; i < COMMIT_WIDTH; i++) begin
             commit_o[i].ready = 1'b1;
+            
+            if (map_table[commit_i[i].isa_addr].valid) begin
+                prf_rel_o[i].rel  = commit_i[i].valid;
+
+                prf_rel_o[i].addr = map_table[commit_i[i].isa_addr].prf_addr;
+            end
         end
     end
 

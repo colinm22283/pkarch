@@ -12,5 +12,7 @@ SRCS+=bus/bus_master.sv
 
 SRCS+=test/clk_rst.v
 
+SRCS+=pipe_reg.sv
+
 export DSN_SRCS=$(foreach s, $(SRCS), $(SRC_DIR)/$s)
 

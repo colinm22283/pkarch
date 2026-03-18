@@ -44,7 +44,7 @@ module alu_fu_m(
 
         case (dispatch_i.dec_inst.opcode)
             7'b0110011: begin
-                b = dispatch_i.rs1_v;
+                b = dispatch_i.rs2_v;
             end
 
             7'b0010011: begin
@@ -54,7 +54,7 @@ module alu_fu_m(
             default: ;
         endcase
 
-        case (dispatch_i.funct)
+        case (dispatch_i.dec_inst.funct)
             FUNCT_ADD: y = a + b;
 
             default: y = WORD_WIDTH'(0);
