@@ -151,27 +151,28 @@ module top_tb();
 
         prf.mem[prf_addrs[0]].data  = 10;
         prf.mem[prf_addrs[1]].data  = 20;
+        prf.mem[prf_addrs[0]].valid = 1;
+        prf.mem[prf_addrs[1]].valid = 1;
+        #100;
+
+        wait(!clk);
+        run_fu = 1;
+        wait(fu_diso.ready && fu_disi.valid);
+        wait(clk);
+        #1;
+        run_fu = 0;
+
+        DISPATCH(0, disp_rob_id);
+
+        RDISPATCH(0, REG_S0, prf_addrs[0]);
+        RDISPATCH(0, REG_S2, prf_addrs[1]);
+        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
 
         #100;
 
         wait(!clk);
         run_fu = 1;
-        wait(fu_diso.ready);
-        wait(clk);
-        #1;
-        run_fu = 0;
-
-        #1000;
-
-        DISPATCH(0, disp_rob_id);
-
-        RDISPATCH(0, REG_S0, prf_addrs[0]);
-        RDISPATCH(0, REG_S1, prf_addrs[1]);
-        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
-
-        wait(!clk);
-        run_fu = 1;
-        wait(fu_diso.ready);
+        wait(fu_diso.ready && fu_disi.valid);
         wait(clk);
         #1;
         run_fu = 0;
@@ -195,6 +196,8 @@ module top_tb();
         input  reg_addr_t isa_addr;
         output prf_addr_t prf_addr;
     begin
+        $display("RDISPATCH()");
+
         wait(!clk);
 
         rename_disi[index].valid = 1;
@@ -216,6 +219,8 @@ module top_tb();
         input  reg_addr_t isa_addr;
         output prf_addr_t prf_addr;
     begin
+        $display("RDISPATCH_WRITE()");
+
         wait(!clk);
 
         rename_disi[index].valid = 1;
@@ -236,6 +241,8 @@ module top_tb();
 
         output rob_id_t rob_id;
     begin
+        $display("DISPATCH()");
+
         wait(!clk);
 
         rob_disi[index].valid = 1;
