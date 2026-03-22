@@ -1,4 +1,5 @@
 SRCS+=core/decoder.sv
+SRCS+=core/dispatch.sv
 SRCS+=core/rob.sv
 SRCS+=core/prf.sv
 SRCS+=core/rename.sv

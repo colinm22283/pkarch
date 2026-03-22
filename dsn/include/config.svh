@@ -4,6 +4,7 @@
 parameter FETCH_WIDTH = 1;
 parameter RENAME_WIDTH = 1;
 parameter COMMIT_WIDTH = 1;
+parameter DISPATCH_WIDTH = 1;
 
 parameter FU_COUNT = 1;
 

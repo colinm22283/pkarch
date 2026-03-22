@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 `include "config.svh"
 `include "prf.svh"
 `include "defs.svh"

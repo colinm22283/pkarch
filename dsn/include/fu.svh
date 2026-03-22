@@ -1,6 +1,7 @@
 `ifndef FU_SVH
 `define FU_SVH
 
+`include "config.svh"
 `include "prf.svh"
 `include "defs.svh"
 `include "isa.svh"
@@ -20,6 +21,9 @@ typedef struct packed {
 typedef struct packed {
     bit ready;
 } fu_dispatch_o_t;
+
+typedef fu_dispatch_i_t [DISPATCH_WIDTH - 1:0] res_dispatch_i_t;
+typedef fu_dispatch_o_t [DISPATCH_WIDTH - 1:0] res_dispatch_o_t;
 
 `endif
 

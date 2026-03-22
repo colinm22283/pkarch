@@ -10,5 +10,9 @@ module dispatch_m(
     input  rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_i,
     output rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_o,
 
-    
+    input  res_dispatch_o_t [FU_COUNT - 1:0] res_dispatch_i,
+    output res_dispatch_i_t [FU_COUNT - 1:0] res_dispatch_o
+);
+
+endmodule
 
