@@ -22,8 +22,20 @@ typedef struct packed {
     bit ready;
 } fu_dispatch_o_t;
 
+typedef struct packed {
+    dec_inst_t dec_inst;
+} [DISPATCH_WIDTH - 1:0] fu_test_i_t;
+
+typedef struct packed {
+    bit accept;
+} [DISPATCH_WIDTH - 1:0] fu_test_o_t;
+
 typedef fu_dispatch_i_t [DISPATCH_WIDTH - 1:0] res_dispatch_i_t;
 typedef fu_dispatch_o_t [DISPATCH_WIDTH - 1:0] res_dispatch_o_t;
+
+typedef struct packed {
+    rob_id_t rob_id;
+} res_station_entry_t;
 
 `endif
 

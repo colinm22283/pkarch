@@ -5,6 +5,9 @@ module alu_fu_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input  fu_test_i test_i,
+    output fu_test_o test_o,
+
     input  fu_dispatch_i_t dispatch_i,
     output fu_dispatch_o_t dispatch_o,
 
