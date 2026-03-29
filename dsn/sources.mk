@@ -6,7 +6,10 @@ SRCS+=core/rename.sv
 SRCS+=core/commit.sv
 
 SRCS+=fu/res_station.sv
-SRCS+=fu/alu.sv
+
+SRCS+=fu/alu/fu.sv
+SRCS+=fu/alu/test.sv
+SRCS+=fu/alu/alu.sv
 
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv

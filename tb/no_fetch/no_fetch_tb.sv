@@ -2,7 +2,7 @@
 
 `include "isa.svh"
 
-module top_tb();
+module no_fetch_tb();
 
     wire clk, nrst;
 
@@ -113,12 +113,30 @@ module top_tb();
         .prf_wport_o(prf_wporti)
     );
 
-    bit run_fu;
-    rob_id_t disp_rob_id;
-    prf_addr_t [2:0] prf_addrs;
+    rob_id_t [1:0] disp_rob_id;
+    prf_addr_t [5:0] prf_addrs;
 
-    always_comb begin
-        fu_disi.valid = run_fu;
+    initial begin
+        clk_rst.RESET();
+
+        #100;
+
+        DISPATCH(0, disp_rob_id[0]);
+
+        RDISPATCH(0, REG_S0, prf_addrs[0]);
+        RDISPATCH(0, REG_S1, prf_addrs[1]);
+        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
+
+        prf.mem[prf_addrs[0]].data  = 1;
+        prf.mem[prf_addrs[1]].data  = 1;
+        prf.mem[prf_addrs[0]].valid = 1;
+        prf.mem[prf_addrs[1]].valid = 1;
+        #100;
+
+        $display("0x%h + 0x%h => 0x%h", prf_addrs[0], prf_addrs[1], prf_addrs[2]);
+
+        wait(!clk);
+        fu_disi.valid = 1;
 
         fu_disi.dec_inst.opcode = 7'b0110011;
         fu_disi.dec_inst.funct  = FUNCT_ADD;
@@ -126,53 +144,42 @@ module top_tb();
         fu_disi.dec_inst.rs2    = REG_S1;
         fu_disi.dec_inst.rd     = REG_S2;
 
-        fu_disi.rob_id = disp_rob_id;
+        fu_disi.rob_id = disp_rob_id[0];
 
         fu_disi.rs1 = prf_addrs[0];
         fu_disi.rs2 = prf_addrs[1];
         fu_disi.rd  = prf_addrs[2];
-    end
-
-    initial begin
-        run_fu = 0;
-
-        clk_rst.RESET();
-
-        #100;
-
-        DISPATCH(0, disp_rob_id);
-
-        RDISPATCH(0, REG_S0, prf_addrs[0]);
-        RDISPATCH(0, REG_S1, prf_addrs[1]);
-        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
-
-        prf.mem[prf_addrs[0]].data  = 10;
-        prf.mem[prf_addrs[1]].data  = 20;
-        prf.mem[prf_addrs[0]].valid = 1;
-        prf.mem[prf_addrs[1]].valid = 1;
-        #100;
-
-        wait(!clk);
-        run_fu = 1;
         wait(fu_diso.ready && fu_disi.valid);
         wait(clk);
         #1;
-        run_fu = 0;
+        fu_disi.valid = 0;
 
-        DISPATCH(0, disp_rob_id);
+        DISPATCH(0, disp_rob_id[1]);
 
-        RDISPATCH(0, REG_S0, prf_addrs[0]);
-        RDISPATCH(0, REG_S2, prf_addrs[1]);
-        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
+        RDISPATCH(0, REG_S0, prf_addrs[3]);
+        RDISPATCH(0, REG_S2, prf_addrs[4]);
+        RDISPATCH_WRITE(0, REG_S2, prf_addrs[5]);
 
-        #100;
+        $display("0x%h + 0x%h => 0x%h", prf_addrs[3], prf_addrs[4], prf_addrs[5]);
 
         wait(!clk);
-        run_fu = 1;
+        fu_disi.valid = 1;
+
+        fu_disi.dec_inst.opcode = 7'b0110011;
+        fu_disi.dec_inst.funct  = FUNCT_ADD;
+        fu_disi.dec_inst.rs1    = REG_S0;
+        fu_disi.dec_inst.rs2    = REG_S2;
+        fu_disi.dec_inst.rd     = REG_S2;
+
+        fu_disi.rob_id = disp_rob_id[1];
+
+        fu_disi.rs1 = prf_addrs[3];
+        fu_disi.rs2 = prf_addrs[4];
+        fu_disi.rd  = prf_addrs[5];
         wait(fu_diso.ready && fu_disi.valid);
         wait(clk);
         #1;
-        run_fu = 0;
+        fu_disi.valid = 0;
 
         #3000;
 

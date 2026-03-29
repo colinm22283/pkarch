@@ -18,6 +18,8 @@ TBS+=prf
 TBS+=bus
 TBS+=rename
 TBS+=commit
+TBS+=fu
+TBS+=no_fetch
 TBS+=top
 
 .PHONY: all

@@ -12,7 +12,7 @@ parameter ROB_DISPATCH_WIDTH = 1;
 parameter ROB_COMMIT_WIDTH = 1;
 parameter ROB_SIZE = 8;
 
-parameter PRF_SIZE = 64;
+parameter PRF_SIZE = 10;
 parameter PRF_WPORTS = ROB_COMMIT_WIDTH;
 parameter PRF_RPORTS = 2;
 
