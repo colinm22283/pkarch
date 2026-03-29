@@ -34,8 +34,6 @@ module res_station_m #(
             for (int i = 0; i < FU_WIDTH; i++) begin
                 if (fu_ready[i]) begin
                     size = size - 1;
-
-                    $display("RS: 0x%h + 0x%h => 0x%h", entries[size].rs1, entries[size].rs2, entries[size].rd);
                 end
             end
 
