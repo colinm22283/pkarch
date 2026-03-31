@@ -29,6 +29,15 @@ all: $(foreach t, $(TBS), run-$t)
 
 .PHONY: clean
 clean: $(foreach t, $(TBS), clean-$t)
+	cd $(PROG_TB_DIR) && $(MAKE)
+
+.PHONY: prog-%
+prog-%:
+	cd $(PROG_TB_DIR) && $(MAKE) run
+
+.PHONY: prog_wave-%
+prog_wave-%:
+	cd $(PROG_TB_DIR) && $(MAKE) wave
 
 .PHONY: run-%
 run-%:
