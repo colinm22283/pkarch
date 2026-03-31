@@ -1,3 +1,4 @@
+SRCS+=core/fetch.sv
 SRCS+=core/decoder.sv
 SRCS+=core/dispatch.sv
 SRCS+=core/rob.sv

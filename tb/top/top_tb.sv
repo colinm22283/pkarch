@@ -11,6 +11,31 @@ module top_tb();
         .nrst_o(nrst)
     );
 
+    bus_miport_t mportai;
+    bus_moport_t mportao;
+
+    bus_siport_t sportai;
+    bus_soport_t sportao;
+
+    busarb_m #(1, 1, 1) arbiter(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mports_i({ mportao }),
+        .mports_o({ mportai }),
+
+        .sports_i({ sportao }),
+        .sports_o({ sportai })
+    );
+
+    ram_m #(0, 1024) ram(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportai),
+        .sport_o(sportao)
+    );
+
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
 
@@ -38,6 +63,17 @@ module top_tb();
 
     commit_i_t comi, reg_comi;
     commit_o_t como, reg_como;
+
+    fetch_m fetch(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mport_i(mportai),
+        .mport_o(mportao),
+
+        .dispatch_i(dispatcho),
+        .dispatch_o(dispatchi)
+    );
 
     dispatch_m dispatch(
         .clk_i(clk),
@@ -134,11 +170,28 @@ module top_tb();
     );
 
     initial begin
-        dec_inst_t dec_inst;
-
-        dispatchi = 0;
+        inst_t inst;
 
         clk_rst.RESET();
+
+        // inst.t.r.funct7 = FUNCT7_ADD;
+        // inst.t.r.funct3 = FUNCT3_ADD;
+        // inst.t.r.rs2 = REG_S0;
+        // inst.t.r.rs1 = REG_S1;
+        // inst.t.r.rd  = REG_S2;
+        // inst.opcode = OPCODE_IMMALU;
+
+        inst.t.i.funct3 = FUNCT3_ADD;
+        inst.t.i.rs1    = REG_ZERO;
+        inst.t.i.rd     = REG_S0;
+        inst.t.i.imm0   = 1;
+        inst.opcode     = OPCODE_IMMALU;
+        ram.mem[0] = inst;
+        inst.t.i.rs1    = REG_S0;
+        ram.mem[1] = inst;
+        ram.mem[2] = inst;
+        ram.mem[3] = inst;
+        ram.mem[4] = inst;
 
         #100;
 
@@ -146,22 +199,6 @@ module top_tb();
         prf.mem[1].data  = 1;
         prf.mem[0].valid = 1;
         prf.mem[1].valid = 1;
-
-        dec_inst.opcode = 7'b0110011;
-        dec_inst.funct  = FUNCT_ADD;
-        dec_inst.rs1    = REG_S0;
-        dec_inst.rs2    = REG_S1;
-        dec_inst.rd     = REG_S2;
-        DISPATCH(0, dec_inst);
-
-        for (int i = 0; i < 2; i++) begin
-            dec_inst.opcode = 7'b0110011;
-            dec_inst.funct  = FUNCT_ADD;
-            dec_inst.rs1    = REG_S1;
-            dec_inst.rs2    = REG_S2;
-            dec_inst.rd     = REG_S2;
-            DISPATCH(0, dec_inst);
-        end
 
         #3000;
 

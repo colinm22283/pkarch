@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 `include "fu.svh"
 `include "commit.svh"
 `include "config.svh"

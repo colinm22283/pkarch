@@ -31,6 +31,12 @@ typedef struct packed {
 } prf_rel_i_t;
 
 typedef struct packed {
+    bit claim;
+
+    prf_addr_t addr;
+} prf_claim_i_t;
+
+typedef struct packed {
     bit valid;
 
     word_t data;

@@ -27,8 +27,9 @@ module busarb_m #(
     reg [MASTER_COUNT - 1:0] master_handled;
     reg [SLAVE_COUNT - 1:0]  slave_handled;
 
-    localparam MASTER_SEL_WIDTH = $clog2(MASTER_COUNT);
-    localparam SLAVE_SEL_WIDTH = $clog2(SLAVE_COUNT);
+    localparam MASTER_SEL_WIDTH = MASTER_COUNT == 1 ? 1 : $clog2(MASTER_COUNT);
+    localparam SLAVE_SEL_WIDTH = SLAVE_COUNT == 1 ? 1 : $clog2(SLAVE_COUNT);
+    localparam CROSSBAR_SEL_WIDTH = CROSSBARS == 1 ? 1 : $clog2(CROSSBARS);
 
     reg [MASTER_SEL_WIDTH - 1:0] master_sel [CROSSBARS - 1:0];
     reg [SLAVE_SEL_WIDTH - 1:0]  slave_sel  [CROSSBARS - 1:0];
@@ -107,7 +108,7 @@ module busarb_m #(
                 endcase
             end
 
-            if (state[($clog2(CROSSBARS))'(crossbar)] == STATE_ACK) begin
+            if (state[CROSSBAR_SEL_WIDTH'(crossbar)] == STATE_ACK) begin
                 crossbar = 0;
                 for (cb = CROSSBARS - 1; cb >= 0; cb = cb - 1) begin
                     if (state[cb] == STATE_READY) crossbar = CROSSBAR_WIDTH'(cb);

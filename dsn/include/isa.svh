@@ -47,6 +47,9 @@ parameter IMM_ERROR = 32'hXXXXXX;
 
 typedef logic [6:0] opcode_t;
 
+parameter OPCODE_REGALU = 7'b0110011;
+parameter OPCODE_IMMALU = 7'b0010011;
+
 typedef struct packed {
     union packed {
         struct packed {
@@ -102,7 +105,11 @@ typedef struct packed {
 
 typedef logic [9:0] funct_t;
 
-parameter FUNCT_ADD  = (`FUNCT_CONCAT(3'h0, 7'h00));
+parameter FUNCT3_ADD = 3'h0;
+
+parameter FUNCT7_ADD = 7'h00;
+
+parameter FUNCT_ADD  = (`FUNCT_CONCAT(FUNCT3_ADD, FUNCT7_ADD));
 parameter FUNCT_SUB  = (`FUNCT_CONCAT(3'h0, 7'h20));
 parameter FUNCT_XOR  = (`FUNCT_CONCAT(3'h4, 7'h00));
 parameter FUNCT_OR   = (`FUNCT_CONCAT(3'h6, 7'h00));

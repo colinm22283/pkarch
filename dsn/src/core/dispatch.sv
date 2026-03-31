@@ -75,6 +75,7 @@ module dispatch_m(
                     end
 
                     if (
+                        entries[i].dec_inst.rs1_a &&
                         !entries[i].rs1_valid &&
                         rename_index < RENAME_WIDTH &&
                         rename_dispatch_i[rename_index].ready
@@ -88,6 +89,7 @@ module dispatch_m(
                     end
 
                     if (
+                        entries[i].dec_inst.rs2_a &&
                         !entries[i].rs2_valid &&
                         rename_index < RENAME_WIDTH &&
                         rename_dispatch_i[rename_index].ready
@@ -101,6 +103,7 @@ module dispatch_m(
                     end
 
                     if (
+                        entries[i].dec_inst.rd_a &&
                         !entries[i].rd_valid &&
                         rename_index < RENAME_WIDTH &&
                         rename_dispatch_i[rename_index].ready
@@ -115,9 +118,9 @@ module dispatch_m(
 
                     if (
                         entries[i].rob_id_valid &&
-                        entries[i].rs1_valid &&
-                        entries[i].rs2_valid &&
-                        entries[i].rd_valid &&
+                        (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
+                        (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
+                        (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
                         res_index < DISPATCH_WIDTH &&
                         res_dispatchi[res_index].ready
                     ) begin
@@ -165,6 +168,7 @@ module dispatch_m(
                 end
 
                 if (
+                    entries[i].dec_inst.rs1_a &&
                     !entries[i].rs1_valid &&
                     rename_index < RENAME_WIDTH
                 ) begin
@@ -176,6 +180,7 @@ module dispatch_m(
                 end
 
                 if (
+                    entries[i].dec_inst.rs2_a &&
                     !entries[i].rs2_valid &&
                     rename_index < RENAME_WIDTH
                 ) begin
@@ -187,6 +192,7 @@ module dispatch_m(
                 end
 
                 if (
+                    entries[i].dec_inst.rd_a &&
                     !entries[i].rd_valid &&
                     rename_index < RENAME_WIDTH
                 ) begin
@@ -199,9 +205,9 @@ module dispatch_m(
 
                 if (
                     entries[i].rob_id_valid &&
-                    entries[i].rs1_valid &&
-                    entries[i].rs2_valid &&
-                    entries[i].rd_valid &&
+                    (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
+                    (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
+                    (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
                     res_index < DISPATCH_WIDTH
                 ) begin
                     res_dispatcho[res_index].valid = 1;

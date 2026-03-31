@@ -51,8 +51,6 @@ module rob_m(
                         entries[tail].valid = 0;
                     end
 
-                    rob_ids[i] = tail;
-
                     size = size + 1;
                     tail = tail + 1;
                 end
@@ -89,6 +87,14 @@ module rob_m(
         index = 0;
 
         dispatch_ready = size != ROB_SIZE;
+
+        rob_ids = 0;
+
+        if (dispatch_any_valid) begin
+            for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
+                rob_ids[i] = tail + ($bits(rob_id_t))'(i);
+            end
+        end
 
         for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
             dispatch_o[i].ready = dispatch_ready;
