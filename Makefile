@@ -11,6 +11,8 @@ export VFLAGS+=--timing
 
 include dsn/sources.mk
 
+export HEADERS=$(shell find $(INCLUDE_DIR) -type f -name "*.svh")
+
 TBS+=example
 TBS+=decoder
 TBS+=rob

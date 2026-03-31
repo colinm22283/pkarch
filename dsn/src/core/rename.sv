@@ -39,42 +39,31 @@ module rename_m(
         else begin
             for (int i = 0; i < RENAME_WIDTH; i++) begin
                 if (dispatch_i[i].valid && dispatch_o[i].ready) begin
-                    prf_addr_t prf_addr;
-
                     if (dispatch_i[i].write) begin
-                        prf_addr = freelist[freelist_head];
-
-                        map_table[dispatch_i[i].isa_addr].prf_addr = prf_addr;
+                        map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
                         map_table[dispatch_i[i].isa_addr].valid = 1;
 
                         freelist_head = freelist_head + 1;
                         freelist_size = freelist_size - 1;
                     end
                     else begin
-                        if (map_table[dispatch_i[i].isa_addr].valid) begin
-                            prf_addr = map_table[dispatch_i[i].isa_addr].prf_addr;
-                        end
-                        else begin
-                            prf_addr = freelist[freelist_head];
-
-                            map_table[dispatch_i[i].isa_addr].prf_addr = prf_addr;
+                        if (!map_table[dispatch_i[i].isa_addr].valid) begin
+                            map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
                             map_table[dispatch_i[i].isa_addr].valid = 1;
 
                             freelist_head = freelist_head + 1;
                             freelist_size = freelist_size - 1;
                         end
                     end
-
-                    prf_addrs[i] = prf_addr;
                 end
             end
 
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
                 if (commit_i[i].valid && commit_o[i].ready) begin
-                    freelist_head = freelist_head - 1;
-                    freelist_size = freelist_size + 1;
-
                     if (map_table[commit_i[i].isa_addr].valid) begin
+                        freelist_head = freelist_head - 1;
+                        freelist_size = freelist_size + 1;
+
                         freelist[freelist_head] = map_table[commit_i[i].isa_addr].prf_addr;
                     end
 
@@ -86,6 +75,25 @@ module rename_m(
     end
 
     always_comb begin
+        for (int i = 0; i < RENAME_WIDTH; i++) begin
+            if (dispatch_i[i].valid && i < freelist_size) begin : TEST
+                if (dispatch_i[i].write) begin
+                    prf_addrs[i] = freelist[freelist_head];
+                end
+                else begin
+                    if (map_table[dispatch_i[i].isa_addr].valid) begin
+                        prf_addrs[i] = map_table[dispatch_i[i].isa_addr].prf_addr;
+                    end
+                    else begin
+                        prf_addrs[i] = freelist[freelist_head];
+                    end
+                end
+            end
+            else begin
+                prf_addrs[i] = 0;
+            end
+        end
+
         for (int i = 0; i < RENAME_WIDTH; i++) begin
             dispatch_o[i].prf_addr = prf_addrs[i];
 

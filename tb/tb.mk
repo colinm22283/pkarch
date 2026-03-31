@@ -26,8 +26,7 @@ $(BUILD_DIR)/sim.cpp:
 	echo 'return 0;' >> $@
 	echo '}' >> $@
 
-.PHONY: build
-build: $(BUILD_DIR)/sim.cpp
+$(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 	$(VERILATOR) \
 		$(VFLAGS) \
 		--trace-vcd \
@@ -41,6 +40,9 @@ build: $(BUILD_DIR)/sim.cpp
 		$(BUILD_DIR)/sim.cpp \
 		$(DSN_SRCS) \
 		$(TB_SRCS)
+
+.PHONY: build
+build: $(BUILD_DIR)/out
 
 .PHONY: run
 run: build

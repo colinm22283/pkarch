@@ -11,6 +11,9 @@ module top_tb();
         .nrst_o(nrst)
     );
 
+    dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
+    dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
+
     rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_disi;
     rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_diso;
 
@@ -30,11 +33,28 @@ module top_tb();
 
     prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_reli;
 
-    fu_dispatch_i_t fu_disi;
-    fu_dispatch_o_t fu_diso;
+    res_dispatch_i_t [FU_COUNT - 1:0] res_disi;
+    res_dispatch_o_t [FU_COUNT - 1:0] res_diso;
 
     commit_i_t comi, reg_comi;
     commit_o_t como, reg_como;
+
+    dispatch_m dispatch(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .dispatch_i(dispatchi),
+        .dispatch_o(dispatcho),
+
+        .rename_dispatch_i(rename_diso),
+        .rename_dispatch_o(rename_disi),
+
+        .rob_dispatch_i(rob_diso),
+        .rob_dispatch_o(rob_disi),
+
+        .res_dispatch_i(res_diso),
+        .res_dispatch_o(res_disi)
+    );
 
     rename_m rename(
         .clk_i(clk),
@@ -79,8 +99,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .dispatch_i(fu_disi),
-        .dispatch_o(fu_diso),
+        .dispatch_i(res_disi),
+        .dispatch_o(res_diso),
 
         .rport_i(prf_rporto),
         .rport_o(prf_rporti),
@@ -113,71 +133,50 @@ module top_tb();
         .prf_wport_o(prf_wporti)
     );
 
-    bit run_fu;
-    rob_id_t disp_rob_id;
-    prf_addr_t [2:0] prf_addrs;
-
-    always_comb begin
-        fu_disi.valid = run_fu;
-
-        fu_disi.dec_inst.opcode = 7'b0110011;
-        fu_disi.dec_inst.funct  = FUNCT_ADD;
-        fu_disi.dec_inst.rs1    = REG_S0;
-        fu_disi.dec_inst.rs2    = REG_S1;
-        fu_disi.dec_inst.rd     = REG_S2;
-
-        fu_disi.rob_id = disp_rob_id;
-
-        fu_disi.rs1 = prf_addrs[0];
-        fu_disi.rs2 = prf_addrs[1];
-        fu_disi.rd  = prf_addrs[2];
-    end
-
     initial begin
-        run_fu = 0;
+        dec_inst_t dec_inst;
+
+        dispatchi = 0;
 
         clk_rst.RESET();
 
         #100;
 
-        DISPATCH(0, disp_rob_id);
+        prf.mem[0].data  = 1;
+        prf.mem[1].data  = 1;
+        prf.mem[0].valid = 1;
+        prf.mem[1].valid = 1;
 
-        RDISPATCH(0, REG_S0, prf_addrs[0]);
-        RDISPATCH(0, REG_S1, prf_addrs[1]);
-        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
-
-        prf.mem[prf_addrs[0]].data  = 10;
-        prf.mem[prf_addrs[1]].data  = 20;
-        prf.mem[prf_addrs[0]].valid = 1;
-        prf.mem[prf_addrs[1]].valid = 1;
-        #100;
-
-        wait(!clk);
-        run_fu = 1;
-        wait(fu_diso.ready && fu_disi.valid);
-        wait(clk);
-        #1;
-        run_fu = 0;
-
-        DISPATCH(0, disp_rob_id);
-
-        RDISPATCH(0, REG_S0, prf_addrs[0]);
-        RDISPATCH(0, REG_S2, prf_addrs[1]);
-        RDISPATCH_WRITE(0, REG_S2, prf_addrs[2]);
-
-        #100;
-
-        wait(!clk);
-        run_fu = 1;
-        wait(fu_diso.ready && fu_disi.valid);
-        wait(clk);
-        #1;
-        run_fu = 0;
+        dec_inst.opcode = 7'b0110011;
+        dec_inst.funct  = FUNCT_ADD;
+        dec_inst.rs1    = REG_S2;
+        dec_inst.rs2    = REG_S2;
+        dec_inst.rd     = REG_S2;
+        fork
+            DISPATCH(0, dec_inst);
+            DISPATCH(1, dec_inst);
+        join
 
         #3000;
 
         $finish;
     end
+
+    task DISPATCH;
+        input index;
+
+        input dec_inst_t dec_inst;
+    begin
+        wait(!clk);
+        dispatchi[index].valid = 1;
+        dispatchi[index].dec_inst = dec_inst;
+        wait(dispatcho[index].ready);
+        wait(!clk);
+        wait(clk);
+        #1;
+        dispatchi[index].valid = 0;
+    end
+    endtask
 
     initial begin
         #10000;
@@ -186,72 +185,6 @@ module top_tb();
 
         $finish;
     end
-
-    task RDISPATCH;
-        input index;
-
-        input  reg_addr_t isa_addr;
-        output prf_addr_t prf_addr;
-    begin
-        $display("RDISPATCH()");
-
-        wait(!clk);
-
-        rename_disi[index].valid = 1;
-        rename_disi[index].write = 0;
-        rename_disi[index].isa_addr = isa_addr;
-
-        wait(rename_diso[index].ready);
-        wait(clk);
-        #1;
-
-        rename_disi[index].valid = 0;
-        prf_addr = rename_diso[index].prf_addr;
-    end
-    endtask
-
-    task RDISPATCH_WRITE;
-        input index;
-
-        input  reg_addr_t isa_addr;
-        output prf_addr_t prf_addr;
-    begin
-        $display("RDISPATCH_WRITE()");
-
-        wait(!clk);
-
-        rename_disi[index].valid = 1;
-        rename_disi[index].write = 1;
-        rename_disi[index].isa_addr = isa_addr;
-
-        wait(rename_diso[index].ready);
-        wait(clk);
-        #1;
-
-        rename_disi[index].valid = 0;
-        prf_addr = rename_diso[index].prf_addr;
-    end
-    endtask
-
-    task DISPATCH;
-        input index;
-
-        output rob_id_t rob_id;
-    begin
-        $display("DISPATCH()");
-
-        wait(!clk);
-
-        rob_disi[index].valid = 1;
-
-        wait(rob_diso[index].ready);
-        wait(clk);
-        #1;
-
-        rob_id = rob_diso[index].id;
-        rob_disi[index].valid = 0;
-    end
-    endtask
 
 endmodule
 
