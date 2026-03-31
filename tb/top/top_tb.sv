@@ -149,13 +149,19 @@ module top_tb();
 
         dec_inst.opcode = 7'b0110011;
         dec_inst.funct  = FUNCT_ADD;
-        dec_inst.rs1    = REG_S2;
-        dec_inst.rs2    = REG_S2;
+        dec_inst.rs1    = REG_S0;
+        dec_inst.rs2    = REG_S1;
         dec_inst.rd     = REG_S2;
-        fork
+        DISPATCH(0, dec_inst);
+
+        for (int i = 0; i < 2; i++) begin
+            dec_inst.opcode = 7'b0110011;
+            dec_inst.funct  = FUNCT_ADD;
+            dec_inst.rs1    = REG_S1;
+            dec_inst.rs2    = REG_S2;
+            dec_inst.rd     = REG_S2;
             DISPATCH(0, dec_inst);
-            DISPATCH(1, dec_inst);
-        join
+        end
 
         #3000;
 

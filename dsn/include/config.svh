@@ -3,7 +3,7 @@
 
 // CONFIGURABLE
 parameter FETCH_WIDTH = 1;
-parameter DISPATCH_WIDTH = 2;
+parameter DISPATCH_WIDTH = 1;
 parameter RENAME_WIDTH = 1;
 parameter COMMIT_WIDTH = 1;
 
