@@ -170,7 +170,8 @@ module top_tb();
     );
 
     initial begin
-        inst_t inst;
+        int fd;
+        reg [7:0] mem [4095:0];
 
         clk_rst.RESET();
 
@@ -180,46 +181,26 @@ module top_tb();
         // inst.t.r.rs1 = REG_S1;
         // inst.t.r.rd  = REG_S2;
         // inst.opcode = OPCODE_IMMALU;
-
-        inst.t.i.funct3 = FUNCT3_ADD;
-        inst.t.i.rs1    = REG_ZERO;
-        inst.t.i.rd     = REG_S0;
-        inst.t.i.imm0   = 1;
-        inst.opcode     = OPCODE_IMMALU;
-        ram.mem[0] = inst;
-        inst.t.i.rs1    = REG_S0;
-        ram.mem[1] = inst;
-        ram.mem[2] = inst;
-        ram.mem[3] = inst;
-        ram.mem[4] = inst;
+        
+        fd = $fopen("build/prog.bin", "rb");
+        $fread(mem, fd);
+        $fclose(fd);
+        for (int i = 0; i < 4096; i += 4) ram.mem[i / 4] = {
+            mem[i + 3],
+            mem[i + 2],
+            mem[i + 1],
+            mem[i + 0]
+        };
 
         #100;
 
         prf.mem[0].data  = 1;
-        prf.mem[1].data  = 1;
         prf.mem[0].valid = 1;
-        prf.mem[1].valid = 1;
 
         #3000;
 
         $finish;
     end
-
-    task DISPATCH;
-        input index;
-
-        input dec_inst_t dec_inst;
-    begin
-        wait(!clk);
-        dispatchi[index].valid = 1;
-        dispatchi[index].dec_inst = dec_inst;
-        wait(dispatcho[index].ready);
-        wait(!clk);
-        wait(clk);
-        #1;
-        dispatchi[index].valid = 0;
-    end
-    endtask
 
     initial begin
         #10000;

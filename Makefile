@@ -1,4 +1,5 @@
 export TB_DIR=$(CURDIR)/tb
+export PROG_TB_DIR=$(CURDIR)/prog_tb
 export DSN_DIR=$(CURDIR)/dsn
 export SRC_DIR=$(DSN_DIR)/src
 export INCLUDE_DIR=$(DSN_DIR)/include
@@ -29,15 +30,15 @@ all: $(foreach t, $(TBS), run-$t)
 
 .PHONY: clean
 clean: $(foreach t, $(TBS), clean-$t)
-	cd $(PROG_TB_DIR) && $(MAKE)
+	cd $(PROG_TB_DIR) && $(MAKE) clean
 
 .PHONY: prog-%
 prog-%:
-	cd $(PROG_TB_DIR) && $(MAKE) run
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) run
 
 .PHONY: prog_wave-%
 prog_wave-%:
-	cd $(PROG_TB_DIR) && $(MAKE) wave
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) wave
 
 .PHONY: run-%
 run-%:
