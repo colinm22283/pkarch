@@ -175,13 +175,6 @@ module top_tb();
 
         clk_rst.RESET();
 
-        // inst.t.r.funct7 = FUNCT7_ADD;
-        // inst.t.r.funct3 = FUNCT3_ADD;
-        // inst.t.r.rs2 = REG_S0;
-        // inst.t.r.rs1 = REG_S1;
-        // inst.t.r.rd  = REG_S2;
-        // inst.opcode = OPCODE_IMMALU;
-        
         fd = $fopen("build/prog.bin", "rb");
         $fread(mem, fd);
         $fclose(fd);
@@ -192,12 +185,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #100;
-
-        prf.mem[0].data  = 1;
-        prf.mem[0].valid = 1;
-
-        #3000;
+        #8000;
 
         $finish;
     end

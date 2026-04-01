@@ -83,7 +83,7 @@ module dispatch_m(
                         entries[i].rs1_valid <= 1;
                         entries[i].rs1       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RS1 at paddr 0x%h", rename_dispatch_i[rename_index].prf_addr);
+                        $display("Alloc RS1 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs1, rename_dispatch_i[rename_index].prf_addr);
 
                         rename_index++;
                     end
@@ -97,7 +97,7 @@ module dispatch_m(
                         entries[i].rs2_valid <= 1;
                         entries[i].rs2       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RS2 at paddr 0x%h", rename_dispatch_i[rename_index].prf_addr);
+                        $display("Alloc RS2 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs2, rename_dispatch_i[rename_index].prf_addr);
 
                         rename_index++;
                     end
@@ -111,7 +111,7 @@ module dispatch_m(
                         entries[i].rd_valid <= 1;
                         entries[i].rd       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RD at paddr 0x%h", rename_dispatch_i[rename_index].prf_addr);
+                        $display("Alloc RD (r%0d) at paddr 0x%h", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr);
 
                         rename_index++;
                     end
@@ -219,6 +219,8 @@ module dispatch_m(
                     res_dispatcho[res_index].rs1 = entries[i].rs1;
                     res_dispatcho[res_index].rs2 = entries[i].rs2;
                     res_dispatcho[res_index].rd = entries[i].rd;
+
+                    res_dispatcho[res_index].isa_addr = entries[i].dec_inst.rd;
 
                     res_index++;
                 end

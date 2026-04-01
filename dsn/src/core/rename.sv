@@ -38,10 +38,10 @@ module rename_m(
         end
         else begin
             for (int i = 0; i < RENAME_WIDTH; i++) begin
-                if (dispatch_i[i].valid && dispatch_o[i].ready) begin
+                if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
                     if (dispatch_i[i].write) begin
-                        map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
-                        map_table[dispatch_i[i].isa_addr].valid = 1;
+                        // map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
+                        // map_table[dispatch_i[i].isa_addr].valid = 1;
 
                         freelist_head = freelist_head + 1;
                         freelist_size = freelist_size - 1;
@@ -59,14 +59,16 @@ module rename_m(
             end
 
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                if (commit_i[i].valid && commit_o[i].ready) begin
+                if (commit_i[i].valid && commit_o[i].ready && commit_i[i].isa_addr != REG_ZERO) begin
                     if (map_table[commit_i[i].isa_addr].valid) begin
+                        $display("Rename: release r%0d", commit_i[i].isa_addr);
                         freelist_head = freelist_head - 1;
                         freelist_size = freelist_size + 1;
 
                         freelist[freelist_head] = map_table[commit_i[i].isa_addr].prf_addr;
                     end
 
+                    $display("Rename: r%0d valid", commit_i[i].isa_addr);
                     map_table[commit_i[i].isa_addr].valid = 1;
                     map_table[commit_i[i].isa_addr].prf_addr = commit_i[i].prf_addr;
                 end
@@ -95,23 +97,33 @@ module rename_m(
         end
 
         for (int i = 0; i < RENAME_WIDTH; i++) begin
-            dispatch_o[i].prf_addr = prf_addrs[i];
+            if (dispatch_i[i].isa_addr != REG_ZERO) begin
+                dispatch_o[i].prf_addr = prf_addrs[i];
 
-            if (i < freelist_size) begin
-                dispatch_o[i].ready = 1'b1;
+                if (i < freelist_size) begin
+                    dispatch_o[i].ready = 1'b1;
+                end
+                else begin
+                    dispatch_o[i].ready = 1'b0;
+                end
             end
             else begin
-                dispatch_o[i].ready = 1'b0;
+                dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
+                dispatch_o[i].ready    = 1'b1;
             end
         end
 
         for (int i = 0; i < COMMIT_WIDTH; i++) begin
             commit_o[i].ready = 1'b1;
-            
-            if (map_table[commit_i[i].isa_addr].valid) begin
-                prf_rel_o[i].rel  = commit_i[i].valid;
 
-                prf_rel_o[i].addr = map_table[commit_i[i].isa_addr].prf_addr;
+            prf_rel_o[i] = 0;
+            
+            if (commit_i[i].isa_addr != REG_ZERO) begin
+                if (map_table[commit_i[i].isa_addr].valid) begin
+                    prf_rel_o[i].rel  = commit_i[i].valid;
+
+                    prf_rel_o[i].addr = map_table[commit_i[i].isa_addr].prf_addr;
+                end
             end
         end
     end

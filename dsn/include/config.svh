@@ -2,10 +2,10 @@
 `define CONFIG_SVH
 
 // CONFIGURABLE
-parameter FETCH_WIDTH = 1;
+parameter FETCH_WIDTH    = 1;
 parameter DISPATCH_WIDTH = 1;
-parameter RENAME_WIDTH = 1;
-parameter COMMIT_WIDTH = 1;
+parameter RENAME_WIDTH   = 2;
+parameter COMMIT_WIDTH   = 2;
 
 parameter ROB_SIZE = 8;
 parameter ROB_COMMIT_WIDTH = 1;

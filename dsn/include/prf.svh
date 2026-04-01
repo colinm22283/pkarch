@@ -4,7 +4,9 @@
 `include "config.svh"
 `include "defs.svh"
 
-parameter PRF_ADDR_WIDTH = $clog2(PRF_SIZE);
+parameter PRF_ZERO_ADDR = PRF_SIZE;
+
+parameter PRF_ADDR_WIDTH = $clog2(PRF_SIZE + 1);
 
 typedef logic [PRF_ADDR_WIDTH - 1:0] prf_addr_t;
 

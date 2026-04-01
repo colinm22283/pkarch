@@ -15,6 +15,7 @@ typedef struct packed {
     rob_id_t rob_id;
 
     prf_addr_t rs1, rs2, rd;
+    reg_addr_t isa_addr;
 } fu_dispatch_i_t;
 
 typedef struct packed {
@@ -38,6 +39,7 @@ typedef struct packed {
     rob_id_t rob_id;
 
     prf_addr_t rs1, rs2, rd;
+    reg_addr_t isa_addr;
 } res_station_entry_t;
 
 `endif

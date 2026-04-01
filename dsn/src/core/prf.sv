@@ -38,13 +38,15 @@ module prf_m(
         end
         else begin
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                if (prf_rel_i[i].rel) begin
+                if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
+                    $display("Release 0x%h", prf_rel_i[i].addr);
+
                     mem[prf_rel_i[i].addr].valid = 0;
                 end
             end
 
             for (int i = 0; i < PRF_WPORTS; i++) begin
-                if (prf_wport_i[i].we) begin
+                if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
                     $display("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr);
 
                     mem[prf_wport_i[i].addr].valid = 1;
@@ -56,8 +58,14 @@ module prf_m(
 
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            prf_rport_o[i].valid = mem[prf_rport_i[i].addr].valid;
-            prf_rport_o[i].data = mem[prf_rport_i[i].addr].data;
+            if (prf_rport_i[i].addr != PRF_ZERO_ADDR) begin
+                prf_rport_o[i].valid = mem[prf_rport_i[i].addr].valid;
+                prf_rport_o[i].data  = mem[prf_rport_i[i].addr].data;
+            end
+            else begin
+                prf_rport_o[i].valid = 1;
+                prf_rport_o[i].data  = 0;
+            end
         end
     end
 

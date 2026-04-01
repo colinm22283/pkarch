@@ -47,6 +47,8 @@ module res_station_m #(
                     entries[size].rs2 = res_dispatch_i[size].rs2;
                     entries[size].rd = res_dispatch_i[size].rd;
 
+                    entries[size].isa_addr = res_dispatch_i[size].isa_addr;
+
                     size = size + 1;
                 end
             end
@@ -90,6 +92,8 @@ module res_station_m #(
                     fu_dispatch_o[i].rs1 = entries[dispatch_count].rs1;
                     fu_dispatch_o[i].rs2 = entries[dispatch_count].rs2;
                     fu_dispatch_o[i].rd = entries[dispatch_count].rd;
+
+                    fu_dispatch_o[i].isa_addr = entries[dispatch_count].isa_addr;
 
                     dispatch_count = dispatch_count + 1;
                 end
