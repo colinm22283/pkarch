@@ -49,6 +49,8 @@ typedef logic [6:0] opcode_t;
 
 parameter OPCODE_REGALU = 7'b0110011;
 parameter OPCODE_IMMALU = 7'b0010011;
+parameter OPCODE_LOAD   = 7'b0000011;
+parameter OPCODE_STORE  = 7'b0100011;
 
 typedef struct packed {
     union packed {
@@ -119,6 +121,24 @@ parameter FUNCT_SRL  = (`FUNCT_CONCAT(3'h5, 7'h20));
 parameter FUNCT_SRA  = (`FUNCT_CONCAT(3'h5, 7'h00));
 parameter FUNCT_SLT  = (`FUNCT_CONCAT(3'h2, 7'h00));
 parameter FUNCT_SLTU = (`FUNCT_CONCAT(3'h3, 7'h00));
+
+parameter FUNCT3_LB  = 3'h0;
+parameter FUNCT3_LH  = 3'h1;
+parameter FUNCT3_LW  = 3'h2;
+parameter FUNCT3_LBU = 3'h4;
+parameter FUNCT3_LHU = 3'h5;
+
+parameter FUNCT7_LB  = 7'h0;
+parameter FUNCT7_LH  = 7'h0;
+parameter FUNCT7_LW  = 7'h0;
+parameter FUNCT7_LBU = 7'h0;
+parameter FUNCT7_LHU = 7'h0;
+
+parameter FUNCT_LB   = (`FUNCT_CONCAT(FUNCT3_LB, FUNCT7_LB));
+parameter FUNCT_LH   = (`FUNCT_CONCAT(FUNCT3_LH, FUNCT7_LH));
+parameter FUNCT_LW   = (`FUNCT_CONCAT(FUNCT3_LW, FUNCT7_LW));
+parameter FUNCT_LBU  = (`FUNCT_CONCAT(FUNCT3_LBU, FUNCT7_LBU));
+parameter FUNCT_LHU  = (`FUNCT_CONCAT(FUNCT3_LHU, FUNCT7_LHU));
 
 typedef struct packed {
     bit rs1_a, rs2_a, rd_a;

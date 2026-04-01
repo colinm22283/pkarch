@@ -14,15 +14,18 @@ module top_tb();
     bus_miport_t mportai;
     bus_moport_t mportao;
 
+    bus_miport_t mportbi;
+    bus_moport_t mportbo;
+
     bus_siport_t sportai;
     bus_soport_t sportao;
 
-    busarb_m #(1, 1, 1) arbiter(
+    busarb_m #(2, 1, 1) arbiter(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ mportao }),
-        .mports_o({ mportai }),
+        .mports_i({ mportbo, mportao }),
+        .mports_o({ mportbi, mportai }),
 
         .sports_i({ sportao }),
         .sports_o({ sportai })
@@ -61,8 +64,8 @@ module top_tb();
     res_dispatch_i_t [FU_COUNT - 1:0] res_disi;
     res_dispatch_o_t [FU_COUNT - 1:0] res_diso;
 
-    commit_i_t comi, reg_comi;
-    commit_o_t como, reg_como;
+    commit_i_t [FU_COUNT - 1:0] comi, reg_comi;
+    commit_o_t [FU_COUNT - 1:0] como, reg_como;
 
     fetch_m fetch(
         .clk_i(clk),
@@ -135,17 +138,34 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .dispatch_i(res_disi),
-        .dispatch_o(res_diso),
+        .dispatch_i(res_disi[0]),
+        .dispatch_o(res_diso[0]),
 
-        .rport_i(prf_rporto),
-        .rport_o(prf_rporti),
+        .rport_i(prf_rporto[1:0]),
+        .rport_o(prf_rporti[1:0]),
 
-        .commit_i(como),
-        .commit_o(comi)
+        .commit_i(como[0]),
+        .commit_o(comi[0])
     );
 
-    pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg(
+    mem_m #(1, 3) mem(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mport_i(mportbi),
+        .mport_o(mportbo),
+
+        .dispatch_i(res_disi[1]),
+        .dispatch_o(res_diso[1]),
+
+        .rport_i(prf_rporto[2]),
+        .rport_o(prf_rporti[2]),
+
+        .commit_i(como[1]),
+        .commit_o(comi[1])
+    );
+
+    pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
         .clk_i(clk),
         .nrst_i(nrst),
 

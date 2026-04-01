@@ -16,6 +16,7 @@ typedef enum logic [0:0] {
 
 typedef enum logic [1:0] {
     BUS_SIZE_BYTE,
+    BUS_SIZE_HALF,
     BUS_SIZE_WORD,
     BUS_SIZE_STREAM
 } bus_size_t;

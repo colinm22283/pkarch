@@ -55,7 +55,7 @@ module dispatch_m(
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (!entries[i].valid) begin
                     if (dispatch_i[i].valid) begin
-                        $display("NEW ENT");
+                        $display("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode);
                         entries[i].valid <= 1;
 
                         entries[i].dec_inst = dispatch_i[i].dec_inst;

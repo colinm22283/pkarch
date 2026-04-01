@@ -12,6 +12,10 @@ SRCS+=fu/alu/fu.sv
 SRCS+=fu/alu/test.sv
 SRCS+=fu/alu/alu.sv
 
+SRCS+=fu/mem/fu.sv
+SRCS+=fu/mem/test.sv
+SRCS+=fu/mem/mem.sv
+
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/bus_master.sv
