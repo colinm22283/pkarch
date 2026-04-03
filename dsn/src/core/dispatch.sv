@@ -4,6 +4,7 @@
 `include "rename.svh"
 `include "rob.svh"
 `include "fu.svh"
+`include "logger.svh"
 
 module dispatch_m(
     input wire clk_i,
@@ -21,6 +22,8 @@ module dispatch_m(
     input  res_dispatch_o_t [FU_COUNT - 1:0] res_dispatch_i,
     output res_dispatch_i_t [FU_COUNT - 1:0] res_dispatch_o
 );
+
+    `DL_DEFINE(log, "dispatch_m", `DL_BLUE, `DL_ENABLE_DISPATCH);
 
     res_dispatch_o_t res_dispatchi;
     res_dispatch_i_t res_dispatcho;
@@ -55,7 +58,7 @@ module dispatch_m(
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (!entries[i].valid) begin
                     if (dispatch_i[i].valid) begin
-                        $display("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode);
+                        `DL(log, ("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode));
                         entries[i].valid <= 1;
 
                         entries[i].dec_inst = dispatch_i[i].dec_inst;
@@ -71,7 +74,7 @@ module dispatch_m(
                         entries[i].rob_id_valid <= 1;
                         entries[i].rob_id       <= rob_dispatch_i[i].id;
 
-                        $display("Alloc ROB ID of 0x%h", rob_dispatch_i[i].id);
+                        `DL(log, ("Alloc ROB ID of 0x%h", rob_dispatch_i[i].id));
                     end
 
                     if (
@@ -83,7 +86,7 @@ module dispatch_m(
                         entries[i].rs1_valid <= 1;
                         entries[i].rs1       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RS1 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs1, rename_dispatch_i[rename_index].prf_addr);
+                        `DL(log, ("Alloc RS1 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs1, rename_dispatch_i[rename_index].prf_addr));
 
                         rename_index++;
                     end
@@ -97,7 +100,7 @@ module dispatch_m(
                         entries[i].rs2_valid <= 1;
                         entries[i].rs2       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RS2 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs2, rename_dispatch_i[rename_index].prf_addr);
+                        `DL(log, ("Alloc RS2 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs2, rename_dispatch_i[rename_index].prf_addr));
 
                         rename_index++;
                     end
@@ -111,7 +114,7 @@ module dispatch_m(
                         entries[i].rd_valid <= 1;
                         entries[i].rd       <= rename_dispatch_i[rename_index].prf_addr;
 
-                        $display("Alloc RD (r%0d) at paddr 0x%h", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr);
+                        `DL(log, ("Alloc RD (r%0d) at paddr 0x%h", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr));
 
                         rename_index++;
                     end

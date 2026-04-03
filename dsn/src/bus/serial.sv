@@ -1,4 +1,5 @@
 `include "bus.svh"
+`include "logger.svh"
 
 module serial_m #(
     parameter ADDRESS = 0
@@ -9,6 +10,8 @@ module serial_m #(
     input  bus_siport_t sport_i,
     output bus_soport_t sport_o
 );
+
+    `DL_DEFINE(log, "serial_m", `DL_GREEN, `DL_ENABLE_SERIAL);
 
     initial forever begin
         wait(sport_i.req);
@@ -21,7 +24,7 @@ module serial_m #(
             wait(!clk_i);
             wait(clk_i);
 
-            $display("SERIAL:                                             0x%x", sport_i.data);
+            `DL(log, ("SERIAL: 0x%x", sport_i.data));
 
             sport_o.ack = 0;
         end

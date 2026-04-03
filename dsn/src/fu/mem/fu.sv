@@ -1,6 +1,7 @@
 `include "fu.svh"
 `include "commit.svh"
 `include "prf.svh"
+`include "logger.svh"
 
 module mem_fu_m(
     input wire clk_i,
@@ -18,6 +19,8 @@ module mem_fu_m(
     input  commit_o_t commit_i,
     output commit_i_t commit_o
 );
+
+    `DL_DEFINE(log, "mem_fu_m", `DL_YELLOW, `DL_ENABLE_MEM_FU);
 
     word_t write_data;
     word_t read_data;
@@ -61,7 +64,7 @@ module mem_fu_m(
                         if (rw == BUS_RW_READ) begin
                             state <= STATE_WAIT_READ;
 
-                            $display("mem: Read 0x%x from 0x%x", mport_i.data, mport_o.addr);
+                            `DL(log, ("Read 0x%x from 0x%x", mport_i.data, mport_o.addr));
 
                             read_data <= mport_i.data;
 
@@ -71,7 +74,7 @@ module mem_fu_m(
                         if (rw == BUS_RW_WRITE) begin
                             state <= STATE_WAIT_WRITE;
 
-                            $display("mem: Write 0x%x to 0x%x", write_data, mport_o.addr);
+                            `DL(log, ("Write 0x%x to 0x%x", write_data, mport_o.addr));
 
                             mport_o.req  <= 0;
                         end

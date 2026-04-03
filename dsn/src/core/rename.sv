@@ -1,6 +1,7 @@
 `include "config.svh"
 `include "rename.svh"
 `include "prf.svh"
+`include "logger.svh"
 
 module rename_m(
     input wire clk_i,
@@ -14,6 +15,8 @@ module rename_m(
 
     output prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_o
 );
+
+    `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
@@ -61,14 +64,14 @@ module rename_m(
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
                 if (commit_i[i].valid && commit_o[i].ready && commit_i[i].isa_addr != REG_ZERO) begin
                     if (map_table[commit_i[i].isa_addr].valid) begin
-                        $display("Rename: release r%0d", commit_i[i].isa_addr);
+                        `DL(log, ("release r%0d", commit_i[i].isa_addr));
                         freelist_head = freelist_head - 1;
                         freelist_size = freelist_size + 1;
 
                         freelist[freelist_head] = map_table[commit_i[i].isa_addr].prf_addr;
                     end
 
-                    $display("Rename: r%0d valid", commit_i[i].isa_addr);
+                    `DL(log, ("r%0d valid", commit_i[i].isa_addr));
                     map_table[commit_i[i].isa_addr].valid = 1;
                     map_table[commit_i[i].isa_addr].prf_addr = commit_i[i].prf_addr;
                 end

@@ -3,6 +3,7 @@
 `include "config.svh"
 `include "prf.svh"
 `include "defs.svh"
+`include "logger.svh"
 
 module prf_m(
     input wire clk_i,
@@ -15,6 +16,8 @@ module prf_m(
 
     input  prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_i
 );
+
+    `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
     prf_entry_t [PRF_SIZE - 1:0] mem;
 
@@ -39,7 +42,7 @@ module prf_m(
         else begin
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
                 if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
-                    $display("Release 0x%h", prf_rel_i[i].addr);
+                    `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
 
                     mem[prf_rel_i[i].addr].valid = 0;
                 end
@@ -47,7 +50,7 @@ module prf_m(
 
             for (int i = 0; i < PRF_WPORTS; i++) begin
                 if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
-                    $display("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr);
+                    `DL(log, ("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr));
 
                     mem[prf_wport_i[i].addr].valid = 1;
                     mem[prf_wport_i[i].addr].data = prf_wport_i[i].data;
