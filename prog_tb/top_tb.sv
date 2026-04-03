@@ -24,8 +24,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ mportbo, mportao }),
-        .mports_o({ mportbi, mportai }),
+        .mports_i({ mportao, mportbo }),
+        .mports_o({ mportai, mportbi }),
 
         .sports_i({ sportao }),
         .sports_o({ sportai })
