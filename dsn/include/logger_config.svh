@@ -9,12 +9,12 @@
 `define DL_ENABLE_SERIAL 1
 
 // fu
-`define DL_ENABLE_MEM_FU 0
+`define DL_ENABLE_MEM_FU 1
 
 // core
-`define DL_ENABLE_DISPATCH 0
-`define DL_ENABLE_PRF      0
-`define DL_ENABLE_RENAME   0
+`define DL_ENABLE_DISPATCH 1
+`define DL_ENABLE_PRF      1
+`define DL_ENABLE_RENAME   1
 
 `endif
 
