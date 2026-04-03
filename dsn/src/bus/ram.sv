@@ -58,12 +58,16 @@ module ram_m #(
                             sport_o.data <= { 24'h000000, mem[addr][subaddr * 8 +: 8] };
 
                             state <= STATE_DONE;
+
+                            // $display("RAM: Read 0x%x from 0x%x", mem[addr][subaddr * 8 +: 8], sport_i.addr);
                         end
 
                         BUS_SIZE_WORD: begin
                             sport_o.data <= mem[addr];
 
                             state <= STATE_DONE;
+
+                            // $display("RAM: Read 0x%x from 0x%x", mem[addr], sport_i.addr);
                         end
 
                         BUS_SIZE_STREAM: begin
@@ -87,12 +91,16 @@ module ram_m #(
                             mem[addr][subaddr * 8 +: 8] <= sport_i.data[7:0];
 
                             state <= STATE_DONE;
+
+                            // $display("RAM: Write 0x%x to 0x%x", sport_i.data[7:0], sport_i.addr);
                         end
 
                         BUS_SIZE_WORD: begin
                             mem[addr] <= sport_i.data;
 
                             state <= STATE_DONE;
+
+                            // $display("RAM: Write 0x%x to 0x%x", sport_i.data, sport_i.addr);
                         end
 
                         BUS_SIZE_STREAM: begin

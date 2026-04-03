@@ -13,7 +13,7 @@ parameter ROB_COMMIT_WIDTH = 1;
 parameter FU_COUNT = 2;
 
 parameter PRF_SIZE = 10;
-parameter PRF_RPORTS = 3;
+parameter PRF_RPORTS = 4;
 // CONFIGURABLE
 
 

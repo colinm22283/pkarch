@@ -35,10 +35,11 @@ module commit_m(
 
                 rob_commit_o[commit_num].valid  = 1;
                 rob_commit_o[commit_num].rob_id = commit_i[i].rob_id;
+                rob_commit_o[commit_num].rd_a   = commit_i[i].rd_a;
                 rob_commit_o[commit_num].isa_addr = commit_i[i].isa_addr;
                 rob_commit_o[commit_num].prf_addr = commit_i[i].rd;
 
-                prf_wport_o[commit_num].we = 1;
+                prf_wport_o[commit_num].we = commit_i[i].rd_a;
                 prf_wport_o[commit_num].addr = commit_i[i].rd;
                 prf_wport_o[commit_num].data = commit_i[i].value;
 

@@ -20,15 +20,18 @@ module top_tb();
     bus_siport_t sportai;
     bus_soport_t sportao;
 
-    busarb_m #(2, 1, 1) arbiter(
+    bus_siport_t sportbi;
+    bus_soport_t sportbo;
+
+    busarb_m #(2, 2, 2) arbiter(
         .clk_i(clk),
         .nrst_i(nrst),
 
         .mports_i({ mportao, mportbo }),
         .mports_o({ mportai, mportbi }),
 
-        .sports_i({ sportao }),
-        .sports_o({ sportai })
+        .sports_i({ sportao, sportbo }),
+        .sports_o({ sportai, sportbi })
     );
 
     ram_m #(0, 1024) ram(
@@ -37,6 +40,14 @@ module top_tb();
 
         .sport_i(sportai),
         .sport_o(sportao)
+    );
+
+    serial_m #(256) serial(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportbi),
+        .sport_o(sportbo)
     );
 
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
@@ -158,8 +169,8 @@ module top_tb();
         .dispatch_i(res_disi[1]),
         .dispatch_o(res_diso[1]),
 
-        .rport_i(prf_rporto[2]),
-        .rport_o(prf_rporti[2]),
+        .rport_i(prf_rporto[3:2]),
+        .rport_o(prf_rporti[3:2]),
 
         .commit_i(como[1]),
         .commit_o(comi[1])

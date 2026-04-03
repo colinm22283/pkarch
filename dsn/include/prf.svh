@@ -11,9 +11,9 @@ parameter PRF_ADDR_WIDTH = $clog2(PRF_SIZE + 1);
 typedef logic [PRF_ADDR_WIDTH - 1:0] prf_addr_t;
 
 typedef struct packed {
+    bit we;
     prf_addr_t addr;
     word_t data;
-    bit we;
 } prf_wport_i_t;
 
 typedef struct packed {

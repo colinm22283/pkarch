@@ -23,6 +23,8 @@ module rob_m(
 
     rob_entry_t [ROB_SIZE - 1:0] entries;
 
+    logic [ROB_SIZE - 1:0] commit_entry;
+
     logic dispatch_any_valid;
     always_comb begin
         dispatch_any_valid = 0;
@@ -59,6 +61,7 @@ module rob_m(
             for (int i = 0; i < ROB_COMMIT_WIDTH; i++) begin
                 if (commit_i[i].valid) begin
                     entries[commit_i[i].rob_id].busy = 0;
+                    entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
                     entries[commit_i[i].rob_id].isa_rd = commit_i[i].isa_addr;
                     entries[commit_i[i].rob_id].prf_rd = commit_i[i].prf_addr;
                 end
@@ -69,7 +72,7 @@ module rob_m(
 
                 index = ROB_ID_WIDTH'((i + 32'(head)) % ROB_SIZE);
 
-                if (rename_commit_o[i].valid) begin
+                if (commit_entry[i]) begin
                     entries[index].valid = 0;
 
                     size = size - 1;
@@ -106,6 +109,7 @@ module rob_m(
         end
 
         rename_commit_o = 0;
+        commit_entry = 0;
 
         for (int i = 0; i < COMMIT_WIDTH; i++) begin
             if (i < size && cont) begin
@@ -114,9 +118,16 @@ module rob_m(
                 cont = 0;
 
                 if (entries[index].valid && !entries[index].busy) begin
-                    rename_commit_o[i].valid = rename_commit_i[i].ready;
-                    rename_commit_o[i].isa_addr = entries[index].isa_rd;
-                    rename_commit_o[i].prf_addr = entries[index].prf_rd;
+                    if (entries[index].rd_a) begin
+                        rename_commit_o[i].valid = rename_commit_i[i].ready;
+                        rename_commit_o[i].isa_addr = entries[index].isa_rd;
+                        rename_commit_o[i].prf_addr = entries[index].prf_rd;
+
+                        commit_entry[i] = rename_commit_i[i].ready;
+                    end
+                    else begin
+                        commit_entry[i] = 1;
+                    end
 
                     cont = 1;
                 end

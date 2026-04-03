@@ -71,8 +71,8 @@ typedef struct packed {
 
         struct packed {
             bit [6:0] imm1;
-            reg_addr_t rs1;
             reg_addr_t rs2;
+            reg_addr_t rs1;
             bit [2:0] funct3;
             reg [4:0] imm0;
         } s;
@@ -139,6 +139,18 @@ parameter FUNCT_LH   = (`FUNCT_CONCAT(FUNCT3_LH, FUNCT7_LH));
 parameter FUNCT_LW   = (`FUNCT_CONCAT(FUNCT3_LW, FUNCT7_LW));
 parameter FUNCT_LBU  = (`FUNCT_CONCAT(FUNCT3_LBU, FUNCT7_LBU));
 parameter FUNCT_LHU  = (`FUNCT_CONCAT(FUNCT3_LHU, FUNCT7_LHU));
+
+parameter FUNCT3_SB  = 3'h0;
+parameter FUNCT3_SH  = 3'h1;
+parameter FUNCT3_SW  = 3'h2;
+
+parameter FUNCT7_SB  = 7'h0;
+parameter FUNCT7_SH  = 7'h0;
+parameter FUNCT7_SW  = 7'h0;
+
+parameter FUNCT_SB   = (`FUNCT_CONCAT(FUNCT3_SB, FUNCT7_SB));
+parameter FUNCT_SH   = (`FUNCT_CONCAT(FUNCT3_SH, FUNCT7_SH));
+parameter FUNCT_SW   = (`FUNCT_CONCAT(FUNCT3_SW, FUNCT7_SW));
 
 typedef struct packed {
     bit rs1_a, rs2_a, rd_a;

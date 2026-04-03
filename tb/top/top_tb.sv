@@ -170,7 +170,11 @@ module top_tb();
     );
 
     initial begin
-        inst_t inst;
+        inst_t inst1;
+        inst_t inst2;
+        inst_t inst3;
+        inst_t inst4;
+        inst_t inst5;
 
         clk_rst.RESET();
 
@@ -181,26 +185,53 @@ module top_tb();
         // inst.t.r.rd  = REG_S2;
         // inst.opcode = OPCODE_IMMALU;
 
-        inst.t.i.funct3 = FUNCT3_ADD;
-        inst.t.i.rs1    = REG_ZERO;
-        inst.t.i.rd     = REG_S0;
-        inst.t.i.imm0   = 1;
-        inst.opcode     = OPCODE_IMMALU;
-        ram.mem[0] = inst;
-        inst.t.i.rs1    = REG_S0;
-        ram.mem[1] = inst;
-        ram.mem[2] = inst;
-        ram.mem[3] = inst;
-        ram.mem[4] = inst;
+        inst1.t.i.funct3 = FUNCT3_ADD;
+        inst1.t.i.rs1    = REG_ZERO;
+        inst1.t.i.rd     = REG_S0;
+        inst1.t.i.imm0   = 1;
+        inst1.opcode     = OPCODE_IMMALU;
+
+        inst2.t.i.funct3 = FUNCT3_ADD;
+        inst2.t.i.rs1    = REG_ZERO;
+        inst2.t.i.rd     = REG_S1;
+        inst2.t.i.imm0   = 1;
+        inst2.opcode     = OPCODE_IMMALU;
+
+        inst3.t.i.funct3 = FUNCT3_ADD;
+        inst3.t.i.rs1    = REG_S1;
+        inst3.t.i.rd     = REG_S2;
+        inst3.t.i.imm0   = 0;
+        inst3.opcode     = OPCODE_IMMALU;
+
+        inst4.t.r.funct7 = FUNCT7_ADD;
+        inst4.t.r.funct3 = FUNCT3_ADD;
+        inst4.t.r.rs2    = REG_S0;
+        inst4.t.r.rs1    = REG_S1;
+        inst4.t.r.rd     = REG_S1;
+        inst4.opcode     = OPCODE_REGALU;
+
+        inst5.t.i.funct3 = FUNCT3_ADD;
+        inst5.t.i.rs1    = REG_S2;
+        inst5.t.i.rd     = REG_S0;
+        inst5.t.i.imm0   = 0;
+        inst5.opcode     = OPCODE_IMMALU;
+
+        ram.mem[0] = inst1;
+        ram.mem[1] = inst2;
+        ram.mem[2] = inst3;
+        ram.mem[3] = inst4;
+        ram.mem[4] = inst5;
+
+        ram.mem[5] = inst3;
+        ram.mem[6] = inst4;
+        ram.mem[7] = inst5;
 
         #100;
 
         prf.mem[0].data  = 1;
-        prf.mem[1].data  = 1;
-        prf.mem[0].valid = 1;
-        prf.mem[1].valid = 1;
+        prf.mem[0].valid = 0;
 
-        #3000;
+        #5000;
 
         $finish;
     end

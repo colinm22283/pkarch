@@ -17,8 +17,8 @@ module mem_m #(
     input  res_dispatch_i_t dispatch_i,
     output res_dispatch_o_t dispatch_o,
 
-    input  prf_rport_o_t [WIDTH - 1:0] rport_i,
-    output prf_rport_i_t [WIDTH - 1:0] rport_o,
+    input  prf_rport_o_t [WIDTH * 2 - 1:0] rport_i,
+    output prf_rport_i_t [WIDTH * 2 - 1:0] rport_o,
 
     input  commit_o_t [WIDTH - 1:0] commit_i,
     output commit_i_t [WIDTH - 1:0] commit_o
@@ -61,8 +61,8 @@ module mem_m #(
                 .dispatch_i(fu_dispi[i]),
                 .dispatch_o(fu_dispo[i]),
 
-                .rport_i(rport_i[i]),
-                .rport_o(rport_o[i]),
+                .rport_i(rport_i[i * 2+:2]),
+                .rport_o(rport_o[i * 2+:2]),
 
                 .commit_i(commit_i[i]),
                 .commit_o(commit_o[i])

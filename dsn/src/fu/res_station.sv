@@ -33,21 +33,25 @@ module res_station_m #(
         else begin
             for (int i = 0; i < FU_WIDTH; i++) begin
                 if (fu_ready[i]) begin
+                    for (int j = 0; j < SIZE - 1; j++) begin
+                        entries[j] = entries[j + 1];
+                    end
+
                     size = size - 1;
                 end
             end
 
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (res_dispatch_o[i].ready) begin
-                    entries[size].dec_inst = res_dispatch_i[size].dec_inst;
+                    entries[size].dec_inst = res_dispatch_i[i].dec_inst;
 
-                    entries[size].rob_id = res_dispatch_i[size].rob_id;
+                    entries[size].rob_id = res_dispatch_i[i].rob_id;
 
-                    entries[size].rs1 = res_dispatch_i[size].rs1;
-                    entries[size].rs2 = res_dispatch_i[size].rs2;
-                    entries[size].rd = res_dispatch_i[size].rd;
+                    entries[size].rs1 = res_dispatch_i[i].rs1;
+                    entries[size].rs2 = res_dispatch_i[i].rs2;
+                    entries[size].rd = res_dispatch_i[i].rd;
 
-                    entries[size].isa_addr = res_dispatch_i[size].isa_addr;
+                    entries[size].isa_addr = res_dispatch_i[i].isa_addr;
 
                     size = size + 1;
                 end
@@ -61,7 +65,7 @@ module res_station_m #(
         end
 
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-            if (res_dispatch_i[i].valid && fu_test_i[i].accept && size < SIZE) begin
+            if (res_dispatch_i[i].valid && fu_test_i[i].accept && SIZE_WIDTH'(size + i) < SIZE) begin
                 res_dispatch_o[i].ready = 1'b1;
             end
             else begin

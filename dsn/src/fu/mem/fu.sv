@@ -12,8 +12,8 @@ module mem_fu_m(
     input  fu_dispatch_i_t dispatch_i,
     output fu_dispatch_o_t dispatch_o,
 
-    input  prf_rport_o_t rport_i,
-    output prf_rport_i_t rport_o,
+    input  prf_rport_o_t [1:0] rport_i,
+    output prf_rport_i_t [1:0] rport_o,
 
     input  commit_o_t commit_i,
     output commit_i_t commit_o
@@ -61,13 +61,32 @@ module mem_fu_m(
                         if (rw == BUS_RW_READ) begin
                             state <= STATE_WAIT_READ;
 
+                            $display("mem: Read 0x%x from 0x%x", mport_i.data, mport_o.addr);
+
                             read_data <= mport_i.data;
+
+                            mport_o.req  <= 0;
+                        end
+
+                        if (rw == BUS_RW_WRITE) begin
+                            state <= STATE_WAIT_WRITE;
+
+                            $display("mem: Write 0x%x to 0x%x", write_data, mport_o.addr);
+
+                            mport_o.req  <= 0;
                         end
                     end
                 end
 
                 STATE_WAIT_READ: begin
                     if (commit_i.ready) begin
+                        state <= STATE_IDLE;
+                    end
+                end
+
+                STATE_WAIT_WRITE: begin
+                    if (commit_i.ready) begin
+                        state <= STATE_IDLE;
                     end
                 end
 
@@ -77,10 +96,49 @@ module mem_fu_m(
     end
 
     always_comb begin
-        case (dispatch_i.dec_inst.funct)
-            FUNCT_LB: begin
+        case (dispatch_i.dec_inst.opcode)
+            OPCODE_LOAD: begin
                 rw = BUS_RW_READ;
-                size = BUS_SIZE_BYTE;
+
+                case (dispatch_i.dec_inst.funct)
+                    FUNCT_LB: begin
+                        size = BUS_SIZE_BYTE;
+                    end
+
+                    FUNCT_LH: begin
+                        size = BUS_SIZE_HALF;
+                    end
+
+                    FUNCT_LW: begin
+                        size = BUS_SIZE_WORD;
+                    end
+
+                    default: begin
+                        size = BUS_SIZE_BYTE;
+                    end
+                endcase
+            end
+
+            OPCODE_STORE: begin
+                rw = BUS_RW_WRITE;
+
+                case (dispatch_i.dec_inst.funct)
+                    FUNCT_SB: begin
+                        size = BUS_SIZE_BYTE;
+                    end
+
+                    FUNCT_SH: begin
+                        size = BUS_SIZE_HALF;
+                    end
+
+                    FUNCT_SW: begin
+                        size = BUS_SIZE_WORD;
+                    end
+
+                    default: begin
+                        size = BUS_SIZE_BYTE;
+                    end
+                endcase
             end
 
             default: begin
@@ -89,12 +147,20 @@ module mem_fu_m(
             end
         endcase
 
-        rport_o.addr = dispatch_i.rs1;
+        rport_o[0].addr = dispatch_i.rs1;
+        rport_o[1].addr = dispatch_i.rs2;
 
-        addr = rport_i.data;
+        addr = rport_i[0].data;
         offset = dispatch_i.dec_inst.imm;
 
-        read_ports_valid = rport_i.valid;
+        if (rw == BUS_RW_READ) begin
+            read_ports_valid = rport_i[0].valid;
+        end
+        else begin
+            read_ports_valid = rport_i[0].valid && rport_i[1].valid;
+        end
+
+        write_data = rport_i[1].data;
 
         out_ready = 
             (
@@ -108,6 +174,7 @@ module mem_fu_m(
         commit_o.valid    = out_ready;
         commit_o.rob_id   = dispatch_i.rob_id;
         commit_o.isa_addr = dispatch_i.isa_addr;
+        commit_o.rd_a     = dispatch_i.dec_inst.rd_a;
         commit_o.rd       = dispatch_i.rd;
         commit_o.value    = read_data;
     end
