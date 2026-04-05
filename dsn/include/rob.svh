@@ -3,6 +3,7 @@
 
 `include "isa.svh"
 `include "prf.svh"
+`include "pc.svh"
 
 parameter ROB_ID_WIDTH = $clog2(ROB_SIZE);
 
@@ -36,6 +37,9 @@ typedef struct packed {
     bit valid;
     bit busy;
     bit except;
+    
+    bit jmp;
+    pc_t jmp_target;
 
     bit rd_a;
     reg_addr_t isa_rd;

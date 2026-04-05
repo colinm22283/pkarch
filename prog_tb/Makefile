@@ -52,7 +52,7 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 		$(DSN_SRCS) \
 		$(TB_SRCS)
 
-$(BUILD_DIR)/prog.o:  $(PROG_SRC_DIR)/$(PROG_NAME).s
+$(BUILD_DIR)/prog.o: $(PROG_SRC_DIR)/$(PROG_NAME).s .FORCE
 	mkdir -p $(@D)
 	$(AS) -c $(ASFLAGS) $< -o $@
 
@@ -75,3 +75,5 @@ wave: run
 clean:
 	rm -rf $(BUILD_DIR)
 	
+.FORCE:
+
