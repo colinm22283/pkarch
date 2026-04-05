@@ -40,6 +40,10 @@ prog-%:
 prog_wave-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) wave
 
+.PHONY: objdump-%
+objdump-%:
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) objdump
+
 .PHONY: run-%
 run-%:
 	cd $(TB_DIR)/$* && $(MAKE) run

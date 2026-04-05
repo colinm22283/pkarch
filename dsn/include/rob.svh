@@ -24,6 +24,9 @@ typedef struct packed {
 
     rob_id_t rob_id;
 
+    bit jmp;
+    pc_t jmp_target;
+
     bit rd_a;
     reg_addr_t isa_addr;
     prf_addr_t prf_addr;

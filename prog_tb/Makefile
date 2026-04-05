@@ -2,11 +2,11 @@ BUILD_DIR=build
 PROG_SRC_DIR=src
 
 AS=riscv32-unknown-elf-as
-
-ASFLAGS+=-march=rv32i
-ASFLAGS+=-mabi=ilp32
-
 OBJCOPY=riscv32-unknown-elf-objcopy
+OBJDUMP=riscv32-unknown-elf-objdump
+
+ARCH=rv32i
+ABI=ilp32
 
 TOP_LEVEL=top_tb
 TB_SRCS=$(TOP_LEVEL).sv
@@ -54,7 +54,7 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 
 $(BUILD_DIR)/prog.o: $(PROG_SRC_DIR)/$(PROG_NAME).s .FORCE
 	mkdir -p $(@D)
-	$(AS) -c $(ASFLAGS) $< -o $@
+	$(AS) -c -march=$(ARCH) -mabi=$(ABI) $(ASFLAGS) $< -o $@
 
 $(BUILD_DIR)/prog.bin: $(BUILD_DIR)/prog.o
 	mkdir -p $(@D)
@@ -70,6 +70,10 @@ run: build
 .PHONY: wave
 wave: run
 	$(GTKWAVE) $(BUILD_DIR)/out.vcd
+
+.PHONY: objdump
+objdump: $(BUILD_DIR)/prog.bin
+	$(OBJDUMP) -D -b binary -m riscv:rv32 -M no-aliases -EL $(BUILD_DIR)/prog.bin
 
 .PHONY: clean
 clean:

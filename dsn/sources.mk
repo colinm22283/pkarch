@@ -16,6 +16,10 @@ SRCS+=fu/mem/fu.sv
 SRCS+=fu/mem/test.sv
 SRCS+=fu/mem/mem.sv
 
+SRCS+=fu/jmp/fu.sv
+SRCS+=fu/jmp/test.sv
+SRCS+=fu/jmp/jmp.sv
+
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv

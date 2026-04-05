@@ -47,10 +47,13 @@ parameter IMM_ERROR = 32'hXXXXXX;
 
 typedef logic [6:0] opcode_t;
 
-parameter OPCODE_REGALU = 7'b0110011;
-parameter OPCODE_IMMALU = 7'b0010011;
-parameter OPCODE_LOAD   = 7'b0000011;
-parameter OPCODE_STORE  = 7'b0100011;
+parameter OPCODE_REGALU  = 7'b0110011;
+parameter OPCODE_IMMALU  = 7'b0010011;
+parameter OPCODE_LOAD    = 7'b0000011;
+parameter OPCODE_STORE   = 7'b0100011;
+parameter OPCODE_BRANCH  = 7'b1100011;
+parameter OPCODE_LINK    = 7'b1101111;
+parameter OPCODE_LINKREG = 7'b1100111;
 
 typedef struct packed {
     union packed {
@@ -151,6 +154,27 @@ parameter FUNCT7_SW  = 7'h0;
 parameter FUNCT_SB   = (`FUNCT_CONCAT(FUNCT3_SB, FUNCT7_SB));
 parameter FUNCT_SH   = (`FUNCT_CONCAT(FUNCT3_SH, FUNCT7_SH));
 parameter FUNCT_SW   = (`FUNCT_CONCAT(FUNCT3_SW, FUNCT7_SW));
+
+parameter FUNCT3_BEQ  = 3'h0;
+parameter FUNCT3_BNE  = 3'h1;
+parameter FUNCT3_BLT  = 3'h4;
+parameter FUNCT3_BGE  = 3'h5;
+parameter FUNCT3_BLTU = 3'h6;
+parameter FUNCT3_BGEU = 3'h7;
+
+parameter FUNCT7_BEQ  = 7'h00;
+parameter FUNCT7_BNE  = 7'h00;
+parameter FUNCT7_BLT  = 7'h00;
+parameter FUNCT7_BGE  = 7'h00;
+parameter FUNCT7_BLTU = 7'h00;
+parameter FUNCT7_BGEU = 7'h00;
+
+parameter FUNCT_BEQ  = (`FUNCT_CONCAT(FUNCT3_BEQ, FUNCT7_BEQ));
+parameter FUNCT_BNE  = (`FUNCT_CONCAT(FUNCT3_BNE, FUNCT7_BNE));
+parameter FUNCT_BLT  = (`FUNCT_CONCAT(FUNCT3_BLT, FUNCT7_BLT));
+parameter FUNCT_BGE  = (`FUNCT_CONCAT(FUNCT3_BGE, FUNCT7_BGE));
+parameter FUNCT_BLTU = (`FUNCT_CONCAT(FUNCT3_BLTU, FUNCT7_BLTU));
+parameter FUNCT_BGEU = (`FUNCT_CONCAT(FUNCT3_BGEU, FUNCT7_BGEU));
 
 typedef struct packed {
     bit rs1_a, rs2_a, rd_a;

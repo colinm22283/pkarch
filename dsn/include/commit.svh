@@ -8,6 +8,9 @@ typedef struct packed {
 
     rob_id_t rob_id;
 
+    bit jmp;
+    pc_t jmp_target;
+
     reg_addr_t isa_addr;
     bit rd_a;
     prf_addr_t rd;

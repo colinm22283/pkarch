@@ -176,6 +176,20 @@ module top_tb();
         .commit_o(comi[1])
     );
 
+    jmp_m #(3) jmp(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .dispatch_i(res_disi[2]),
+        .dispatch_o(res_diso[2]),
+
+        .rport_i(prf_rporto[5:4]),
+        .rport_o(prf_rporti[5:4]),
+
+        .commit_i(como[2]),
+        .commit_o(comi[2])
+    );
+
     pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
         .clk_i(clk),
         .nrst_i(nrst),
