@@ -54,7 +54,7 @@ module jmp_fu_m(
                 run = 1;
                 read_ports_valid = 1;
                 jump = 1;
-                offset = dispatch_i.pc + $signed(dispatch_i.dec_inst.imm);
+                offset = $signed(dispatch_i.pc) + $signed(dispatch_i.dec_inst.imm);
             end
 
             OPCODE_LINKREG: begin
@@ -74,6 +74,9 @@ module jmp_fu_m(
     end
 
     always_comb begin
+        rport_o[0].addr = dispatch_i.rs1;
+        rport_o[1].addr = dispatch_i.rs2;
+
         dispatch_o.ready = commit_i.ready && read_ports_valid;
         
         commit_o.valid = run;

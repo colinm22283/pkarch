@@ -15,6 +15,8 @@
 `define DL_ENABLE_DISPATCH 1
 `define DL_ENABLE_PRF      1
 `define DL_ENABLE_RENAME   1
+`define DL_ENABLE_FETCH    1
+`define DL_ENABLE_ROB      1
 
 `endif
 

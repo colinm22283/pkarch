@@ -3,6 +3,7 @@
 `include "config.svh"
 `include "rob.svh"
 `include "rename.svh"
+`include "fetch.svh"
 
 module rob_m(
     input wire clk_i,
@@ -15,8 +16,13 @@ module rob_m(
     output rob_commit_o_t [ROB_COMMIT_WIDTH - 1:0] commit_o,
 
     input  rename_commit_o_t [COMMIT_WIDTH - 1:0] rename_commit_i,
-    output rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_commit_o
+    output rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_commit_o,
+
+    input  fetch_jump_o_t jump_i,
+    output fetch_jump_i_t jump_o
 );
+
+    `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);
 
     rob_id_t head, tail;
     logic [$clog2(ROB_SIZE + 1) - 1:0] size;
@@ -88,6 +94,8 @@ module rob_m(
         logic cont;
         rob_id_t index;
 
+        jump_o = 0;
+
         cont = 1;
         index = 0;
 
@@ -120,18 +128,28 @@ module rob_m(
                 cont = 0;
 
                 if (entries[index].valid && !entries[index].busy) begin
+                    commit_entry[i] = 1;
+
+                    cont = 1;
+
                     if (entries[index].rd_a) begin
                         rename_commit_o[i].valid = rename_commit_i[i].ready;
                         rename_commit_o[i].isa_addr = entries[index].isa_rd;
                         rename_commit_o[i].prf_addr = entries[index].prf_rd;
 
-                        commit_entry[i] = rename_commit_i[i].ready;
-                    end
-                    else begin
-                        commit_entry[i] = 1;
+                        commit_entry[i] &= rename_commit_i[i].ready;
+
+                        if (!rename_commit_i[i].ready) cont = 0;
                     end
 
-                    cont = 1;
+                    if (entries[index].jmp) begin
+                        jump_o.valid = 1;
+                        jump_o.target = entries[index].jmp_target;
+
+                        commit_entry[i] &= jump_i.ready;
+
+                        cont = 0;
+                    end
                 end
             end
         end

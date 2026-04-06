@@ -50,6 +50,10 @@ module top_tb();
         .sport_o(sportbo)
     );
 
+    fetch_jump_i_t jumpi;
+    fetch_jump_o_t jumpo;
+    logic flush;
+    
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
 
@@ -85,6 +89,11 @@ module top_tb();
         .mport_i(mportai),
         .mport_o(mportao),
 
+        .jump_i(jumpi),
+        .jump_o(jumpo),
+
+        .flush_o(flush),
+
         .dispatch_i(dispatcho),
         .dispatch_o(dispatchi)
     );
@@ -92,6 +101,8 @@ module top_tb();
     dispatch_m dispatch(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .dispatch_i(dispatchi),
         .dispatch_o(dispatcho),
@@ -130,7 +141,10 @@ module top_tb();
         .commit_o(rob_como),
 
         .rename_commit_i(rename_como),
-        .rename_commit_o(rename_comi)
+        .rename_commit_o(rename_comi),
+
+        .jump_i(jumpo),
+        .jump_o(jumpi)
     );
 
     prf_m prf(

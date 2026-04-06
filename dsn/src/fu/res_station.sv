@@ -43,6 +43,8 @@ module res_station_m #(
 
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (res_dispatch_o[i].ready) begin
+                    entries[size].pc = res_dispatch_i[i].pc;
+                    
                     entries[size].dec_inst = res_dispatch_i[i].dec_inst;
 
                     entries[size].rob_id = res_dispatch_i[i].rob_id;
@@ -88,6 +90,8 @@ module res_station_m #(
                     end
 
                     fu_dispatch_o[i].valid = 1;
+
+                    fu_dispatch_o[i].pc = entries[dispatch_count].pc;
 
                     fu_dispatch_o[i].dec_inst = entries[dispatch_count].dec_inst;
 

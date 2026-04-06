@@ -37,6 +37,8 @@ typedef fu_dispatch_i_t [DISPATCH_WIDTH - 1:0] res_dispatch_i_t;
 typedef fu_dispatch_o_t [DISPATCH_WIDTH - 1:0] res_dispatch_o_t;
 
 typedef struct packed {
+    pc_t pc;
+
     dec_inst_t dec_inst;
 
     rob_id_t rob_id;

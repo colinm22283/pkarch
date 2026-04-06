@@ -3,6 +3,8 @@
 `include "isa.svh"
 `include "bus.svh"
 `include "dispatch.svh"
+`include "fetch.svh"
+`include "logger.svh"
 
 module fetch_m(
     input wire clk_i,
@@ -11,9 +13,16 @@ module fetch_m(
     input  bus_miport_t mport_i,
     output bus_moport_t mport_o,
 
+    input  fetch_jump_i_t jump_i,
+    output fetch_jump_o_t jump_o,
+
+    output wire flush_o,
+
     input  dispatch_o_t dispatch_i,
     output dispatch_i_t dispatch_o
 );
+
+    `DL_DEFINE(log, "fetch_m", `DL_GREEN, `DL_ENABLE_FETCH);
 
     logic [2:0] state;
 
@@ -35,9 +44,17 @@ module fetch_m(
             mport_o <= 0;
         end
         else begin
+            flush_o <= 0;
+
             case (state)
                 0: begin
-                    if (!inst_ready) begin
+                    if (jump_i.valid) begin
+                        `DL(log, ("Jump requested to 0x%x", jump_i.target));
+
+                        pc <= jump_i.target;
+                        flush_o <= 1;
+                    end
+                    else if (!inst_ready) begin
                         state <= 1;
 
                         mport_o.rw     <= BUS_RW_READ;
@@ -64,6 +81,8 @@ module fetch_m(
                         inst_pc    <= pc;
                         inst       <= mport_i.data;
 
+                        `DL(log, ("Loaded instruction from 0x%x", pc));
+
                         pc <= pc + 4;
                     end
                 end
@@ -76,6 +95,8 @@ module fetch_m(
     end
 
     always_comb begin
+        jump_o.ready = state == 0;
+
         dispatch_o.valid    = inst_ready;
         dispatch_o.pc       = inst_pc;
         dispatch_o.dec_inst = dec_inst;
