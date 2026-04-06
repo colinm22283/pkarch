@@ -61,6 +61,8 @@ module rob_m(
             for (int i = 0; i < ROB_COMMIT_WIDTH; i++) begin
                 if (commit_i[i].valid) begin
                     entries[commit_i[i].rob_id].busy = 0;
+                    entries[commit_i[i].rob_id].jmp  = commit_i[i].jmp;
+                    entries[commit_i[i].rob_id].jmp_target = commit_i[i].jmp_target;
                     entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
                     entries[commit_i[i].rob_id].isa_rd = commit_i[i].isa_addr;
                     entries[commit_i[i].rob_id].prf_rd = commit_i[i].prf_addr;

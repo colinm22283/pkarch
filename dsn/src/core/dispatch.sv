@@ -61,7 +61,9 @@ module dispatch_m(
                         `DL(log, ("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode));
                         entries[i].valid <= 1;
 
-                        entries[i].dec_inst = dispatch_i[i].dec_inst;
+                        entries[i].pc <= dispatch_i[i].pc;
+
+                        entries[i].dec_inst <= dispatch_i[i].dec_inst;
 
                         entries[i].rob_id_valid <= 0;
                         entries[i].rs1_valid    <= 0;
@@ -214,6 +216,8 @@ module dispatch_m(
                     res_index < DISPATCH_WIDTH
                 ) begin
                     res_dispatcho[res_index].valid = 1;
+
+                    res_dispatcho[res_index].pc = entries[i].pc;
 
                     res_dispatcho[res_index].dec_inst = entries[i].dec_inst;
 

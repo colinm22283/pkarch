@@ -6,5 +6,6 @@
 parameter PC_WIDTH = BUS_ADDR_WIDTH;
 
 typedef logic [PC_WIDTH - 1:0] pc_t;
+typedef logic signed [PC_WIDTH - 1:0] spc_t;
 
 `endif

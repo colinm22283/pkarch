@@ -21,6 +21,7 @@ module fetch_m(
     
     logic inst_ready;
     inst_t inst;
+    pc_t inst_pc;
     dec_inst_t dec_inst;
 
     always_ff @(posedge clk_i) begin
@@ -60,6 +61,7 @@ module fetch_m(
                         mport_o.req <= 0;
 
                         inst_ready <= 1;
+                        inst_pc    <= pc;
                         inst       <= mport_i.data;
 
                         pc <= pc + 4;
@@ -74,7 +76,8 @@ module fetch_m(
     end
 
     always_comb begin
-        dispatch_o.valid = inst_ready;
+        dispatch_o.valid    = inst_ready;
+        dispatch_o.pc       = inst_pc;
         dispatch_o.dec_inst = dec_inst;
     end
 

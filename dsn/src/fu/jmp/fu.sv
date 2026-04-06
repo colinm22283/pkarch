@@ -29,13 +29,14 @@ module jmp_fu_m(
 
     logic jump;
     logic relative;
+    spc_t  offset;
 
     always_comb begin
         case (dispatch_i.dec_inst.opcode)
             OPCODE_BRANCH: begin
                 run = 1;
                 read_ports_valid = rport_i[0].valid && rport_i[1].valid;
-                relative = 1;
+                offset = dispatch_i.pc + $signed(dispatch_i.dec_inst.imm);
 
                 case (dispatch_i.dec_inst.funct)
                     FUNCT_BEQ:  jump = a == b;
@@ -53,23 +54,39 @@ module jmp_fu_m(
                 run = 1;
                 read_ports_valid = 1;
                 jump = 1;
-                relative = 1;
+                offset = dispatch_i.pc + $signed(dispatch_i.dec_inst.imm);
             end
 
             OPCODE_LINKREG: begin
                 run = 1;
                 read_ports_valid = rport_i[0].valid;
                 jump = 1;
-                relative = 0;
+                offset = $signed(rport_i[0].data);
             end
 
             default: begin
                 run = 0;
                 read_ports_valid = 0;
                 jump = 0;
-                relative = 0;
+                offset = 0;
             end
         endcase
+    end
+
+    always_comb begin
+        dispatch_o.ready = commit_i.ready && read_ports_valid;
+        
+        commit_o.valid = run;
+
+        commit_o.rob_id = dispatch_i.rob_id;
+
+        commit_o.jmp = jump;
+        commit_o.jmp_target = offset;
+
+        commit_o.isa_addr = dispatch_i.isa_addr;
+        commit_o.rd_a     = dispatch_i.dec_inst.rd_a;
+        commit_o.rd       = dispatch_i.rd;
+        commit_o.value    = dispatch_i.pc + 4;
     end
 
 endmodule

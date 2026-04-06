@@ -6,9 +6,12 @@
 `include "defs.svh"
 `include "isa.svh"
 `include "rob.svh"
+`include "pc.svh"
 
 typedef struct packed {
     bit valid;
+
+    pc_t pc;
 
     dec_inst_t dec_inst;
 
