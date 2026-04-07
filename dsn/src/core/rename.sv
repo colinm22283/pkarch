@@ -7,7 +7,8 @@ module rename_m(
     input wire clk_i,
     input wire nrst_i,
 
-    input wire flush_i,
+    input  wire flush_i,
+    output wire flush_complete_o,
 
     input  rename_dispatch_i_t [RENAME_WIDTH - 1:0] dispatch_i,
     output rename_dispatch_o_t [RENAME_WIDTH - 1:0] dispatch_o,
@@ -19,6 +20,12 @@ module rename_m(
 );
 
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
+
+    prf_addr_t committed_freelist_head;
+    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size;
+    prf_addr_t committed_freelist;
+
+    rename_map_entry_t [REG_COUNT - 1:0] committed_map_table;
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
@@ -32,13 +39,18 @@ module rename_m(
         if (!nrst_i) begin
             freelist_head = 0;
             freelist_size = ($bits(freelist_size))'(PRF_SIZE);
+
+            committed_freelist_head = 0;
+            committed_freelist_size = ($bits(freelist_size))'(PRF_SIZE);
             
             for (int i = 0; i < PRF_SIZE; i++) begin
                 freelist[i] = PRF_ADDR_WIDTH'(i);
+                committed_freelist[i] = PRF_ADDR_WIDTH'(i);
             end
 
             for (int i = 0; i < REG_COUNT; i++) begin
                 map_table[i].valid = 0;
+                committed_map_table[i].valid = 0;
             end
         end
         else begin

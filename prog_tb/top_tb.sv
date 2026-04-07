@@ -52,7 +52,9 @@ module top_tb();
 
     fetch_jump_i_t jumpi;
     fetch_jump_o_t jumpo;
+
     logic flush;
+    logic rename_flush_complete;
     
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
@@ -122,6 +124,7 @@ module top_tb();
         .nrst_i(nrst),
 
         .flush_i(flush),
+        .flush_complete_o(rename_flush_complete),
 
         .dispatch_i(rename_disi),
         .dispatch_o(rename_diso),
