@@ -22,7 +22,7 @@ module fetch_m(
     output dispatch_i_t dispatch_o
 );
 
-    `DL_DEFINE(log, "fetch_m", `DL_GREEN, `DL_ENABLE_FETCH);
+    `DL_DEFINE(log, "fetch_m", `DL_CYAN, `DL_ENABLE_FETCH);
 
     logic [2:0] state;
 

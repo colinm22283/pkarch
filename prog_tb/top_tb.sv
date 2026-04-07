@@ -121,6 +121,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
+        .flush_i(flush),
+
         .dispatch_i(rename_disi),
         .dispatch_o(rename_diso),
 
@@ -133,6 +135,8 @@ module top_tb();
     rob_m rob(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .dispatch_i(rob_disi),
         .dispatch_o(rob_diso),
@@ -163,6 +167,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
+        .flush_i(flush),
+
         .dispatch_i(res_disi[0]),
         .dispatch_o(res_diso[0]),
 
@@ -176,6 +182,8 @@ module top_tb();
     mem_m #(1, 3) mem(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .mport_i(mportbi),
         .mport_o(mportbo),
@@ -193,6 +201,8 @@ module top_tb();
     jmp_m #(3) jmp(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .dispatch_i(res_disi[2]),
         .dispatch_o(res_diso[2]),

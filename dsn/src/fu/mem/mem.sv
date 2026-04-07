@@ -11,6 +11,8 @@ module mem_m #(
     input wire clk_i,
     input wire nrst_i,
 
+    input wire flush_i,
+
     input  bus_miport_t mport_i,
     output bus_moport_t mport_o,
 
@@ -38,6 +40,8 @@ module mem_m #(
     res_station_m #(RES_SIZE, WIDTH) res_stations(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
+
+        .flush_i(flush_i),
 
         .res_dispatch_i(dispatch_i),
         .res_dispatch_o(dispatch_o),

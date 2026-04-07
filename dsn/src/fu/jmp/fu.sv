@@ -61,7 +61,7 @@ module jmp_fu_m(
                 run = 1;
                 read_ports_valid = rport_i[0].valid;
                 jump = 1;
-                offset = $signed(rport_i[0].data);
+                offset = $signed(rport_i[0].data) + $signed(dispatch_i.dec_inst.imm);
             end
 
             default: begin

@@ -9,6 +9,8 @@ module res_station_m #(
     input wire clk_i,
     input wire nrst_i,
 
+    input wire flush_i,
+
     input  res_dispatch_i_t res_dispatch_i,
     output res_dispatch_o_t res_dispatch_o,
 

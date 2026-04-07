@@ -9,6 +9,8 @@ module jmp_m #(
     input wire clk_i,
     input wire nrst_i,
 
+    input wire flush_i,
+
     input  res_dispatch_i_t dispatch_i,
     output res_dispatch_o_t dispatch_o,
 
@@ -33,6 +35,8 @@ module jmp_m #(
     res_station_m #(RES_SIZE, 1) res_stations(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
+
+        .flush_i(flush_i),
 
         .res_dispatch_i(dispatch_i),
         .res_dispatch_o(dispatch_o),

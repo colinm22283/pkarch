@@ -9,12 +9,17 @@ entry:
     .loop:
         sw   s0, 0(a0)
 
-        addi s2, s1, 0
-        add  s1, s0, s1
-        addi s0, s2, 0
+        jal s4, test_funct
 
         blt s0, s3, .loop
 
-halt:
-    j halt
+    .halt:
+        j .halt
+
+test_funct:
+    addi s2, s1, 0
+    add  s1, s0, s1
+    addi s0, s2, 0
+    
+    jr s4
 
