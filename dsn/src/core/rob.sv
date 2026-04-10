@@ -147,7 +147,6 @@ module rob_m(
                         cont = 1;
 
                         if (entries[index].rd_a) begin
-                            rename_commit_o[i].valid = rename_commit_i[i].ready;
                             rename_commit_o[i].isa_addr = entries[index].isa_rd;
                             rename_commit_o[i].prf_addr = entries[index].prf_rd;
 
@@ -157,12 +156,21 @@ module rob_m(
                         end
 
                         if (entries[index].jmp) begin
-                            jump_o.valid = 1;
                             jump_o.target = entries[index].jmp_target;
 
                             commit_entry[i] &= jump_i.ready;
 
                             cont = 0;
+                        end
+
+                        if (commit_entry[i]) begin
+                            if (entries[index].rd_a) begin
+                                rename_commit_o[i].valid = 1;
+                            end
+
+                            if (entries[index].jmp) begin
+                                jump_o.valid = 1;
+                            end
                         end
                     end
                 end

@@ -1,17 +1,17 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
-`include "bus.svh"
 `include "dispatch.svh"
 `include "fetch.svh"
 `include "logger.svh"
+`include "icache.svh"
 
 module fetch_m(
     input wire clk_i,
     input wire nrst_i,
 
-    input  bus_miport_t mport_i,
-    output bus_moport_t mport_o,
+    input  icache_o_t icache_i,
+    output icache_i_t icache_o,
 
     input  fetch_jump_i_t jump_i,
     output fetch_jump_o_t jump_o,
@@ -40,8 +40,6 @@ module fetch_m(
             pc <= 0;
 
             inst_ready <= 0;
-
-            mport_o <= 0;
         end
         else begin
             flush_o <= 0;
@@ -57,33 +55,24 @@ module fetch_m(
                     else if (!inst_ready) begin
                         state <= 1;
 
-                        mport_o.rw     <= BUS_RW_READ;
-                        mport_o.size   <= BUS_SIZE_WORD;
-                        mport_o.seqmst <= 0;
-                        mport_o.req    <= 1;
-                        mport_o.addr   <= pc;
+                        icache_o.req  <= 1;
+                        icache_o.addr <= pc;
                     end
                 end
 
                 1: begin
-                    if (mport_i.ack) begin
-                        state <= 2;
-                    end
-                end
-
-                2: begin
-                    if (!mport_i.ack) begin
+                    if (icache_i.ack) begin
                         state <= 0;
 
-                        mport_o.req <= 0;
+                        icache_o.req <= 0;
 
                         inst_ready <= 1;
+                        inst       <= icache_i.data;
                         inst_pc    <= pc;
-                        inst       <= mport_i.data;
-
-                        `DL(log, ("Loaded instruction from 0x%x", pc));
 
                         pc <= pc + 4;
+
+                        `DL(log, ("Loaded instruction from 0x%x", pc));
                     end
                 end
             endcase

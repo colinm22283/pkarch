@@ -1,4 +1,5 @@
 SRCS+=core/fetch.sv
+SRCS+=core/issue_queue.sv
 SRCS+=core/decoder.sv
 SRCS+=core/dispatch.sv
 SRCS+=core/rob.sv
@@ -21,6 +22,7 @@ SRCS+=fu/jmp/test.sv
 SRCS+=fu/jmp/jmp.sv
 
 SRCS+=bus/busarb.sv
+SRCS+=bus/icache.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
 SRCS+=bus/bus_master.sv

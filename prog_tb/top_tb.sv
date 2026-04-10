@@ -1,6 +1,7 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
+`include "icache.svh"
 
 module top_tb();
 
@@ -22,6 +23,9 @@ module top_tb();
 
     bus_siport_t sportbi;
     bus_soport_t sportbo;
+
+    icache_i_t icachei;
+    icache_o_t icacheo;
 
     busarb_m #(2, 2, 2) arbiter(
         .clk_i(clk),
@@ -50,6 +54,17 @@ module top_tb();
         .sport_o(sportbo)
     );
 
+    icache_m #(10, 5, 2) icache(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .icache_i(icachei),
+        .icache_o(icacheo),
+
+        .mport_i(mportai),
+        .mport_o(mportao)
+    );
+
     fetch_jump_i_t jumpi;
     fetch_jump_o_t jumpo;
 
@@ -58,6 +73,9 @@ module top_tb();
     
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
+    
+    dispatch_i_t [DISPATCH_WIDTH - 1:0] buffered_dispatchi;
+    dispatch_o_t [DISPATCH_WIDTH - 1:0] buffered_dispatcho;
 
     rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_disi;
     rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_diso;
@@ -88,8 +106,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mport_i(mportai),
-        .mport_o(mportao),
+        .icache_i(icacheo),
+        .icache_o(icachei),
 
         .jump_i(jumpi),
         .jump_o(jumpo),
@@ -99,6 +117,17 @@ module top_tb();
         .dispatch_i(dispatcho),
         .dispatch_o(dispatchi)
     );
+    
+    issue_queue_m issue_queue(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sdispatch_i(dispatchi),
+        .sdispatch_o(dispatcho),
+
+        .mdispatch_i(buffered_dispatcho),
+        .mdispatch_o(buffered_dispatchi)
+    );
 
     dispatch_m dispatch(
         .clk_i(clk),
@@ -106,8 +135,8 @@ module top_tb();
 
         .flush_i(flush),
 
-        .dispatch_i(dispatchi),
-        .dispatch_o(dispatcho),
+        .dispatch_i(buffered_dispatchi),
+        .dispatch_o(buffered_dispatcho),
 
         .rename_dispatch_i(rename_diso),
         .rename_dispatch_o(rename_disi),
@@ -243,19 +272,21 @@ module top_tb();
 
     initial begin
         int fd;
-        reg [7:0] mem [4095:0];
+        reg [7:0] mem [255:0];
 
         clk_rst.RESET();
 
         fd = $fopen("build/prog.bin", "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < 4096; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < 255; i += 4) ram.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],
             mem[i + 0]
         };
+
+        $display(ram.mem[0]);
 
         #8000;
 

@@ -23,7 +23,7 @@ module rename_m(
 
     prf_addr_t committed_freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size;
-    prf_addr_t committed_freelist;
+    prf_addr_t [PRF_SIZE - 1:0] committed_freelist;
 
     rename_map_entry_t [REG_COUNT - 1:0] committed_map_table;
 
@@ -34,6 +34,8 @@ module rename_m(
     rename_map_entry_t [REG_COUNT - 1:0] map_table;
 
     prf_addr_t [RENAME_WIDTH - 1:0] prf_addrs;
+
+    logic flushing;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -52,9 +54,16 @@ module rename_m(
                 map_table[i].valid = 0;
                 committed_map_table[i].valid = 0;
             end
+
+            flushing = 0;
         end
         else begin
-            if (!flush_i) begin
+            if (flushing) begin
+                flushing = 0;
+            end
+            else if (flush_i) begin
+                flushing = 1;
+            end else begin
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
                     if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
                         if (dispatch_i[i].write) begin
@@ -91,6 +100,8 @@ module rename_m(
             end
         end
     end
+
+    assign flush_complete_o = flush_i;
 
     always_comb begin
         for (int i = 0; i < RENAME_WIDTH; i++) begin
