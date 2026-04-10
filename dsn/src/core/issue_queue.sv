@@ -42,11 +42,6 @@ module issue_queue_m(
         end
     end
 
-    always_comb begin
-        for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-        end
-    end
-
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             size = 0;
@@ -62,6 +57,9 @@ module issue_queue_m(
             else if (push && size != ISSUE_QUEUE_SIZE) begin
                 for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                     entries[size][i].valid = sdispatch_i[i].valid;
+
+                    entries[size][i].pc = sdispatch_i[i].pc;
+                    entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
                 end
                 size = size + 1;
             end
@@ -71,8 +69,6 @@ module issue_queue_m(
     always_comb begin
         if (pop && push && size == 0) begin
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                sdispatch_o[i].ready = 1;
-
                 mdispatch_o[i].valid = 1;
                 mdispatch_o[i].pc = sdispatch_i[i].pc;
                 mdispatch_o[i].dec_inst = sdispatch_i[i].dec_inst;
@@ -80,8 +76,6 @@ module issue_queue_m(
         end
         else if (pop && size != 0) begin
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                sdispatch_o[i].ready = size != ISSUE_QUEUE_SIZE;
-
                 mdispatch_o[i].valid = entries[0][i].valid;
                 mdispatch_o[i].pc = entries[0][i].pc;
                 mdispatch_o[i].dec_inst = entries[0][i].dec_inst;
@@ -89,12 +83,14 @@ module issue_queue_m(
         end
         else begin
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                sdispatch_o[i].ready = 0;
-
                 mdispatch_o[i].valid = 0;
                 mdispatch_o[i].pc = 0;
                 mdispatch_o[i].dec_inst = 0;
             end
+        end
+
+        for (int i = 0; i < DISPATCH_WIDTH; i++) begin
+            sdispatch_o[i].ready = size != ISSUE_QUEUE_SIZE || (push && pop);
         end
     end
 

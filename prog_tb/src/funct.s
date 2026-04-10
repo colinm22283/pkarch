@@ -10,11 +10,12 @@ entry:
     addi s0, zero, 12
     sb s0, (a0)
 
-    .halt:
-        j .halt
+    j .halt
 
 function:
     addi s0, zero, 11
     sb s0, (a0)
 
     ret
+
+    .halt:

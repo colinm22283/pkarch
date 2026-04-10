@@ -76,10 +76,10 @@ module fetch_m(
                     end
                 end
             endcase
-        end
 
-        if (inst_ready && dispatch_i.ready) begin
-            inst_ready <= 0;
+            if (inst_ready && dispatch_i.ready) begin
+                inst_ready <= 0;
+            end
         end
     end
 
