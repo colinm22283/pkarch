@@ -46,7 +46,7 @@ module top_tb();
         .sport_o(sportao)
     );
 
-    serial_m #(256) serial(
+    serial_m #(1024) serial(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -272,31 +272,21 @@ module top_tb();
 
     initial begin
         int fd;
-        reg [7:0] mem [255:0];
+        reg [7:0] mem [4095:0];
 
         clk_rst.RESET();
 
         fd = $fopen("build/prog.bin", "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < 255; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < 1024; i += 4) ram.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],
             mem[i + 0]
         };
 
-        $display(ram.mem[0]);
-
-        #8000;
-
-        $finish;
-    end
-
-    initial begin
-        #10000;
-
-        $display("TIMEOUT!!!");
+        #20000;
 
         $finish;
     end

@@ -1,6 +1,6 @@
 .global entry
 entry:
-    addi a0, zero, 256
+    addi a0, zero, 1024
     addi s3, zero, 256
     
     addi s0, zero, 1

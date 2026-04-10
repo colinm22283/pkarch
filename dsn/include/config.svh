@@ -3,8 +3,8 @@
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH = 1;
-parameter RENAME_WIDTH   = 2;
-parameter COMMIT_WIDTH   = 2;
+parameter RENAME_WIDTH   = 1;
+parameter COMMIT_WIDTH   = 1;
 
 parameter ISSUE_QUEUE_SIZE = 8;
 

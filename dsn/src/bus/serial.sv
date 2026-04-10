@@ -15,16 +15,18 @@ module serial_m #(
 
     initial forever begin
         wait(sport_i.req);
-        wait(clk_i);
-        #1;
 
         if (sport_i.addr == ADDRESS) begin
             sport_o.ack = 1;
 
+            `DL(log, ("SERIAL: 0x%x", sport_i.data));
+
+            wait(clk_i);
             wait(!clk_i);
             wait(clk_i);
-
-            `DL(log, ("SERIAL: 0x%x", sport_i.data));
+            wait(!clk_i);
+            wait(clk_i);
+            wait(!clk_i);
 
             sport_o.ack = 0;
         end
