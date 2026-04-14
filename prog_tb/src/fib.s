@@ -20,7 +20,7 @@ entry:
     addi zero, zero, 0
     addi zero, zero, 0
     addi zero, zero, 0
-        
+    
     addi a0, zero, 1025
     sw   zero, 0(a0)
 

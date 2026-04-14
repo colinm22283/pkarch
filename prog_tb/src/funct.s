@@ -10,7 +10,8 @@ entry:
     addi s0, zero, 12
     sb s0, (a0)
 
-    j .halt
+    addi a0, zero, 1025
+    sw   zero, 0(a0)
 
 function:
     addi s0, zero, 11
@@ -18,4 +19,3 @@ function:
 
     ret
 
-    .halt:
