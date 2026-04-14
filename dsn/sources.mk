@@ -25,6 +25,7 @@ SRCS+=bus/busarb.sv
 SRCS+=bus/icache.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
+SRCS+=bus/sim_stop.sv
 SRCS+=bus/bus_master.sv
 
 SRCS+=test/clk_rst.v

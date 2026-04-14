@@ -6,8 +6,9 @@
 // `define DL_RANDOM_COLORS
 
 // bus
-`define DL_ENABLE_SERIAL 1
-`define DL_ENABLE_ICACHE 1
+`define DL_ENABLE_SERIAL   1
+`define DL_ENABLE_SIM_STOP 1
+`define DL_ENABLE_ICACHE   1
 
 // fu
 `define DL_ENABLE_MEM_FU 1

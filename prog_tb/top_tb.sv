@@ -24,18 +24,21 @@ module top_tb();
     bus_siport_t sportbi;
     bus_soport_t sportbo;
 
+    bus_siport_t sportci;
+    bus_soport_t sportco;
+
     icache_i_t icachei;
     icache_o_t icacheo;
 
-    busarb_m #(2, 2, 2) arbiter(
+    busarb_m #(2, 3, 2) arbiter(
         .clk_i(clk),
         .nrst_i(nrst),
 
         .mports_i({ mportao, mportbo }),
         .mports_o({ mportai, mportbi }),
 
-        .sports_i({ sportao, sportbo }),
-        .sports_o({ sportai, sportbi })
+        .sports_i({ sportao, sportbo, sportco }),
+        .sports_o({ sportai, sportbi, sportci })
     );
 
     ram_m #(0, 1024) ram(
@@ -52,6 +55,14 @@ module top_tb();
 
         .sport_i(sportbi),
         .sport_o(sportbo)
+    );
+
+    sim_stop_m #(1025) sim_stop(
+        .clk_i(clk),
+        .nrst_i(nrst),
+        
+        .sport_i(sportci),
+        .sport_o(sportco)
     );
 
     icache_m #(10, 5, 2) icache(
