@@ -206,7 +206,7 @@ module top_tb();
         .prf_rel_i(prf_reli)
     );
 
-    alu_m #(1, 3) alu(
+    alu_m #(1, 16) alu(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -222,7 +222,7 @@ module top_tb();
         .commit_o(comi[0])
     );
 
-    mem_m #(1, 3) mem(
+    mem_m #(1, 16) mem(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -297,7 +297,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #20000;
+        #1000000;
 
         $finish;
     end

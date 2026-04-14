@@ -15,7 +15,7 @@ module sim_stop_m #(
     `DL_DEFINE(error, "sim_stop_m ERROR", `DL_RED, `DL_ENABLE_SIM_STOP);
 
     initial begin
-        wait(clk_i && sport_i.req && sport_i.addr == ADDRESS);
+        wait(clk_i && sport_i.req && sport_i.addr == ADDRESS && sport_i.rw == BUS_RW_WRITE);
 
         if (sport_i.data == 0) begin
             `DL(log,   ("Sim stop with code %0d", sport_i.data));

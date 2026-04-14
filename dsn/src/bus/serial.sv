@@ -21,12 +21,10 @@ module serial_m #(
 
             `DL(log, ("SERIAL: 0x%x", sport_i.data));
 
-            wait(clk_i);
-            wait(!clk_i);
-            wait(clk_i);
-            wait(!clk_i);
-            wait(clk_i);
-            wait(!clk_i);
+            for (int i = 0; i < 100; i++) begin
+                wait(clk_i);
+                wait(!clk_i);
+            end
 
             sport_o.ack = 0;
         end
