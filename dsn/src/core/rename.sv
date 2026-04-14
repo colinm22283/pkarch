@@ -67,6 +67,16 @@ module rename_m(
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
                     if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
                         if (dispatch_i[i].write) begin
+                            if (
+                                map_table[dispatch_i[i].isa_addr].valid
+                            ) begin
+                                `DL(log, ("release r%0d", commit_i[i].isa_addr));
+                                freelist_head = freelist_head - 1;
+                                freelist_size = freelist_size + 1;
+
+                                freelist[freelist_head] = map_table[dispatch_i[i].isa_addr].prf_addr;
+                            end
+
                             `DL(log, ("r%0d valid", dispatch_i[i].isa_addr));
                             map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
                             map_table[dispatch_i[i].isa_addr].valid = 1;
@@ -88,16 +98,6 @@ module rename_m(
 
                 for (int i = 0; i < COMMIT_WIDTH; i++) begin
                     if (commit_i[i].valid && commit_o[i].ready && commit_i[i].isa_addr != REG_ZERO) begin
-                        if (
-                            map_table[commit_i[i].isa_addr].valid &&
-                            map_table[commit_i[i].isa_addr].prf_addr != commit_i[i].prf_addr
-                        ) begin
-                            `DL(log, ("release r%0d", commit_i[i].isa_addr));
-                            freelist_head = freelist_head - 1;
-                            freelist_size = freelist_size + 1;
-
-                            freelist[freelist_head] = map_table[commit_i[i].isa_addr].prf_addr;
-                        end
 
                         map_table[commit_i[i].isa_addr].valid = 1;
                         map_table[commit_i[i].isa_addr].prf_addr = commit_i[i].prf_addr;
