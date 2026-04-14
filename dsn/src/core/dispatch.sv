@@ -135,6 +135,8 @@ module dispatch_m(
                             res_index < DISPATCH_WIDTH &&
                             res_dispatchi[res_index].ready
                         ) begin
+                            `DL(log, ("Instruction sent to reservation station"));
+
                             entries[i].valid <= 0;
 
                             res_index++;

@@ -67,6 +67,10 @@ module rename_m(
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
                     if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
                         if (dispatch_i[i].write) begin
+                            `DL(log, ("r%0d valid", dispatch_i[i].isa_addr));
+                            map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
+                            map_table[dispatch_i[i].isa_addr].valid = 1;
+
                             freelist_head = freelist_head + 1;
                             freelist_size = freelist_size - 1;
                         end
@@ -84,7 +88,10 @@ module rename_m(
 
                 for (int i = 0; i < COMMIT_WIDTH; i++) begin
                     if (commit_i[i].valid && commit_o[i].ready && commit_i[i].isa_addr != REG_ZERO) begin
-                        if (map_table[commit_i[i].isa_addr].valid) begin
+                        if (
+                            map_table[commit_i[i].isa_addr].valid &&
+                            map_table[commit_i[i].isa_addr].prf_addr != commit_i[i].prf_addr
+                        ) begin
                             `DL(log, ("release r%0d", commit_i[i].isa_addr));
                             freelist_head = freelist_head - 1;
                             freelist_size = freelist_size + 1;
@@ -92,7 +99,6 @@ module rename_m(
                             freelist[freelist_head] = map_table[commit_i[i].isa_addr].prf_addr;
                         end
 
-                        `DL(log, ("r%0d valid", commit_i[i].isa_addr));
                         map_table[commit_i[i].isa_addr].valid = 1;
                         map_table[commit_i[i].isa_addr].prf_addr = commit_i[i].prf_addr;
                     end
@@ -146,7 +152,10 @@ module rename_m(
             prf_rel_o[i] = 0;
             
             if (commit_i[i].isa_addr != REG_ZERO) begin
-                if (map_table[commit_i[i].isa_addr].valid) begin
+                if (
+                    map_table[commit_i[i].isa_addr].valid &&
+                    map_table[commit_i[i].isa_addr].prf_addr != commit_i[i].prf_addr
+                ) begin
                     prf_rel_o[i].rel  = commit_i[i].valid;
 
                     prf_rel_o[i].addr = map_table[commit_i[i].isa_addr].prf_addr;

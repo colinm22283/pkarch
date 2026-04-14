@@ -93,6 +93,14 @@ module rob_m(
                     index = ROB_ID_WIDTH'((i + 32'(head)) % ROB_SIZE);
 
                     if (commit_entry[i]) begin
+                        `DL(log, (
+                            "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prf_rd = 0x%x",
+                            index,
+                            entries[index].rd_a,
+                            entries[index].isa_rd,
+                            entries[index].prf_rd
+                        ));
+
                         entries[index].valid = 0;
 
                         size = size - 1;
@@ -152,7 +160,11 @@ module rob_m(
 
                             commit_entry[i] &= rename_commit_i[i].ready;
 
-                            if (!rename_commit_i[i].ready) cont = 0;
+                            if (!rename_commit_i[i].ready) begin
+                                commit_entry[i] = 0;
+
+                                cont = 0;
+                            end
                         end
 
                         if (entries[index].jmp) begin
