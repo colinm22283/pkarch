@@ -23,6 +23,8 @@ module sim_stop_m #(
         else begin
             `DL(error, ("Sim stop with code %0d", sport_i.data));
         end
+
+        $finish;
     end
 
 endmodule
