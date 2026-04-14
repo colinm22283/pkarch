@@ -66,4 +66,7 @@ entry:
     addi s0, s2, 0
 
     sw   s0, 0(a0)
+        
+    addi a0, zero, 1025
+    sw   zero, 0(a0)
 
