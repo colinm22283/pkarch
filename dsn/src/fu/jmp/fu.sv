@@ -89,7 +89,11 @@ module jmp_fu_m(
         commit_o.isa_addr = dispatch_i.isa_addr;
         commit_o.rd_a     = dispatch_i.dec_inst.rd_a;
         commit_o.rd       = dispatch_i.rd;
+        commit_o.prev_rd  = dispatch_i.prev_rd;
         commit_o.value    = dispatch_i.pc + 4;
     end
+
+    wire running;
+    assign running = commit_o.valid;
 
 endmodule

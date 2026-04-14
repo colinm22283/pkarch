@@ -35,6 +35,7 @@ typedef struct packed {
 
     bit rd_valid;
     prf_addr_t rd;
+    prf_addr_t prev_rd;
 } dispatch_entry_t;
 
 `endif

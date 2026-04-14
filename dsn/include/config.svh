@@ -1,9 +1,11 @@
 `ifndef CONFIG_SVH
 `define CONFIG_SVH
 
+`define DEBUG_MODE 0
+
 // CONFIGURABLE
 parameter DISPATCH_WIDTH = 1;
-parameter RENAME_WIDTH   = 1;
+parameter RENAME_WIDTH   = 3;
 parameter COMMIT_WIDTH   = 1;
 
 parameter ISSUE_QUEUE_SIZE = 8;

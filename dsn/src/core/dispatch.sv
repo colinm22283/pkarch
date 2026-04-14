@@ -121,8 +121,9 @@ module dispatch_m(
                         ) begin
                             entries[i].rd_valid <= 1;
                             entries[i].rd       <= rename_dispatch_i[rename_index].prf_addr;
+                            entries[i].prev_rd  <= rename_dispatch_i[rename_index].prev_addr;
 
-                            `DL(log, ("Alloc RD (r%0d) at paddr 0x%h", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr));
+                            `DL(log, ("Alloc RD (r%0d) at paddr 0x%h, with prev paddr 0x%x", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr, rename_dispatch_i[rename_index].prev_addr));
 
                             rename_index++;
                         end
@@ -241,6 +242,7 @@ module dispatch_m(
                         res_dispatcho[res_index].rs1 = entries[i].rs1;
                         res_dispatcho[res_index].rs2 = entries[i].rs2;
                         res_dispatcho[res_index].rd = entries[i].rd;
+                        res_dispatcho[res_index].prev_rd = entries[i].prev_rd;
 
                         res_dispatcho[res_index].isa_addr = entries[i].dec_inst.rd;
 

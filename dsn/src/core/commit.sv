@@ -39,7 +39,7 @@ module commit_m(
                 rob_commit_o[commit_num].jmp_target = commit_i[i].jmp_target;
                 rob_commit_o[commit_num].rd_a   = commit_i[i].rd_a;
                 rob_commit_o[commit_num].isa_addr = commit_i[i].isa_addr;
-                rob_commit_o[commit_num].prf_addr = commit_i[i].rd;
+                rob_commit_o[commit_num].prev_addr = commit_i[i].prev_rd;
 
                 prf_wport_o[commit_num].we = commit_i[i].rd_a;
                 prf_wport_o[commit_num].addr = commit_i[i].rd;

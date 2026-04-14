@@ -29,7 +29,7 @@ typedef struct packed {
 
     bit rd_a;
     reg_addr_t isa_addr;
-    prf_addr_t prf_addr;
+    prf_addr_t prev_addr;
 } rob_commit_i_t;
 
 typedef struct packed {
@@ -46,7 +46,7 @@ typedef struct packed {
 
     bit rd_a;
     reg_addr_t isa_rd;
-    prf_addr_t prf_rd;
+    prf_addr_t prev_rd;
 } rob_entry_t;
 
 `endif

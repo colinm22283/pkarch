@@ -83,7 +83,7 @@ module rob_m(
                         entries[commit_i[i].rob_id].jmp_target = commit_i[i].jmp_target;
                         entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
                         entries[commit_i[i].rob_id].isa_rd = commit_i[i].isa_addr;
-                        entries[commit_i[i].rob_id].prf_rd = commit_i[i].prf_addr;
+                        entries[commit_i[i].rob_id].prev_rd = commit_i[i].prev_addr;
                     end
                 end
 
@@ -94,11 +94,11 @@ module rob_m(
 
                     if (commit_entry[i]) begin
                         `DL(log, (
-                            "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prf_rd = 0x%x",
+                            "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x",
                             index,
                             entries[index].rd_a,
                             entries[index].isa_rd,
-                            entries[index].prf_rd
+                            entries[index].prev_rd
                         ));
 
                         entries[index].valid = 0;
@@ -156,7 +156,7 @@ module rob_m(
 
                         if (entries[index].rd_a) begin
                             rename_commit_o[i].isa_addr = entries[index].isa_rd;
-                            rename_commit_o[i].prf_addr = entries[index].prf_rd;
+                            rename_commit_o[i].prev_addr = entries[index].prev_rd;
 
                             commit_entry[i] &= rename_commit_i[i].ready;
 

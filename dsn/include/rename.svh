@@ -16,13 +16,14 @@ typedef struct packed {
     bit ready;
 
     prf_addr_t prf_addr;
+    prf_addr_t prev_addr;
 } rename_dispatch_o_t;
 
 typedef struct packed {
     bit valid;
 
     reg_addr_t isa_addr;
-    prf_addr_t prf_addr;
+    prf_addr_t prev_addr;
 } rename_commit_i_t;
 
 typedef struct packed {

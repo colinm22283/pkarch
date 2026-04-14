@@ -14,6 +14,12 @@ entry:
         addi s0, s2, 0
 
         blt s0, s3, .loop
+
+    addi zero, zero, 0
+    addi zero, zero, 0
+    addi zero, zero, 0
+    addi zero, zero, 0
+    addi zero, zero, 0
         
     addi a0, zero, 1025
     sw   zero, 0(a0)
