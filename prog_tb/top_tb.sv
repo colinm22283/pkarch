@@ -124,6 +124,7 @@ module top_tb();
         .jump_o(jumpo),
 
         .flush_o(flush),
+        .flush_complete_i(rename_flush_complete),
 
         .dispatch_i(dispatcho),
         .dispatch_o(dispatchi)
@@ -297,7 +298,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #1000000;
+        #100000;
 
         $finish;
     end

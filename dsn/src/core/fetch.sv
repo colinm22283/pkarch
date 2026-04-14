@@ -17,6 +17,7 @@ module fetch_m(
     output fetch_jump_o_t jump_o,
 
     output wire flush_o,
+    input wire flush_complete_i,
 
     input  dispatch_o_t dispatch_i,
     output dispatch_i_t dispatch_o
@@ -42,7 +43,7 @@ module fetch_m(
             inst_ready <= 0;
         end
         else begin
-            flush_o <= 0;
+            if (flush_complete_i) flush_o <= 0;
 
             case (state)
                 0: begin

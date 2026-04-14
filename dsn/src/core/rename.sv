@@ -8,7 +8,7 @@ module rename_m(
     input wire nrst_i,
 
     input  wire flush_i,
-    output wire flush_complete_o,
+    output reg flush_complete_o,
 
     input  rename_dispatch_i_t [RENAME_WIDTH - 1:0] dispatch_i,
     output rename_dispatch_o_t [RENAME_WIDTH - 1:0] dispatch_o,
@@ -59,7 +59,9 @@ module rename_m(
         end
         else begin
             if (flushing) begin
-                flushing = 0;
+                flushing = 1;
+
+                flush_complete_o = 0;
             end
             else if (flush_i) begin
                 flushing = 1;
@@ -105,8 +107,6 @@ module rename_m(
             end
         end
     end
-
-    assign flush_complete_o = flush_i;
 
     always_comb begin
         for (int i = 0; i < RENAME_WIDTH; i++) begin
