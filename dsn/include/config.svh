@@ -1,7 +1,7 @@
 `ifndef CONFIG_SVH
 `define CONFIG_SVH
 
-`define DEBUG_MODE 0
+`define DEBUG_MODE 1
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH = 1;
@@ -17,6 +17,8 @@ parameter FU_COUNT = 3;
 
 parameter PRF_SIZE = 64;
 parameter PRF_RPORTS = 6;
+
+parameter MEMORY_PORTS = 2;
 // CONFIGURABLE
 
 parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;

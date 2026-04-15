@@ -15,8 +15,8 @@ module top_tb();
     bus_miport_t mportai;
     bus_moport_t mportao;
 
-    bus_miport_t mportbi;
-    bus_moport_t mportbo;
+    bus_miport_t [MEMORY_PORTS - 1:0] rob_mportsi;
+    bus_moport_t [MEMORY_PORTS - 1:0] rob_mportso;
 
     bus_siport_t sportai;
     bus_soport_t sportao;
@@ -30,12 +30,12 @@ module top_tb();
     icache_i_t icachei;
     icache_o_t icacheo;
 
-    busarb_m #(2, 3, 2) arbiter(
+    busarb_m #(MEMORY_PORTS + 1, 3, 2) arbiter(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ mportao, mportbo }),
-        .mports_o({ mportai, mportbi }),
+        .mports_i({ mportao, rob_mportso }),
+        .mports_o({ mportai, rob_mportsi }),
 
         .sports_i({ sportao, sportbo, sportco }),
         .sports_o({ sportai, sportbi, sportci })
@@ -182,6 +182,9 @@ module top_tb();
 
         .flush_i(flush),
 
+        .mports_i(rob_mportsi),
+        .mports_o(rob_mportso),
+
         .dispatch_i(rob_disi),
         .dispatch_o(rob_diso),
 
@@ -229,8 +232,8 @@ module top_tb();
 
         .flush_i(flush),
 
-        .mport_i(mportbi),
-        .mport_o(mportbo),
+        .mport_i(0),
+        .mport_o(),
 
         .dispatch_i(res_disi[1]),
         .dispatch_o(res_diso[1]),
