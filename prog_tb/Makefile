@@ -1,9 +1,9 @@
 BUILD_DIR=build
 PROG_SRC_DIR=src
 
-AS=riscv32-unknown-elf-as
-OBJCOPY=riscv32-unknown-elf-objcopy
-OBJDUMP=riscv32-unknown-elf-objdump
+AS=riscv32-none-elf-as
+OBJCOPY=riscv32-none-elf-objcopy
+OBJDUMP=riscv32-none-elf-objdump
 
 ARCH=rv32i
 ABI=ilp32

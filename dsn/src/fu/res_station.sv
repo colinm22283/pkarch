@@ -91,30 +91,28 @@ module res_station_m #(
             fu_dispatch_o = 0;
             fu_ready = 0;
 
-            if (!flush_i) begin
-                for (int i = 0; i < FU_WIDTH; i++) begin
-                    if (dispatch_count != size) begin
-                        if (fu_dispatch_i[i].ready) begin
-                            fu_ready[i] = 1;
-                        end
-
-                        fu_dispatch_o[i].valid = 1;
-
-                        fu_dispatch_o[i].pc = entries[dispatch_count].pc;
-
-                        fu_dispatch_o[i].dec_inst = entries[dispatch_count].dec_inst;
-
-                        fu_dispatch_o[i].rob_id = entries[dispatch_count].rob_id;
-
-                        fu_dispatch_o[i].rs1 = entries[dispatch_count].rs1;
-                        fu_dispatch_o[i].rs2 = entries[dispatch_count].rs2;
-                        fu_dispatch_o[i].rd = entries[dispatch_count].rd;
-                        fu_dispatch_o[i].prev_rd = entries[dispatch_count].prev_rd;
-
-                        fu_dispatch_o[i].isa_addr = entries[dispatch_count].isa_addr;
-
-                        dispatch_count = dispatch_count + 1;
+            for (int i = 0; i < FU_WIDTH; i++) begin
+                if (dispatch_count != size) begin
+                    if (fu_dispatch_i[i].ready) begin
+                        if (!flush_i) fu_ready[i] = 1;
                     end
+
+                    fu_dispatch_o[i].valid = 1;
+
+                    fu_dispatch_o[i].pc = entries[dispatch_count].pc;
+
+                    fu_dispatch_o[i].dec_inst = entries[dispatch_count].dec_inst;
+
+                    fu_dispatch_o[i].rob_id = entries[dispatch_count].rob_id;
+
+                    fu_dispatch_o[i].rs1 = entries[dispatch_count].rs1;
+                    fu_dispatch_o[i].rs2 = entries[dispatch_count].rs2;
+                    fu_dispatch_o[i].rd = entries[dispatch_count].rd;
+                    fu_dispatch_o[i].prev_rd = entries[dispatch_count].prev_rd;
+
+                    fu_dispatch_o[i].isa_addr = entries[dispatch_count].isa_addr;
+
+                    dispatch_count = dispatch_count + 1;
                 end
             end
         end
