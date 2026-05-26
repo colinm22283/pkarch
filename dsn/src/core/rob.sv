@@ -178,8 +178,8 @@ module rob_m(
 
                         if (entries[index].mem) begin
                             if (memory_commits < MEMORY_PORTS) begin
-                                if (mem_states[memory_commits]) begin
-                                end
+                                // if (mem_states[memory_commits[$clog2(MEMORY_PORTS) - 1:0]]) begin
+                                // end
 
                                 memory_commits = memory_commits + 1;
                             end

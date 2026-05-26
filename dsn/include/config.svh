@@ -18,6 +18,7 @@ parameter FU_COUNT = 3;
 parameter PRF_SIZE = 64;
 parameter PRF_RPORTS = 6;
 
+parameter LSQ_SIZE = 4;
 parameter MEMORY_PORTS = 2;
 // CONFIGURABLE
 
