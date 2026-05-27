@@ -16,19 +16,20 @@ module mem_fu_m(
     input  prf_rport_o_t [1:0] rport_i,
     output prf_rport_i_t [1:0] rport_o,
 
-    input  commit_o_t commit_i,
-    output commit_i_t commit_o,
-
     input  lsq_dispatch_o_t lsq_dispatch_i,
     output lsq_dispatch_i_t lsq_dispatch_o
 );
 
     `DL_DEFINE(log, "mem_fu_m", `DL_YELLOW, `DL_ENABLE_MEM_FU);
 
+    word_t write_data;
+    word_t read_data;
+    word_t addr;
+    sword_t offset;
+
     bus_rw_t rw;
     bus_size_t size;
     logic read_ports_valid;
-    logic out_ready;
 
     always_comb begin
         case (dispatch_i.dec_inst.opcode)
@@ -85,6 +86,9 @@ module mem_fu_m(
         rport_o[0].addr = dispatch_i.rs1;
         rport_o[1].addr = dispatch_i.rs2;
 
+        addr = rport_i[0].data;
+        offset = dispatch_i.dec_inst.imm;
+
         if (rw == BUS_RW_READ) begin
             read_ports_valid = rport_i[0].valid;
         end
@@ -92,15 +96,14 @@ module mem_fu_m(
             read_ports_valid = rport_i[0].valid && rport_i[1].valid;
         end
 
-        dispatch_o.ready = lsq_dispatch_i.ready && commit_i.ready;
+        write_data = rport_i[1].data;
 
-        lsq_dispatch_o.valid    = dispatch_i.valid && commit_i.ready;
-        commit_o.valid          = dispatch_i.valid && lsq_dispatch_i.ready;
+        dispatch_o.ready = lsq_dispatch_i.ready;
 
+        lsq_dispatch_o.valid    = dispatch_i.valid;
         lsq_dispatch_o.rw       = rw;
         lsq_dispatch_o.size     = size;
         lsq_dispatch_o.rob_id   = dispatch_i.rob_id;
-        lsq_dispatch_o.addr     = rport_i[0].data + dispatch_i.dec_inst.imm;
 
         if (rw == BUS_RW_READ) begin
             lsq_dispatch_o.data.read.isa_addr = dispatch_i.isa_addr;
@@ -108,15 +111,8 @@ module mem_fu_m(
             lsq_dispatch_o.data.read.prev_rd  = dispatch_i.prev_rd;
         end
         else begin
-            lsq_dispatch_o.data.write.value   = rport_i[1].data;
+            lsq_dispatch_o.data.write.value    = read_data;
         end
-
-        commit_o.valid    = out_ready;
-        commit_o.rob_id   = dispatch_i.rob_id;
-        commit_o.isa_addr = dispatch_i.isa_addr;
-        commit_o.rd_a     = dispatch_i.dec_inst.rd_a;
-        commit_o.rd       = dispatch_i.rd;
-        commit_o.prev_rd  = dispatch_i.prev_rd;
     end
 
 endmodule

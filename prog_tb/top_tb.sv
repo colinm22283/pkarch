@@ -15,8 +15,8 @@ module top_tb();
     bus_miport_t mportai;
     bus_moport_t mportao;
 
-    bus_miport_t [MEMORY_PORTS - 1:0] rob_mportsi;
-    bus_moport_t [MEMORY_PORTS - 1:0] rob_mportso;
+    bus_miport_t [MEMORY_PORTS - 1:0] lsq_mportsi;
+    bus_moport_t [MEMORY_PORTS - 1:0] lsq_mportso;
 
     bus_siport_t sportai;
     bus_soport_t sportao;
@@ -34,8 +34,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ mportao, rob_mportso }),
-        .mports_o({ mportai, rob_mportsi }),
+        .mports_i({ mportao, lsq_mportso }),
+        .mports_o({ mportai, lsq_mportsi }),
 
         .sports_i({ sportao, sportbo, sportco }),
         .sports_o({ sportai, sportbi, sportci })
@@ -81,6 +81,9 @@ module top_tb();
 
     logic flush;
     logic rename_flush_complete;
+
+    logic lsq_commit;
+    logic lsq_ack;
     
     dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
@@ -109,6 +112,9 @@ module top_tb();
 
     res_dispatch_i_t [FU_COUNT - 1:0] res_disi;
     res_dispatch_o_t [FU_COUNT - 1:0] res_diso;
+
+    lsq_dispatch_i_t lsq_disi;
+    lsq_dispatch_o_t lsq_diso;
 
     commit_i_t [FU_COUNT - 1:0] comi, reg_comi;
     commit_o_t [FU_COUNT - 1:0] como, reg_como;
@@ -182,9 +188,6 @@ module top_tb();
 
         .flush_i(flush),
 
-        .mports_i(rob_mportsi),
-        .mports_o(rob_mportso),
-
         .dispatch_i(rob_disi),
         .dispatch_o(rob_diso),
 
@@ -195,7 +198,10 @@ module top_tb();
         .rename_commit_o(rename_comi),
 
         .jump_i(jumpo),
-        .jump_o(jumpi)
+        .jump_o(jumpi),
+
+        .lsq_commit_o(lsq_commit),
+        .lsq_ack_i(lsq_ack)
     );
 
     prf_m prf(
@@ -226,7 +232,7 @@ module top_tb();
         .commit_o(comi[0])
     );
 
-    mem_m #(1, 16) mem(
+    mem_m #(16) mem(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -242,7 +248,24 @@ module top_tb();
         .rport_o(prf_rporti[3:2]),
 
         .commit_i(como[1]),
-        .commit_o(comi[1])
+        .commit_o(comi[1]),
+
+        .lsq_dispatch_i(lsq_diso),
+        .lsq_dispatch_o(lsq_disi)
+    );
+
+    lsq_m lsq(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mports_i(lsq_mportsi),
+        .mports_o(lsq_mportso),
+
+        .dispatch_i(lsq_disi),
+        .dispatch_o(lsq_diso),
+
+        .lsq_commit_i(lsq_commit),
+        .lsq_ack_o(lsq_ack)
     );
 
     jmp_m #(3) jmp(

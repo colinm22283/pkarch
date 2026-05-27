@@ -3,22 +3,20 @@
 `include "config.svh"
 `include "bus.svh"
 `include "lsq.svh"
+`include "memory_port.svh"
 
 module lsq_m(
     input wire clk_i,
     input wire nrst_i,
 
-    bus_miport_t [MEMORY_PORTS - 1:0] mports_i,
-    bus_moport_t [MEMORY_PORTS - 1:0] mports_o,
+    input  bus_miport_t [MEMORY_PORTS - 1:0] mports_i,
+    output bus_moport_t [MEMORY_PORTS - 1:0] mports_o,
 
-    lsq_dispatch_i_t dispatch_i,
-    lsq_dispatch_o_t dispatch_o,
+    input  lsq_dispatch_i_t dispatch_i,
+    output lsq_dispatch_o_t dispatch_o,
 
-    commit_o_t commit_i,
-    commit_i_t commit_o,
-
-    bit mem_commit_run_i,
-    bit mem_commit_complete_o
+    bit lsq_commit_i,
+    bit lsq_ack_o
 );
 
     localparam LSQ_INDEX_WIDTH = $clog2(LSQ_SIZE);
@@ -29,8 +27,12 @@ module lsq_m(
 
     enum logic [1:0] {
         STATE_IDLE,
-        STATE_REQ
+        STATE_RUNNING,
+        STATE_COMMITTING
     } [MEMORY_PORTS - 1:0] states;
+
+    memory_port_i_t [MEMORY_PORTS - 1:0] memory_portsi;
+    memory_port_o_t [MEMORY_PORTS - 1:0] memory_portso;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -41,6 +43,8 @@ module lsq_m(
             mports_o = 0;
         end
         else begin
+            lsq_ack_o = 0;
+
             if (dispatch_i.valid && size < LSQ_SIZE) begin
                 entries[size].rw     = dispatch_i.rw;
                 entries[size].size   = dispatch_i.size;
@@ -61,21 +65,37 @@ module lsq_m(
 
             for (int i = 0; i < MEMORY_PORTS; i++) begin
                 case (states[i])
-                    STATE_IDLE: ;
-
-                    STATE_REQ: begin
-                        mports_o[i].req = 1;
+                    STATE_RUNNING: begin
+                        if (memory_portso[i].ack) begin
+                            states[i] = STATE_COMMITTING;
+                        end
                     end
+
+                    STATE_COMMITTING: begin
+                        states[i] = STATE_IDLE;
+                        
+                        lsq_ack_o = 1;
+                    end
+                    
+                    default: ;
                 endcase
             end
 
-            logic cont;
-            cont = 1;
-            for (int i = 0; i < MEMORY_PORTS; i++) begin
-                if (cont && i < size && states[i] == STATE_IDLE) begin
-                    states[i] = STATE_REQ;
-                    if (entries[i].rw == BUS_RW_WRITE) begin
-                        cont = 0;
+            begin
+                logic cont;
+                cont = 1;
+                for (int i = 0; i < MEMORY_PORTS; i++) begin
+                    if (cont && i < size && states[i] == STATE_IDLE) begin
+                        if (entries[i].rw == BUS_RW_WRITE) begin
+                            if (lsq_commit_i) begin
+                                states[i] = STATE_RUNNING;
+                            end
+
+                            cont = 0;
+                        end
+                        else begin
+                            states[i] = STATE_RUNNING;
+                        end
                     end
                 end
             end
@@ -84,12 +104,22 @@ module lsq_m(
 
     always_comb begin
         for (int i = 0; i < MEMORY_PORTS; i++) begin
-            mports_o[i].rw     = entries[i].rw;
-            mports_o[i].size   = entries[i].size;
-            mports_o[i].addr   = entries[i].addr;
-            mports_o[i].seqmst = 0;
+            memory_portsi[i].req = states[i] == STATE_RUNNING;
         end
     end
+
+    generate for (genvar i = 0; i < MEMORY_PORTS; i++) begin
+        memory_port_m memory_port(
+            .clk_i(clk_i),
+            .nrst_i(nrst_i),
+
+            .stream_port_i(memory_portsi[i]),
+            .stream_port_o(memory_portso[i]),
+
+            .mport_i(mports_i[i]),
+            .mport_o(mports_o[i])
+        );
+    end endgenerate
 
 endmodule
 

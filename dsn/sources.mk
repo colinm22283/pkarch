@@ -7,6 +7,7 @@ SRCS+=core/prf.sv
 SRCS+=core/rename.sv
 SRCS+=core/commit.sv
 SRCS+=core/lsq.sv
+SRCS+=core/memory_port.sv
 
 SRCS+=fu/res_station.sv
 

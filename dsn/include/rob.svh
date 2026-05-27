@@ -28,7 +28,6 @@ typedef struct packed {
     pc_t jmp_target;
 
     bit mem;
-    word_t addr;
 
     bit rd_a;
     reg_addr_t isa_addr;

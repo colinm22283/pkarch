@@ -11,9 +11,6 @@ module rob_m(
 
     input wire flush_i,
 
-    input  bus_miport_t [MEMORY_PORTS - 1:0] mports_i,
-    output bus_moport_t [MEMORY_PORTS - 1:0] mports_o,
-
     input  rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_i,
     output rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_o,
 
@@ -24,7 +21,10 @@ module rob_m(
     output rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_commit_o,
 
     input  fetch_jump_o_t jump_i,
-    output fetch_jump_i_t jump_o
+    output fetch_jump_i_t jump_o,
+
+    input  logic lsq_ack_i,
+    output logic lsq_commit_o
 );
 
     `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);
@@ -35,12 +35,6 @@ module rob_m(
     rob_entry_t [ROB_SIZE - 1:0] entries;
 
     logic [ROB_SIZE - 1:0] commit_entry;
-
-    logic [$clog2(MEMORY_PORTS) - 1:0] mem_unit [ROB_SIZE - 1:0];
-    enum {
-        MEM_STATE_IDLE,
-        MEM_STATE_RUN
-    } mem_states [MEMORY_PORTS - 1:0];
 
     logic dispatch_any_valid;
     always_comb begin
@@ -123,13 +117,11 @@ module rob_m(
     always_comb begin
         logic cont;
         rob_id_t index;
-        logic [$clog2(MEMORY_PORTS + 1) - 1:0] memory_commits;
 
         jump_o = 0;
 
         cont = 1;
         index = 0;
-        memory_commits = 0;
 
         dispatch_ready = size != ROB_SIZE;
 
@@ -149,6 +141,8 @@ module rob_m(
         for (int i = 0; i < ROB_COMMIT_WIDTH; i++) begin
             commit_o[i].ready = !flush_i;
         end
+
+        lsq_commit_o = 0;
 
         rename_commit_o = 0;
         commit_entry = 0;
@@ -177,11 +171,10 @@ module rob_m(
                         end
 
                         if (entries[index].mem) begin
-                            if (memory_commits < MEMORY_PORTS) begin
-                                // if (mem_states[memory_commits[$clog2(MEMORY_PORTS) - 1:0]]) begin
-                                // end
+                            if (!lsq_commit_o) begin
+                                lsq_commit_o = 1;
 
-                                memory_commits = memory_commits + 1;
+                                if (!lsq_ack_i) commit_entry[i] = 0;
                             end
                         end
 
@@ -192,7 +185,6 @@ module rob_m(
 
                             if (!jump_i.ready) begin
                                 commit_entry[i] = 0;
-
                             end
                         end
 
@@ -208,16 +200,6 @@ module rob_m(
                     end
                 end
             end
-        end
-    end
-
-    always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
-            for (int i = 0; i < MEMORY_PORTS; i++) begin
-                mports_o[i] = 0;
-            end
-        end
-        else begin
         end
     end
 

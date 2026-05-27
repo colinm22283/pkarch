@@ -24,6 +24,7 @@ TBS+=commit
 TBS+=fu
 TBS+=no_fetch
 TBS+=top
+TBS+=lsq
 
 .PHONY: all
 all: $(foreach t, $(TBS), run-$t)

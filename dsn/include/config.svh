@@ -19,7 +19,7 @@ parameter PRF_SIZE = 64;
 parameter PRF_RPORTS = 6;
 
 parameter LSQ_SIZE = 4;
-parameter MEMORY_PORTS = 2;
+parameter MEMORY_PORTS = 1; // must be 1 for now
 // CONFIGURABLE
 
 parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;
