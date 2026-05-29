@@ -1,7 +1,7 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
-`include "icache.svh"
+`include "bus/icache.svh"
 
 module top_tb();
 

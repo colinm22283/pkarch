@@ -1,7 +1,7 @@
-`include "fu.svh"
-`include "commit.svh"
-`include "prf.svh"
-`include "logger.svh"
+`include "fu/fu.svh"
+`include "core/commit.svh"
+`include "core/prf.svh"
+`include "test/logger.svh"
 
 module mem_fu_m(
     input wire clk_i,

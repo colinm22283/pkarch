@@ -1,6 +1,6 @@
-`include "fu.svh"
-`include "commit.svh"
-`include "prf.svh"
+`include "fu/fu.svh"
+`include "core/commit.svh"
+`include "core/prf.svh"
 
 module jmp_fu_m(
     input wire clk_i,

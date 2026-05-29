@@ -1,7 +1,7 @@
-`include "bus.svh"
 `include "defs.svh"
-`include "icache.svh"
-`include "logger.svh"
+`include "bus/bus.svh"
+`include "bus/icache.svh"
+`include "test/logger.svh"
 
 module icache_m #(
     parameter INDEX_BITS = 10,

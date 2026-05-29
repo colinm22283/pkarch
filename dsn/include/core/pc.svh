@@ -1,7 +1,7 @@
 `ifndef PC_SVH
 `define PC_SVH
 
-`include "bus.svh"
+`include "bus/bus.svh"
 
 parameter PC_WIDTH = BUS_ADDR_WIDTH;
 

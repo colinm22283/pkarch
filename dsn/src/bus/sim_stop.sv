@@ -1,5 +1,5 @@
-`include "bus.svh"
-`include "logger.svh"
+`include "bus/bus.svh"
+`include "test/logger.svh"
 
 module sim_stop_m #(
     parameter ADDRESS = 0

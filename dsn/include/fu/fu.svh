@@ -2,11 +2,11 @@
 `define FU_SVH
 
 `include "config.svh"
-`include "prf.svh"
 `include "defs.svh"
 `include "isa.svh"
-`include "rob.svh"
-`include "pc.svh"
+`include "core/prf.svh"
+`include "core/rob.svh"
+`include "core/pc.svh"
 
 typedef struct packed {
     bit valid;

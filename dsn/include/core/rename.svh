@@ -2,7 +2,7 @@
 `define RENAME_SVH
 
 `include "isa.svh"
-`include "prf.svh"
+`include "core/prf.svh"
 
 typedef struct packed {
     bit valid;

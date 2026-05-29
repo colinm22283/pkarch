@@ -1,10 +1,10 @@
 `timescale 1ns/100ps
 
-`include "dispatch.svh"
-`include "rename.svh"
-`include "rob.svh"
-`include "fu.svh"
-`include "logger.svh"
+`include "core/dispatch.svh"
+`include "core/rename.svh"
+`include "core/rob.svh"
+`include "fu/fu.svh"
+`include "test/logger.svh"
 
 module dispatch_m(
     input wire clk_i,

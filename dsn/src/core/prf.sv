@@ -1,9 +1,9 @@
 `timescale 1ns/100ps
 
 `include "config.svh"
-`include "prf.svh"
 `include "defs.svh"
-`include "logger.svh"
+`include "core/prf.svh"
+`include "test/logger.svh"
 
 module prf_m(
     input wire clk_i,

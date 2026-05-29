@@ -1,7 +1,7 @@
 `ifndef COMMIT_SVH
 `define COMMIT_SVH
 
-`include "rob.svh"
+`include "core/rob.svh"
 
 typedef struct packed {
     bit valid;

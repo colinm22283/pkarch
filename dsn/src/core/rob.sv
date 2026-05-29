@@ -1,9 +1,9 @@
 `timescale 1ns/100ps
 
 `include "config.svh"
-`include "rob.svh"
-`include "rename.svh"
-`include "fetch.svh"
+`include "core/rob.svh"
+`include "core/rename.svh"
+`include "core/fetch.svh"
 
 module rob_m(
     input wire clk_i,

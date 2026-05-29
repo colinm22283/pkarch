@@ -2,8 +2,8 @@
 `define ROB_SVH
 
 `include "isa.svh"
-`include "prf.svh"
-`include "pc.svh"
+`include "core/prf.svh"
+`include "core/pc.svh"
 
 parameter ROB_ID_WIDTH = $clog2(ROB_SIZE);
 

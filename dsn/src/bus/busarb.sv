@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-`include "bus.svh"
+`include "bus/bus.svh"
 
 module busarb_m #(
     parameter MASTER_COUNT = 1,

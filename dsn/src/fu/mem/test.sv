@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-`include "fu.svh"
+`include "fu/fu.svh"
 
 module mem_test_m(
     input  fu_test_i_t test_i,

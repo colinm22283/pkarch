@@ -1,7 +1,7 @@
 `ifndef ICACHE_SVH
 `define ICACHE_SVH
 
-`include "bus.svh"
+`include "bus/bus.svh"
 
 typedef struct packed {
     bit req;

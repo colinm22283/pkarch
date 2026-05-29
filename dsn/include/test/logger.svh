@@ -1,7 +1,7 @@
 `ifndef LOGGER_SVH
 `define LOGGER_SVH
 
-`include "logger_config.svh"
+`include "test/logger_config.svh"
 
 `define DL_NAME_MAX_LEN (256)
 

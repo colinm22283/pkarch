@@ -1,10 +1,10 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
-`include "dispatch.svh"
-`include "fetch.svh"
-`include "logger.svh"
-`include "icache.svh"
+`include "core/dispatch.svh"
+`include "core/fetch.svh"
+`include "test/logger.svh"
+`include "bus/icache.svh"
 
 module fetch_m(
     input wire clk_i,

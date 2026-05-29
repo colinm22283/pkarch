@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-`include "bus.svh"
+`include "bus/bus.svh"
 
 module bus_master_m(
     input wire clk_i,

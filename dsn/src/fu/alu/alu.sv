@@ -1,7 +1,7 @@
 `timescale 1ns/100ps
 
-`include "fu.svh"
-`include "commit.svh"
+`include "fu/fu.svh"
+`include "core/commit.svh"
 
 module alu_m #(
     parameter WIDTH = 2,

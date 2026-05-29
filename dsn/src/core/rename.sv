@@ -1,7 +1,7 @@
 `include "config.svh"
-`include "rename.svh"
-`include "prf.svh"
-`include "logger.svh"
+`include "core/rename.svh"
+`include "core/prf.svh"
+`include "test/logger.svh"
 
 module rename_m(
     input wire clk_i,

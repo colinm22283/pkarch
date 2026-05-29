@@ -1,8 +1,8 @@
 `timescale 1ns/100ps
 
-`include "fu.svh"
-`include "commit.svh"
 `include "config.svh"
+`include "fu/fu.svh"
+`include "core/commit.svh"
 
 module commit_m(
     input wire clk_i,

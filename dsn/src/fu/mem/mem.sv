@@ -1,8 +1,8 @@
 `timescale 1ns/100ps
 
-`include "fu.svh"
-`include "commit.svh"
-`include "bus.svh"
+`include "fu/fu.svh"
+`include "core/commit.svh"
+`include "bus/bus.svh"
 
 module mem_m #(
     parameter WIDTH = 2,

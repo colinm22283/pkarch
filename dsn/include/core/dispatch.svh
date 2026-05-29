@@ -2,8 +2,8 @@
 `define DISPATCH_SVH
 
 `include "isa.svh"
-`include "rob.svh"
-`include "pc.svh"
+`include "core/rob.svh"
+`include "core/pc.svh"
 
 typedef struct packed {
     bit valid;

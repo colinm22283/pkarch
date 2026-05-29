@@ -1,5 +1,5 @@
 `include "config.svh"
-`include "dispatch.svh"
+`include "core/dispatch.svh"
 
 module issue_queue_m(
     input wire clk_i,

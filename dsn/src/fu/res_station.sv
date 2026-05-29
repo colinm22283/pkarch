@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-`include "fu.svh"
+`include "fu/fu.svh"
 
 module res_station_m #(
     parameter SIZE = 3,
