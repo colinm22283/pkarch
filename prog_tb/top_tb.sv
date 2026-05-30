@@ -91,6 +91,8 @@ module top_tb();
     rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_disi;
     rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_diso;
 
+    wire rename_jump;
+
     rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_comi;
     rename_commit_o_t [COMMIT_WIDTH - 1:0] rename_como;
 
@@ -154,6 +156,8 @@ module top_tb();
 
         .flush_i(flush),
 
+        .rename_jump_o(rename_jump),
+
         .dispatch_i(buffered_dispatchi),
         .dispatch_o(buffered_dispatcho),
 
@@ -173,6 +177,8 @@ module top_tb();
 
         .flush_i(flush),
         .flush_complete_o(rename_flush_complete),
+
+        .jump_i(rename_jump),
 
         .dispatch_i(rename_disi),
         .dispatch_o(rename_diso),
@@ -266,6 +272,8 @@ module top_tb();
         .clk_i(clk),
         .nrst_i(nrst),
 
+        .flush_i(flush),
+
         .mports_i(mportbi),
         .mports_o(mportbo),
 
@@ -340,7 +348,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #100000;
+        #1000000;
 
         $finish;
     end

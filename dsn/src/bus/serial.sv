@@ -19,9 +19,14 @@ module serial_m #(
         if (sport_i.addr == ADDRESS) begin
             sport_o.ack = 1;
 
-            `DL(log, ("SERIAL: 0x%x", sport_i.data));
+            if (`SERIAL_ASCII_MODE) begin
+                $write("%c", sport_i.data[7:0]);
+            end
+            else begin
+                `DL(log, ("SERIAL: 0x%x", sport_i.data));
+            end
 
-            for (int i = 0; i < 100; i++) begin
+            for (int i = 0; i < 10; i++) begin
                 wait(clk_i);
                 wait(!clk_i);
             end

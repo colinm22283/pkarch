@@ -12,6 +12,8 @@ module dispatch_m(
 
     input wire flush_i,
 
+    output logic rename_jump_o,
+
     input  dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatch_i,
     output dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatch_o,
 
@@ -181,9 +183,11 @@ module dispatch_m(
             res_dispatcho[i] = 0;
         end
 
+        rename_jump_o = 0;
+
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
             if (!flush_i) begin
-                if (entries[i].valid) begin
+                if (!rename_jump_o && entries[i].valid) begin
                     if (!entries[i].rob_id_valid) begin
                         rob_dispatch_o[i].valid = 1;
                     end
@@ -222,6 +226,14 @@ module dispatch_m(
                         rename_dispatch_o[rename_index].isa_addr = entries[i].dec_inst.rd;
 
                         rename_index++;
+                    end
+
+                    if (
+                        entries[i].dec_inst.opcode == OPCODE_BRANCH ||
+                        entries[i].dec_inst.opcode == OPCODE_LINK ||
+                        entries[i].dec_inst.opcode == OPCODE_LINKREG
+                    ) begin
+                        rename_jump_o = 1;
                     end
 
                     if (

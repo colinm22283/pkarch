@@ -7,6 +7,8 @@ module lsq_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input wire flush_i,
+
     input  bus_miport_t [MEMORY_PORTS - 1:0] mports_i,
     output bus_moport_t [MEMORY_PORTS - 1:0] mports_o,
 
@@ -52,85 +54,88 @@ module lsq_m(
             end
         end
         else begin
-            if (!mem_active) begin
-                logic cont;
-                logic [$clog2(MEMORY_PORTS + 1) - 1:0] activate_count;
+            if (flush_i) begin
+                size = 0;
+            end
+            else begin
+                if (!mem_active) begin
+                    logic cont;
+                    logic [$clog2(MEMORY_PORTS + 1) - 1:0] activate_count;
 
-                cont = 1;
-                activate_count = 0;
+                    cont = 1;
+                    activate_count = 0;
 
-                for (int i = 0; i < MEMORY_PORTS; i++) begin
-                    if (cont && i < size) begin
-                        if (entries[0].rw == BUS_RW_READ) begin
-                            active_entries[i] = entries[0];
-                            states[i] = STATE_REQ;
-
-                            activate_count = activate_count + 1;
-                        end
-                        else begin
-                            if (rob_write_valid_i) begin
+                    for (int i = 0; i < MEMORY_PORTS; i++) begin
+                        if (cont && i < size) begin
+                            if (entries[0].rw == BUS_RW_READ) begin
                                 active_entries[i] = entries[0];
                                 states[i] = STATE_REQ;
 
                                 activate_count = activate_count + 1;
                             end
                             else begin
-                                cont = 0;
+                                if (rob_write_valid_i) begin
+                                    active_entries[i] = entries[0];
+                                    states[i] = STATE_REQ;
+
+                                    activate_count = activate_count + 1;
+                                end
+                                else begin
+                                    cont = 0;
+                                end
                             end
                         end
                     end
-                end
 
-                for (int j = 0; j < LSQ_SIZE; j++) begin
-                    if (j < LSQ_SIZE - 32'(activate_count)) begin
-                        entries[j] = entries[j + 32'(activate_count)];
-                    end
-                end
-                size = size - LSQ_SIZE_WIDTH'(activate_count);
-
-                if (activate_count != 0) begin
-                    `DL(log, ("Activating %0d memory transactions", activate_count));
-                end
-            end
-
-
-
-            for (int i = 0; i < MEMORY_PORTS; i++) begin
-                case (states[i])
-                    STATE_IDLE: ;
-
-                    STATE_REQ: begin
-                        if (mports_i[i].ack) begin
-                            states[i] = STATE_ACK;
-
-                            `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
+                    for (int j = 0; j < LSQ_SIZE; j++) begin
+                        if (j < LSQ_SIZE - 32'(activate_count)) begin
+                            entries[j] = entries[j + 32'(activate_count)];
                         end
                     end
+                    size = size - LSQ_SIZE_WIDTH'(activate_count);
 
-                    STATE_ACK: begin
-                        if (!mports_i[i].ack) begin
-                            states[i] = STATE_DONE;
-
-                            commit_data[i] = mports_i[i].data;
-                        end
+                    if (activate_count != 0) begin
+                        `DL(log, ("Activating %0d memory transactions", activate_count));
                     end
+                end
 
-                    STATE_DONE: begin
-                        if (commit_i[i].ready) begin
-                            states[i] = STATE_IDLE;
+                for (int i = 0; i < MEMORY_PORTS; i++) begin
+                    case (states[i])
+                        STATE_IDLE: ;
+
+                        STATE_REQ: begin
+                            if (mports_i[i].ack) begin
+                                states[i] = STATE_ACK;
+
+                                `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
+                            end
                         end
-                    end
-                endcase
-            end
 
-            if (dispatch_i.valid && accept_dispatch) begin
-                entries[size].rob_id = dispatch_i.rob_id;
-                entries[size].size = dispatch_i.size;
-                entries[size].rw = dispatch_i.rw;
-                entries[size].addr = dispatch_i.addr;
-                entries[size].data = dispatch_i.data;
+                        STATE_ACK: begin
+                            if (!mports_i[i].ack) begin
+                                states[i] = STATE_DONE;
 
-                size = size + 1;
+                                commit_data[i] = mports_i[i].data;
+                            end
+                        end
+
+                        STATE_DONE: begin
+                            if (commit_i[i].ready) begin
+                                states[i] = STATE_IDLE;
+                            end
+                        end
+                    endcase
+                end
+
+                if (dispatch_i.valid && accept_dispatch) begin
+                    entries[size].rob_id = dispatch_i.rob_id;
+                    entries[size].size = dispatch_i.size;
+                    entries[size].rw = dispatch_i.rw;
+                    entries[size].addr = dispatch_i.addr;
+                    entries[size].data = dispatch_i.data;
+
+                    size = size + 1;
+                end
             end
         end
     end

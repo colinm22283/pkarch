@@ -83,7 +83,7 @@ module rob_m(
                 for (int i = 0; i < ROB_COMMIT_WIDTH; i++) begin
                     if (commit_i[i].valid) begin
                         `DL(log, (
-                            "Committing rob entry %0d, jmp = %x",
+                            "Marking rob entry %0d, jmp = %x",
                             commit_i[i].rob_id,
                             commit_i[i].jmp
                         ));
@@ -109,7 +109,7 @@ module rob_m(
 
                         if (commit_entry[i]) begin
                             `DL(log, (
-                                "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x, mem = %x, jmp = %x",
+                                "Committing entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x, mem = %x, jmp = %x",
                                 index,
                                 entries[index].rd_a,
                                 entries[index].isa_rd,

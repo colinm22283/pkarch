@@ -10,6 +10,8 @@ module rename_m(
     input  wire flush_i,
     output reg flush_complete_o,
 
+    input  wire jump_i,
+
     input  rename_dispatch_i_t [RENAME_WIDTH - 1:0] dispatch_i,
     output rename_dispatch_o_t [RENAME_WIDTH - 1:0] dispatch_o,
 
@@ -20,6 +22,7 @@ module rename_m(
 );
 
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
+    `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
     prf_addr_t committed_freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size;
@@ -61,6 +64,19 @@ module rename_m(
             if (flushing) begin
                 flushing = 0;
 
+                // TEMP
+                freelist_head = committed_freelist_head;
+                freelist_size = committed_freelist_size;
+                
+                for (int i = 0; i < PRF_SIZE; i++) begin
+                    freelist[i] = committed_freelist[i];
+                end
+
+                for (int i = 0; i < REG_COUNT; i++) begin
+                    map_table[i] = committed_map_table[i];
+                end
+                // TEMP
+
                 flush_complete_o = 0;
             end
             else if (flush_i) begin
@@ -69,8 +85,25 @@ module rename_m(
                 flush_complete_o = 1;
             end
             else begin
+                if (jump_i) begin
+                    `DL(log, ("Got jump in rename table"));
+                    committed_freelist_head = freelist_head;
+                    committed_freelist_size = freelist_size;
+                    
+                    for (int i = 0; i < PRF_SIZE; i++) begin
+                        committed_freelist[i] = freelist[i];
+                    end
+
+                    for (int i = 0; i < REG_COUNT; i++) begin
+                        committed_map_table[i] = map_table[i];
+                    end
+                end
+
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
-                    if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
+                    if (
+                        dispatch_i[i].valid && dispatch_o[i].ready &&
+                        dispatch_i[i].isa_addr != REG_ZERO
+                    ) begin
                         if (dispatch_i[i].write) begin
                             `DL(log, ("r%0d valid", dispatch_i[i].isa_addr));
                             map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
@@ -81,6 +114,7 @@ module rename_m(
                         end
                         else begin
                             if (!map_table[dispatch_i[i].isa_addr].valid) begin
+                                `DL(error, ("BADDDD"));
                                 $finish;
 
                                 map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
