@@ -11,6 +11,18 @@ module sim_stop_m #(
     output bus_soport_t sport_o
 );
 
+    integer total_clocks;
+    initial begin
+        total_clocks = 0;
+        
+        forever begin
+            wait(clk_i);
+            wait(!clk_i);
+
+            total_clocks++;
+        end
+    end
+
     `DL_DEFINE(log, "sim_stop_m", `DL_GREEN, `DL_ENABLE_SIM_STOP);
     `DL_DEFINE(error, "sim_stop_m ERROR", `DL_RED, `DL_ENABLE_SIM_STOP);
 
@@ -23,6 +35,8 @@ module sim_stop_m #(
         else begin
             `DL(error, ("Sim stop with code %0d", sport_i.data));
         end
+
+        `DL(log, ("Elapsed clocks: %0d", total_clocks));
 
         $finish;
     end

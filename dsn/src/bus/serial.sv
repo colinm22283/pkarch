@@ -26,7 +26,7 @@ module serial_m #(
                 `DL(log, ("SERIAL: 0x%x", sport_i.data));
             end
 
-            for (int i = 0; i < 10; i++) begin
+            for (int i = 0; i < 3; i++) begin
                 wait(clk_i);
                 wait(!clk_i);
             end

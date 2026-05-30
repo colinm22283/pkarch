@@ -2,7 +2,7 @@
 `define CONFIG_SVH
 
 `define DEBUG_MODE 0
-`define SERIAL_ASCII_MODE 1
+`define SERIAL_ASCII_MODE 0
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH = 1;
