@@ -21,6 +21,7 @@
 `define DL_ENABLE_RENAME   `DEBUG_MODE
 `define DL_ENABLE_FETCH    `DEBUG_MODE
 `define DL_ENABLE_ROB      `DEBUG_MODE
+`define DL_ENABLE_LSQ      `DEBUG_MODE
 
 `endif
 

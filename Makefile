@@ -7,7 +7,7 @@ export INCLUDE_DIR=$(DSN_DIR)/include
 export VERILATOR?=verilator
 export GTKWAVE?=gtkwave
 
-export VFLAGS?=--threads 16 -j 16
+export VFLAGS+=--threads 16 -j 16
 export VFLAGS+=--timing
 
 include dsn/sources.mk

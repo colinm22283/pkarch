@@ -4,6 +4,7 @@
 `include "core/rob.svh"
 `include "core/rename.svh"
 `include "core/fetch.svh"
+`include "test/logger.svh"
 
 module rob_m(
     input wire clk_i,
@@ -21,7 +22,10 @@ module rob_m(
     output rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_commit_o,
 
     input  fetch_jump_o_t jump_i,
-    output fetch_jump_i_t jump_o
+    output fetch_jump_i_t jump_o,
+
+    input  wire rob_write_ready_i,
+    output wire rob_write_valid_o
 );
 
     `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);
@@ -31,7 +35,7 @@ module rob_m(
 
     rob_entry_t [ROB_SIZE - 1:0] entries;
 
-    logic [ROB_SIZE - 1:0] commit_entry;
+    logic [COMMIT_WIDTH - 1:0] commit_entry;
 
     logic dispatch_any_valid;
     always_comb begin
@@ -45,18 +49,18 @@ module rob_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            head <= 0;
-            tail <= 0;
-            size <= 0;
+            head = 0;
+            tail = 0;
+            size = 0;
         end
         else begin
             if (flush_i) begin
                 for (int i = 0; i < ROB_SIZE; i++) begin
                     entries[i].valid = 0;
 
-                    head <= 0;
-                    tail <= 0;
-                    size <= 0;
+                    head = 0;
+                    tail = 0;
+                    size = 0;
                 end
             end
             else begin
@@ -78,38 +82,76 @@ module rob_m(
 
                 for (int i = 0; i < ROB_COMMIT_WIDTH; i++) begin
                     if (commit_i[i].valid) begin
+                        `DL(log, (
+                            "Committing rob entry %0d, jmp = %x",
+                            commit_i[i].rob_id,
+                            commit_i[i].jmp
+                        ));
+
                         entries[commit_i[i].rob_id].busy = 0;
                         entries[commit_i[i].rob_id].jmp  = commit_i[i].jmp;
                         entries[commit_i[i].rob_id].jmp_target = commit_i[i].jmp_target;
+                        entries[commit_i[i].rob_id].mem  = commit_i[i].mem;
                         entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
                         entries[commit_i[i].rob_id].isa_rd = commit_i[i].isa_addr;
                         entries[commit_i[i].rob_id].prev_rd = commit_i[i].prev_addr;
                     end
                 end
 
-                for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                    rob_id_t index;
+                begin
+                    rob_id_t old_head;
+                    old_head = head;
 
-                    index = ROB_ID_WIDTH'((i + 32'(head)) % ROB_SIZE);
+                    for (int i = 0; i < COMMIT_WIDTH; i++) begin
+                        rob_id_t index;
 
-                    if (commit_entry[i]) begin
-                        `DL(log, (
-                            "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x",
-                            index,
-                            entries[index].rd_a,
-                            entries[index].isa_rd,
-                            entries[index].prev_rd
-                        ));
+                        index = ROB_ID_WIDTH'((i + 32'(old_head)) % ROB_SIZE);
 
-                        entries[index].valid = 0;
+                        if (commit_entry[i]) begin
+                            `DL(log, (
+                                "committed entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x, mem = %x, jmp = %x",
+                                index,
+                                entries[index].rd_a,
+                                entries[index].isa_rd,
+                                entries[index].prev_rd,
+                                entries[index].mem,
+                                entries[index].jmp
+                            ));
 
-                        size = size - 1;
-                        head = head + 1;
+                            entries[index].valid = 0;
+
+                            size = size - 1;
+                            head = head + 1;
+                        end
                     end
                 end
             end
         end
     end
+
+    logic mem, rd_a, jmp;
+
+    assign mem = entries[head].mem;
+    assign rd_a = entries[head].rd_a;
+    assign jmp = entries[head].jmp;
+
+    logic mem1, rd_a1, jmp1;
+
+    assign mem1 = entries[head + 1].mem;
+    assign rd_a1 = entries[head + 1].rd_a;
+    assign jmp1 = entries[head + 1].jmp;
+
+    logic evalid;
+    assign evalid = entries[head].valid;
+
+    logic evalid1;
+    assign evalid1 = entries[head + 1].valid;
+
+    logic ebusy;
+    assign ebusy = entries[head].busy;
+
+    logic ebusy1;
+    assign ebusy1 = entries[head + 1].busy;
 
     always_comb begin
         logic cont;
@@ -141,6 +183,7 @@ module rob_m(
 
         rename_commit_o = 0;
         commit_entry = 0;
+        rob_write_valid_o = 0;
 
         if (!flush_i) begin
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
@@ -161,7 +204,7 @@ module rob_m(
                             commit_entry[i] &= rename_commit_i[i].ready;
 
                             if (!rename_commit_i[i].ready) begin
-                                commit_entry[i] = 0;
+                                // commit_entry[i] = 0;
 
                                 cont = 0;
                             end
@@ -175,9 +218,19 @@ module rob_m(
                             cont = 0;
                         end
 
+                        if (entries[index].mem) begin
+                            commit_entry[i] &= rob_write_ready_i;
+
+                            cont = 0;
+                        end
+
                         if (commit_entry[i]) begin
                             if (entries[index].rd_a) begin
                                 rename_commit_o[i].valid = 1;
+                            end
+
+                            if (entries[index].mem) begin
+                                rob_write_valid_o = 1;
                             end
 
                             if (entries[index].jmp) begin

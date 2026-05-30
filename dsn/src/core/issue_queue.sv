@@ -5,6 +5,8 @@ module issue_queue_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input wire flush_i,
+
     input  dispatch_i_t [DISPATCH_WIDTH - 1:0] sdispatch_i,
     output dispatch_o_t [DISPATCH_WIDTH - 1:0] sdispatch_o,
 
@@ -47,21 +49,26 @@ module issue_queue_m(
             size = 0;
         end
         else begin
-            if (pop && push && size == 0) ;
-            else if (pop && size != 0) begin
-                for (int i = 0; i < ISSUE_QUEUE_SIZE - 1; i++) begin
-                    entries[i] = entries[i + 1];
-                end
-                size = size - 1;
+            if (flush_i) begin
+                size = 0;
             end
-            else if (push && size != ISSUE_QUEUE_SIZE) begin
-                for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                    entries[size][i].valid = sdispatch_i[i].valid;
-
-                    entries[size][i].pc = sdispatch_i[i].pc;
-                    entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
+            else begin
+                if (pop && push && size == 0) ;
+                else if (pop && size != 0) begin
+                    for (int i = 0; i < ISSUE_QUEUE_SIZE - 1; i++) begin
+                        entries[i] = entries[i + 1];
+                    end
+                    size = size - 1;
                 end
-                size = size + 1;
+                else if (push && size != ISSUE_QUEUE_SIZE) begin
+                    for (int i = 0; i < DISPATCH_WIDTH; i++) begin
+                        entries[size][i].valid = sdispatch_i[i].valid;
+
+                        entries[size][i].pc = sdispatch_i[i].pc;
+                        entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
+                    end
+                    size = size + 1;
+                end
             end
         end
     end

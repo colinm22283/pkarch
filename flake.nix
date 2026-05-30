@@ -2,7 +2,7 @@
   description = "PKArch Developement Flake";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.11";
+    nixpkgs.url = "nixpkgs/nixos-26.05";
     utils.url = "github:numtide/flake-utils";
   };
 
@@ -19,6 +19,7 @@
           buildInputs = [
             pkgs.verilator
             pkgs.gtkwave
+            pkgs.zlib
 
             riscvPkgs.buildPackages.binutils
           ];

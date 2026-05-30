@@ -59,13 +59,16 @@ module rename_m(
         end
         else begin
             if (flushing) begin
-                flushing = 1;
+                flushing = 0;
 
                 flush_complete_o = 0;
             end
             else if (flush_i) begin
                 flushing = 1;
-            end else begin
+
+                flush_complete_o = 1;
+            end
+            else begin
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
                     if (dispatch_i[i].valid && dispatch_o[i].ready && dispatch_i[i].isa_addr != REG_ZERO) begin
                         if (dispatch_i[i].write) begin

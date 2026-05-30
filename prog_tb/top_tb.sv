@@ -110,6 +110,11 @@ module top_tb();
     res_dispatch_i_t [FU_COUNT - 1:0] res_disi;
     res_dispatch_o_t [FU_COUNT - 1:0] res_diso;
 
+    wire rob_write_ready, rob_write_valid;
+
+    lsq_dispatch_i_t [1:0] lsq_disi;
+    lsq_dispatch_o_t [1:0] lsq_diso;
+
     commit_i_t [FU_COUNT - 1:0] comi, reg_comi;
     commit_o_t [FU_COUNT - 1:0] como, reg_como;
 
@@ -133,6 +138,8 @@ module top_tb();
     issue_queue_m issue_queue(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .sdispatch_i(dispatchi),
         .sdispatch_o(dispatcho),
@@ -192,7 +199,10 @@ module top_tb();
         .rename_commit_o(rename_comi),
 
         .jump_i(jumpo),
-        .jump_o(jumpi)
+        .jump_o(jumpi),
+
+        .rob_write_ready_i(rob_write_ready),
+        .rob_write_valid_o(rob_write_valid)
     );
 
     prf_m prf(
@@ -223,14 +233,11 @@ module top_tb();
         .commit_o(comi[0])
     );
 
-    mem_m #(1, 16) mem(
+    mem_m #(16) mem(
         .clk_i(clk),
         .nrst_i(nrst),
 
         .flush_i(flush),
-
-        .mport_i(mportbi),
-        .mport_o(mportbo),
 
         .dispatch_i(res_disi[1]),
         .dispatch_o(res_diso[1]),
@@ -238,8 +245,41 @@ module top_tb();
         .rport_i(prf_rporto[3:2]),
         .rport_o(prf_rporti[3:2]),
 
+        .lsq_dispatch_i(lsq_diso[0]),
+        .lsq_dispatch_o(lsq_disi[0])
+    );
+
+    pipe_reg_m #(lsq_dispatch_i_t, lsq_dispatch_o_t) lsq_reg(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .flush_i(flush),
+
+        .s_i(lsq_disi[0]),
+        .s_o(lsq_diso[0]),
+
+        .m_i(lsq_diso[1]),
+        .m_o(lsq_disi[1])
+    );
+
+    lsq_m lsq(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mports_i(mportbi),
+        .mports_o(mportbo),
+
+        .dispatch_i(lsq_disi[1]),
+        .dispatch_o(lsq_diso[1]),
+
         .commit_i(como[1]),
-        .commit_o(comi[1])
+        .commit_o(comi[1]),
+
+        .write_commit_i(como[2]),
+        .write_commit_o(comi[2]),
+
+        .rob_write_valid_i(rob_write_valid),
+        .rob_write_ready_o(rob_write_ready)
     );
 
     jmp_m #(3) jmp(
@@ -254,13 +294,15 @@ module top_tb();
         .rport_i(prf_rporto[5:4]),
         .rport_o(prf_rporti[5:4]),
 
-        .commit_i(como[2]),
-        .commit_o(comi[2])
+        .commit_i(como[3]),
+        .commit_o(comi[3])
     );
 
     pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(flush),
 
         .s_i(comi),
         .s_o(como),

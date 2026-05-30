@@ -73,7 +73,7 @@ module fetch_m(
 
                         pc <= pc + 4;
 
-                        `DL(log, ("Loaded instruction from 0x%x", pc));
+                        `DL(log, ("Loaded instruction 0x%x from 0x%x", icache_i.data, pc));
                     end
                 end
             endcase

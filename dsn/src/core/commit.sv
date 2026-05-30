@@ -17,9 +17,6 @@ module commit_m(
     output prf_wport_i_t [ROB_COMMIT_WIDTH - 1:0] prf_wport_o
 );
 
-    logic [FU_COUNT - 1:0] commit_ready;
-    logic [FU_COUNT - 1:0] commit_valid;
-
     always_comb begin
         logic [$clog2(ROB_COMMIT_WIDTH + 1) - 1:0] commit_num;
 
@@ -37,6 +34,7 @@ module commit_m(
                 rob_commit_o[commit_num].rob_id = commit_i[i].rob_id;
                 rob_commit_o[commit_num].jmp = commit_i[i].jmp;
                 rob_commit_o[commit_num].jmp_target = commit_i[i].jmp_target;
+                rob_commit_o[commit_num].mem = commit_i[i].mem;
                 rob_commit_o[commit_num].rd_a   = commit_i[i].rd_a;
                 rob_commit_o[commit_num].isa_addr = commit_i[i].isa_addr;
                 rob_commit_o[commit_num].prev_addr = commit_i[i].prev_rd;
