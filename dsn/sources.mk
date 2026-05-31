@@ -1,4 +1,5 @@
 SRCS+=core/fetch.sv
+SRCS+=core/fetch_expander.sv
 SRCS+=core/issue_queue.sv
 SRCS+=core/decoder.sv
 SRCS+=core/dispatch.sv

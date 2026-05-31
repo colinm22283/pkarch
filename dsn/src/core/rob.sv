@@ -162,7 +162,7 @@ module rob_m(
         cont = 1;
         index = 0;
 
-        dispatch_ready = size != ROB_SIZE;
+        dispatch_ready = size != ROB_SIZE; // TODO
 
         rob_ids = 0;
 

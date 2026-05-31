@@ -9,6 +9,7 @@ export GTKWAVE?=gtkwave
 
 export VFLAGS+=--threads 16 -j 16
 export VFLAGS+=--timing
+# export VFLAGS+=-Wno-UNOPTFLAT
 
 include dsn/sources.mk
 

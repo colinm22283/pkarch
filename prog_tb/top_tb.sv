@@ -82,8 +82,11 @@ module top_tb();
     logic flush;
     logic rename_flush_complete;
     
-    dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatchi;
-    dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatcho;
+    dispatch_i_t dispatchi;
+    dispatch_o_t dispatcho;
+
+    dispatch_i_t [DISPATCH_WIDTH - 1:0] expanded_dispatchi;
+    dispatch_o_t [DISPATCH_WIDTH - 1:0] expanded_dispatcho;
     
     dispatch_i_t [DISPATCH_WIDTH - 1:0] buffered_dispatchi;
     dispatch_o_t [DISPATCH_WIDTH - 1:0] buffered_dispatcho;
@@ -136,8 +139,8 @@ module top_tb();
         .dispatch_i(dispatcho),
         .dispatch_o(dispatchi)
     );
-    
-    issue_queue_m issue_queue(
+
+    fetch_expander_m fetch_expander(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -145,6 +148,19 @@ module top_tb();
 
         .sdispatch_i(dispatchi),
         .sdispatch_o(dispatcho),
+
+        .mdispatch_i(expanded_dispatcho),
+        .mdispatch_o(expanded_dispatchi)
+    );
+    
+    issue_queue_m issue_queue(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .flush_i(flush),
+
+        .sdispatch_i(expanded_dispatchi),
+        .sdispatch_o(expanded_dispatcho),
 
         .mdispatch_i(buffered_dispatcho),
         .mdispatch_o(buffered_dispatchi)
