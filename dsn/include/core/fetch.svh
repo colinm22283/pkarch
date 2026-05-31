@@ -1,6 +1,8 @@
 `ifndef FETCH_SVH
 `define FETCH_SVH
 
+`include "core/pc.svh"
+
 typedef struct packed {
     bit valid;
 

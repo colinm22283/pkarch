@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 `include "config.svh"
 `include "core/lsq.svh"
 `include "bus/bus.svh"

@@ -1,8 +1,8 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
-`include "core/dispatch.svh"
 `include "core/fetch.svh"
+`include "core/dispatch.svh"
 `include "test/logger.svh"
 `include "bus/icache.svh"
 
@@ -16,8 +16,8 @@ module fetch_m(
     input  fetch_jump_i_t jump_i,
     output fetch_jump_o_t jump_o,
 
+    input  wire flush_complete_i,
     output wire flush_o,
-    input wire flush_complete_i,
 
     input  dispatch_o_t dispatch_i,
     output dispatch_i_t dispatch_o
@@ -25,71 +25,55 @@ module fetch_m(
 
     `DL_DEFINE(log, "fetch_m", `DL_CYAN, `DL_ENABLE_FETCH);
 
-    logic [2:0] state;
+    pc_t pc;
 
-    bus_addr_t pc;
-    
-    logic inst_ready;
-    inst_t inst;
-    pc_t inst_pc;
+    inst_t     inst;
     dec_inst_t dec_inst;
+
+    enum logic [1:0] {
+        STATE_RUN,
+        STATE_FLUSH
+    } state;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            state <= 0;
-
-            pc <= 0;
-
-            inst_ready <= 0;
+            pc = 0;
         end
         else begin
-            if (flush_complete_i) flush_o <= 0;
-
             case (state)
-                0: begin
+                STATE_RUN: begin
                     if (jump_i.valid) begin
-                        `DL(log, ("Jump requested to 0x%x", jump_i.target));
+                        state = STATE_FLUSH;
 
-                        pc <= jump_i.target;
-                        flush_o <= 1;
+                        pc = jump_i.target;
                     end
-                    else if (!inst_ready) begin
-                        state <= 1;
-
-                        icache_o.req  <= 1;
-                        icache_o.addr <= pc;
+                    else begin
+                        if (dispatch_i.ready && icache_i.ack) begin
+                            pc = pc + 4;
+                        end
                     end
                 end
 
-                1: begin
-                    if (icache_i.ack) begin
-                        state <= 0;
-
-                        icache_o.req <= 0;
-
-                        inst_ready <= 1;
-                        inst       <= icache_i.data;
-                        inst_pc    <= pc;
-
-                        pc <= pc + 4;
-
-                        `DL(log, ("Loaded instruction 0x%x from 0x%x", icache_i.data, pc));
-                    end
+                STATE_FLUSH: begin
+                    if (flush_complete_i) state = STATE_RUN;
                 end
+
+                default: ;
             endcase
-
-            if (inst_ready && dispatch_i.ready) begin
-                inst_ready <= 0;
-            end
         end
     end
 
     always_comb begin
-        jump_o.ready = state == 0;
+        icache_o.addr = pc;
+        icache_o.req  = state == STATE_RUN;
+        inst          = icache_i.data;
 
-        dispatch_o.valid    = inst_ready;
-        dispatch_o.pc       = inst_pc;
+        dispatch_o.pc = pc;
         dispatch_o.dec_inst = dec_inst;
+        dispatch_o.valid = icache_i.ack && state == STATE_RUN && !jump_i.valid;
+
+        jump_o.ready = state == STATE_RUN;
+        flush_o      = state == STATE_FLUSH;
     end
 
     decoder_m decoder(
@@ -98,4 +82,4 @@ module fetch_m(
     );
 
 endmodule
-    
+

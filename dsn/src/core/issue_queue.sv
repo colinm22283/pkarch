@@ -30,18 +30,18 @@ module issue_queue_m(
 
     always_comb begin
         push = 0;
+        for (int i = 0; i < DISPATCH_WIDTH; i++) push |= sdispatch_i[i].valid;
 
-        for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-            push |= sdispatch_i[i].valid;
-        end
+        push &= size != ISSUE_QUEUE_SIZE;
     end
 
     always_comb begin
-        pop = 0;
-
+        pop = 1;
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-            pop |= mdispatch_i[i].ready;
+            if (entries[0][i].valid) pop &= mdispatch_i[i].ready;
         end
+
+        pop &= size != 0;
     end
 
     always_ff @(posedge clk_i) begin
@@ -53,51 +53,36 @@ module issue_queue_m(
                 size = 0;
             end
             else begin
-                if (pop && push && size == 0) ;
-                else if (pop && size != 0) begin
+                if (push) begin
+                    for (int i = 0; i < DISPATCH_WIDTH; i++) begin
+                        entries[size][i].valid    = sdispatch_i[i].valid;
+                        entries[size][i].pc       = sdispatch_i[i].pc;
+                        entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
+                    end
+
+                    size = size + 1;
+                end
+                
+                if (pop) begin
                     for (int i = 0; i < ISSUE_QUEUE_SIZE - 1; i++) begin
                         entries[i] = entries[i + 1];
                     end
-                    size = size - 1;
-                end
-                else if (push && size != ISSUE_QUEUE_SIZE) begin
-                    for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                        entries[size][i].valid = sdispatch_i[i].valid;
 
-                        entries[size][i].pc = sdispatch_i[i].pc;
-                        entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
-                    end
-                    size = size + 1;
+                    size = size - 1;
                 end
             end
         end
     end
 
     always_comb begin
-        if (pop && push && size == 0) begin
-            for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                mdispatch_o[i].valid = 1;
-                mdispatch_o[i].pc = sdispatch_i[i].pc;
-                mdispatch_o[i].dec_inst = sdispatch_i[i].dec_inst;
-            end
-        end
-        else if (pop && size != 0) begin
-            for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                mdispatch_o[i].valid = entries[0][i].valid;
-                mdispatch_o[i].pc = entries[0][i].pc;
-                mdispatch_o[i].dec_inst = entries[0][i].dec_inst;
-            end
-        end
-        else begin
-            for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                mdispatch_o[i].valid = 0;
-                mdispatch_o[i].pc = 0;
-                mdispatch_o[i].dec_inst = 0;
-            end
+        for (int i = 0; i < DISPATCH_WIDTH; i++) begin
+            sdispatch_o[i].ready = push;
         end
 
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-            sdispatch_o[i].ready = size != ISSUE_QUEUE_SIZE || (push && pop);
+            mdispatch_o[i].valid    = pop && entries[0][i].valid;
+            mdispatch_o[i].pc       = entries[0][i].pc;
+            mdispatch_o[i].dec_inst = entries[0][i].dec_inst;
         end
     end
 
