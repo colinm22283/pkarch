@@ -37,25 +37,29 @@ module fetch_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            pc = 0;
+            state <= STATE_RUN;
+
+            pc <= 0;
         end
         else begin
             case (state)
                 STATE_RUN: begin
                     if (jump_i.valid) begin
-                        state = STATE_FLUSH;
+                        state <= STATE_FLUSH;
 
-                        pc = jump_i.target;
+                        pc <= jump_i.target;
                     end
                     else begin
                         if (dispatch_i.ready && icache_i.ack) begin
-                            pc = pc + 4;
+                            pc <= pc + 4;
+
+                            $display("pc = %h, imm = %h", pc, dec_inst.imm);
                         end
                     end
                 end
 
                 STATE_FLUSH: begin
-                    if (flush_complete_i) state = STATE_RUN;
+                    if (flush_complete_i) state <= STATE_RUN;
                 end
 
                 default: ;

@@ -73,6 +73,14 @@ module jmp_fu_m(
         endcase
     end
 
+    always_ff @(posedge clk_i) begin
+        if (running) begin
+            $display("PC 2: %h", dispatch_i.pc);
+            $display("Offset: %h", offset);
+            $display("Imm: %h", dispatch_i.dec_inst.imm);
+        end
+    end
+
     always_comb begin
         rport_o[0].addr = dispatch_i.rs1;
         rport_o[1].addr = dispatch_i.rs2;

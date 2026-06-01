@@ -27,9 +27,9 @@ $(BUILD_DIR)/sim.cpp:
 	echo 'top->trace(tfp, 99);' >> $@
 	echo 'tfp->open("$(BUILD_DIR)/out.fst");' >> $@
 	echo 'while (!contextp->gotFinish()) {' >> $@
-	echo 'contextp->timeInc(1);' >> $@
-	echo 'tfp->dump(contextp->time());' >> $@
 	echo 'top->eval();' >> $@
+	echo 'tfp->dump(contextp->time());' >> $@
+	echo 'contextp->timeInc(1);' >> $@
 	echo '}' >> $@
 	echo 'tfp->close();' >> $@
 	echo 'delete top;' >> $@

@@ -5,7 +5,7 @@
 `define SERIAL_ASCII_MODE 0
 
 // CONFIGURABLE
-parameter DISPATCH_WIDTH = 2;
+parameter DISPATCH_WIDTH = 1;
 parameter RENAME_WIDTH   = 3;
 parameter COMMIT_WIDTH   = 2;
 

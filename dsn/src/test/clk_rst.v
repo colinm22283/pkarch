@@ -2,7 +2,7 @@
 
 module clk_rst_m #(
     parameter CLK_PER = 10,
-    parameter RESET_CYCLES = 10
+    parameter RESET_CYCLES = 20
 ) (
     output reg clk_o,
     output reg nrst_o

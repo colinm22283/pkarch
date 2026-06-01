@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 module fetch_expander_m(
     input wire clk_i,
     input wire nrst_i,
@@ -28,22 +30,24 @@ module fetch_expander_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            size = 0;
+            size <= 0;
         end
         else begin
             if (flush_i) begin
-                size = 0;
+                size <= 0;
             end
             else begin
                 if (size == DISPATCH_WIDTH) begin
-                    if (mready) size = 0;
+                    if (mready) size <= 0;
                 end
                 else begin
                     if (sdispatch_i.valid) begin
-                        entries[size].pc       = sdispatch_i.pc;
-                        entries[size].dec_inst = sdispatch_i.dec_inst;
+                        entries[size].pc       <= sdispatch_i.pc;
+                        entries[size].dec_inst <= sdispatch_i.dec_inst;
 
-                        size = size + 1;
+                        $display("PC: %h", sdispatch_i.pc);
+
+                        size <= size + 1;
                     end
                 end
             end

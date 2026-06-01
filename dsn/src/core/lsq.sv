@@ -49,17 +49,23 @@ module lsq_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            size = 0;
+            size <= 0;
 
             for (int i = 0; i < MEMORY_PORTS; i++) begin
-                states[i] = STATE_IDLE;
+                states[i] <= STATE_IDLE;
             end
         end
         else begin
             if (flush_i) begin
-                size = 0;
+                size <= 0;
             end
             else begin
+                logic [LSQ_SIZE_WIDTH - 1:0] t_size;
+                lsq_entry_t [LSQ_SIZE - 1:0] t_entries;
+
+                t_size = size;
+                t_entries = entries;
+
                 if (!mem_active) begin
                     logic cont;
                     logic [$clog2(MEMORY_PORTS + 1) - 1:0] activate_count;
@@ -68,17 +74,17 @@ module lsq_m(
                     activate_count = 0;
 
                     for (int i = 0; i < MEMORY_PORTS; i++) begin
-                        if (cont && i < size) begin
-                            if (entries[0].rw == BUS_RW_READ) begin
-                                active_entries[i] = entries[0];
-                                states[i] = STATE_REQ;
+                        if (cont && i < t_size) begin
+                            if (t_entries[0].rw == BUS_RW_READ) begin
+                                active_entries[i] <= t_entries[0];
+                                states[i] <= STATE_REQ;
 
                                 activate_count = activate_count + 1;
                             end
                             else begin
                                 if (rob_write_valid_i) begin
-                                    active_entries[i] = entries[0];
-                                    states[i] = STATE_REQ;
+                                    active_entries[i] <= t_entries[0];
+                                    states[i] <= STATE_REQ;
 
                                     activate_count = activate_count + 1;
                                 end
@@ -91,10 +97,10 @@ module lsq_m(
 
                     for (int j = 0; j < LSQ_SIZE; j++) begin
                         if (j < LSQ_SIZE - 32'(activate_count)) begin
-                            entries[j] = entries[j + 32'(activate_count)];
+                            t_entries[j] = t_entries[j + 32'(activate_count)];
                         end
                     end
-                    size = size - LSQ_SIZE_WIDTH'(activate_count);
+                    t_size = t_size - LSQ_SIZE_WIDTH'(activate_count);
 
                     if (activate_count != 0) begin
                         `DL(log, ("Activating %0d memory transactions", activate_count));
@@ -107,7 +113,7 @@ module lsq_m(
 
                         STATE_REQ: begin
                             if (mports_i[i].ack) begin
-                                states[i] = STATE_ACK;
+                                states[i] <= STATE_ACK;
 
                                 `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
                             end
@@ -115,29 +121,32 @@ module lsq_m(
 
                         STATE_ACK: begin
                             if (!mports_i[i].ack) begin
-                                states[i] = STATE_DONE;
+                                states[i] <= STATE_DONE;
 
-                                commit_data[i] = mports_i[i].data;
+                                commit_data[i] <= mports_i[i].data;
                             end
                         end
 
                         STATE_DONE: begin
                             if (commit_i[i].ready) begin
-                                states[i] = STATE_IDLE;
+                                states[i] <= STATE_IDLE;
                             end
                         end
                     endcase
                 end
 
                 if (dispatch_i.valid && accept_dispatch) begin
-                    entries[size].rob_id = dispatch_i.rob_id;
-                    entries[size].size = dispatch_i.size;
-                    entries[size].rw = dispatch_i.rw;
-                    entries[size].addr = dispatch_i.addr;
-                    entries[size].data = dispatch_i.data;
+                    t_entries[t_size].rob_id = dispatch_i.rob_id;
+                    t_entries[t_size].size = dispatch_i.size;
+                    t_entries[t_size].rw = dispatch_i.rw;
+                    t_entries[t_size].addr = dispatch_i.addr;
+                    t_entries[t_size].data = dispatch_i.data;
 
-                    size = size + 1;
+                    t_size = t_size + 1;
                 end
+
+                size = t_size;
+                entries = t_entries;
             end
         end
     end

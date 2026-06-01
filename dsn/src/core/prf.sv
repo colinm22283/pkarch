@@ -36,7 +36,7 @@ module prf_m(
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             for (int i = 0; i < PRF_SIZE; i++) begin
-                mem[i].valid = 0;
+                mem[i].valid <= 0;
             end
         end
         else begin
@@ -44,7 +44,7 @@ module prf_m(
                 if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
 
-                    mem[prf_rel_i[i].addr].valid = 0;
+                    mem[prf_rel_i[i].addr].valid <= 0;
                 end
             end
 
@@ -52,8 +52,8 @@ module prf_m(
                 if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr));
 
-                    mem[prf_wport_i[i].addr].valid = 1;
-                    mem[prf_wport_i[i].addr].data = prf_wport_i[i].data;
+                    mem[prf_wport_i[i].addr].valid <= 1;
+                    mem[prf_wport_i[i].addr].data <= prf_wport_i[i].data;
                 end
             end
         end
