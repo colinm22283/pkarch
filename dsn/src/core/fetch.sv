@@ -51,9 +51,8 @@ module fetch_m(
                     end
                     else begin
                         if (dispatch_i.ready && icache_i.ack) begin
+                            `DL(log, ("Instruction dispatch from %h, inst = %h", pc, inst));
                             pc <= pc + 4;
-
-                            $display("pc = %h, imm = %h", pc, dec_inst.imm);
                         end
                     end
                 end

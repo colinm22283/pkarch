@@ -45,8 +45,6 @@ module fetch_expander_m(
                         entries[size].pc       <= sdispatch_i.pc;
                         entries[size].dec_inst <= sdispatch_i.dec_inst;
 
-                        $display("PC: %h", sdispatch_i.pc);
-
                         size <= size + 1;
                     end
                 end

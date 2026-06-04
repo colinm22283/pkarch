@@ -107,34 +107,6 @@ module lsq_m(
                     end
                 end
 
-                for (int i = 0; i < MEMORY_PORTS; i++) begin
-                    case (states[i])
-                        STATE_IDLE: ;
-
-                        STATE_REQ: begin
-                            if (mports_i[i].ack) begin
-                                states[i] <= STATE_ACK;
-
-                                `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
-                            end
-                        end
-
-                        STATE_ACK: begin
-                            if (!mports_i[i].ack) begin
-                                states[i] <= STATE_DONE;
-
-                                commit_data[i] <= mports_i[i].data;
-                            end
-                        end
-
-                        STATE_DONE: begin
-                            if (commit_i[i].ready) begin
-                                states[i] <= STATE_IDLE;
-                            end
-                        end
-                    endcase
-                end
-
                 if (dispatch_i.valid && accept_dispatch) begin
                     t_entries[t_size].rob_id = dispatch_i.rob_id;
                     t_entries[t_size].size = dispatch_i.size;
@@ -145,8 +117,37 @@ module lsq_m(
                     t_size = t_size + 1;
                 end
 
-                size = t_size;
-                entries = t_entries;
+                size <= t_size;
+                entries <= t_entries;
+            end
+
+
+            for (int i = 0; i < MEMORY_PORTS; i++) begin
+                case (states[i])
+                    STATE_IDLE: ;
+
+                    STATE_REQ: begin
+                        if (mports_i[i].ack) begin
+                            states[i] <= STATE_ACK;
+
+                            `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
+                        end
+                    end
+
+                    STATE_ACK: begin
+                        if (!mports_i[i].ack) begin
+                            states[i] <= STATE_DONE;
+
+                            commit_data[i] <= mports_i[i].data;
+                        end
+                    end
+
+                    STATE_DONE: begin
+                        if (commit_i[i].ready) begin
+                            states[i] <= STATE_IDLE;
+                        end
+                    end
+                endcase
             end
         end
     end

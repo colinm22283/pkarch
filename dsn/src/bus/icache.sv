@@ -72,7 +72,7 @@ module icache_m #(
         if (!nrst_i) begin
             for (int i = 0; i < SET_COUNT; i++) begin
                 for (int j = 0; j < WAYS; j++) begin
-                    sets[i][j].valid = 0;
+                    sets[i][j].valid <= 0;
                 end
             end
 
@@ -84,18 +84,18 @@ module icache_m #(
                     if (icache_i.req) begin
                         if (test_found) state <= STATE_ACCESS;
                         else begin
-                            state  = STATE_FETCH;
-                            fstate = FSTATE_REQ;
+                            state  <= STATE_FETCH;
+                            fstate <= FSTATE_REQ;
 
-                            fetch_index = 0;
-                            fetch_addr  = icache_i.addr & ~(BUS_ADDR_WIDTH'({OFFSET_BITS{1'b1}}));
+                            fetch_index <= 0;
+                            fetch_addr  <= icache_i.addr & ~(BUS_ADDR_WIDTH'({OFFSET_BITS{1'b1}}));
 
                             for (int i = WAYS - 1; i > 0; i--) begin
-                                sets[test_addr.parts.index][i] = sets[test_addr.parts.index][i - 1];
+                                sets[test_addr.parts.index][i] <= sets[test_addr.parts.index][i - 1];
                             end
 
-                            sets[test_addr.parts.index][0].valid = 1;
-                            sets[test_addr.parts.index][0].tag = test_addr.parts.tag;
+                            sets[test_addr.parts.index][0].valid <= 1;
+                            sets[test_addr.parts.index][0].tag <= test_addr.parts.tag;
                         end
                     end
                 end
@@ -108,26 +108,26 @@ module icache_m #(
                     case (fstate)
                         FSTATE_REQ: begin
                             if (mport_i.ack) begin
-                                fstate = FSTATE_ACK;
+                                fstate <= FSTATE_ACK;
                             end
                         end
 
                         FSTATE_ACK: begin
                             if (!mport_i.ack) begin
-                                if (fetch_index == BLOCK_SIZE - 1) state = STATE_READY;
-                                else fstate = FSTATE_DONE;
+                                if (fetch_index == BLOCK_SIZE - 1) state <= STATE_READY;
+                                else fstate <= FSTATE_DONE;
 
-                                sets[test_addr.parts.index][0].mem[fetch_index] = mport_i.data;
+                                sets[test_addr.parts.index][0].mem[fetch_index] <= mport_i.data;
 
                                 `DL(log, ("Load 0x%x into 0x%x, 0x%x", mport_i.data, test_addr.parts.index, fetch_index));
                             end
                         end
 
                         FSTATE_DONE: begin
-                            fstate = FSTATE_REQ;
+                            fstate <= FSTATE_REQ;
 
-                            fetch_addr = fetch_addr + 4;
-                            fetch_index = fetch_index + 1;
+                            fetch_addr <= fetch_addr + 4;
+                            fetch_index <= fetch_index + 1;
                         end
                     endcase
                 end
