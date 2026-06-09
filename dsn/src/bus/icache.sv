@@ -61,7 +61,8 @@ module icache_m #(
         FSTATE_DONE
     } fstate;
 
-    offset_t fetch_index;
+    offset_t fetch_offset;
+    index_t  fetch_index;
     bus_addr_t fetch_addr;
 
     addr_t test_addr;
@@ -87,15 +88,18 @@ module icache_m #(
                             state  <= STATE_FETCH;
                             fstate <= FSTATE_REQ;
 
-                            fetch_index <= 0;
-                            fetch_addr  <= icache_i.addr & ~(BUS_ADDR_WIDTH'({OFFSET_BITS{1'b1}}));
+                            fetch_offset <= 0;
+                            fetch_index  <= test_addr.parts.index;
+                            fetch_addr   <= icache_i.addr & ~(BUS_ADDR_WIDTH'({OFFSET_BITS{1'b1}}));
 
                             for (int i = WAYS - 1; i > 0; i--) begin
                                 sets[test_addr.parts.index][i] <= sets[test_addr.parts.index][i - 1];
                             end
 
-                            sets[test_addr.parts.index][0].valid <= 1;
+                            sets[test_addr.parts.index][0].valid <= 0;
                             sets[test_addr.parts.index][0].tag <= test_addr.parts.tag;
+
+                            `DL(log, ("Address 0x%h not found", test_addr.addr));
                         end
                     end
                 end
@@ -114,12 +118,16 @@ module icache_m #(
 
                         FSTATE_ACK: begin
                             if (!mport_i.ack) begin
-                                if (fetch_index == BLOCK_SIZE - 1) state <= STATE_READY;
+                                if (fetch_offset == BLOCK_SIZE - 1) begin
+                                    sets[fetch_index][0].valid <= 1;
+
+                                    state <= STATE_READY;
+                                end
                                 else fstate <= FSTATE_DONE;
 
-                                sets[test_addr.parts.index][0].mem[fetch_index] <= mport_i.data;
+                                sets[fetch_index][0].mem[fetch_offset] <= mport_i.data;
 
-                                `DL(log, ("Load 0x%x into 0x%x, 0x%x", mport_i.data, test_addr.parts.index, fetch_index));
+                                `DL(log, ("Load 0x%x into 0x%x from 0x%x, 0x%x", mport_i.data, fetch_index, mport_o.addr, fetch_offset));
                             end
                         end
 
@@ -127,7 +135,7 @@ module icache_m #(
                             fstate <= FSTATE_REQ;
 
                             fetch_addr <= fetch_addr + 4;
-                            fetch_index <= fetch_index + 1;
+                            fetch_offset <= fetch_offset + 1;
                         end
                     endcase
                 end
@@ -138,7 +146,7 @@ module icache_m #(
     always_comb begin
         case (state)
             STATE_ACCESS: begin
-                icache_o.ack  = 1;
+                icache_o.ack  = test_found;
                 icache_o.data = sets[test_addr.parts.index][test_way].mem[test_addr.parts.offset / 4];
             end
 
@@ -155,11 +163,7 @@ module icache_m #(
 
         if (state == STATE_FETCH) begin
             case (fstate)
-                FSTATE_REQ: begin
-                    mport_o.req  = 1;
-                end
-
-                FSTATE_ACK: begin
+                FSTATE_REQ, FSTATE_ACK: begin
                     mport_o.req  = 1;
                 end
             endcase

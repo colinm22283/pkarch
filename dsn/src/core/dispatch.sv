@@ -44,7 +44,14 @@ module dispatch_m(
         end
     end
 
+    logic entries_complete;
     dispatch_entry_t [DISPATCH_WIDTH - 1:0] entries;
+
+    always_comb begin
+        entries_complete = 1;
+        for (int i = 0; i < DISPATCH_WIDTH; i++) entries_complete &= !entries[i].valid;
+    end
+
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -64,7 +71,7 @@ module dispatch_m(
                     entries[i].valid <= 0;
                 end
                 else begin
-                    if (!entries[i].valid) begin
+                    if (entries_complete) begin
                         if (dispatch_i[i].valid) begin
                             `DL(log, ("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode));
                             entries[i].valid <= 1;
@@ -79,7 +86,7 @@ module dispatch_m(
                             entries[i].rd_valid     <= 0;
                         end
                     end
-                    else begin
+                    else if (entries[i].valid) begin
                         if (!entries[i].rob_id_valid && rob_dispatch_i[i].ready) begin
                             entries[i].rob_id_valid <= 1;
                             entries[i].rob_id       <= rob_dispatch_i[i].id;
