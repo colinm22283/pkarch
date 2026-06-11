@@ -112,13 +112,14 @@ module rob_m(
 
                         if (commit_entry[i]) begin
                             `DL(log, (
-                                "Committing entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x, mem = %x, jmp = %x",
+                                "Committing entry 0x%x, rd_a = %x, isa_rd = r%0d, prev_rd = 0x%x, mem = %x, jmp = %x, mispred = %x",
                                 index,
                                 entries[index].rd_a,
                                 entries[index].isa_rd,
                                 entries[index].prev_rd,
                                 entries[index].mem,
-                                entries[index].jmp
+                                entries[index].jmp,
+                                entries[index].mispred
                             ));
 
                             entries[index].valid = 0;
@@ -241,7 +242,7 @@ module rob_m(
                                 jump_o.valid = 1;
                             end
 
-                            if (entries[index].jmp) begin
+                            if (entries[index].jmp && !entries[index].mispred) begin
                                 rename_jump_commit_o = 1;
                             end
                         end

@@ -77,6 +77,8 @@ module alu_fu_m(
 
         dispatch_o.ready = commit_i.ready && read_ports_valid;
 
+        commit_o = 0;
+
         commit_o.valid    = dispatch_i.valid && read_ports_valid;
         commit_o.rob_id   = dispatch_i.rob_id;
         commit_o.isa_addr = dispatch_i.isa_addr;

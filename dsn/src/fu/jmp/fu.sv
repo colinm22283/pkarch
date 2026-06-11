@@ -78,12 +78,15 @@ module jmp_fu_m(
         rport_o[1].addr = dispatch_i.rs2;
 
         dispatch_o.ready = commit_i.ready && read_ports_valid;
+
+        commit_o = 0;
         
         commit_o.valid = run;
 
         commit_o.rob_id = dispatch_i.rob_id;
 
-        commit_o.jmp = jump;
+        commit_o.jmp = 1;
+        commit_o.mispred = jump;
         commit_o.jmp_target = offset;
 
         commit_o.isa_addr = dispatch_i.isa_addr;
