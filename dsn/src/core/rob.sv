@@ -92,6 +92,7 @@ module rob_m(
 
                         entries[commit_i[i].rob_id].busy = 0;
                         entries[commit_i[i].rob_id].jmp  = commit_i[i].jmp;
+                        entries[commit_i[i].rob_id].mispred  = commit_i[i].mispred;
                         entries[commit_i[i].rob_id].jmp_target = commit_i[i].jmp_target;
                         entries[commit_i[i].rob_id].mem  = commit_i[i].mem;
                         entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
@@ -213,7 +214,7 @@ module rob_m(
                             end
                         end
 
-                        if (entries[index].jmp) begin
+                        if (entries[index].mispred) begin
                             jump_o.target = entries[index].jmp_target;
 
                             commit_entry[i] &= jump_i.ready;
@@ -236,9 +237,11 @@ module rob_m(
                                 rob_write_valid_o = 1;
                             end
 
-                            if (entries[index].jmp) begin
+                            if (entries[index].mispred) begin
                                 jump_o.valid = 1;
+                            end
 
+                            if (entries[index].jmp) begin
                                 rename_jump_commit_o = 1;
                             end
                         end

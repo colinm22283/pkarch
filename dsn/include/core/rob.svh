@@ -25,6 +25,7 @@ typedef struct packed {
     rob_id_t rob_id;
 
     bit jmp;
+    bit mispred;
     pc_t jmp_target;
 
     bit mem;
@@ -44,6 +45,7 @@ typedef struct packed {
     bit except;
     
     bit jmp;
+    bit mispred;
     pc_t jmp_target;
 
     bit mem;
