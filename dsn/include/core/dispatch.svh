@@ -24,6 +24,8 @@ typedef struct packed {
 
     dec_inst_t dec_inst;
 
+    bit jump_valid;
+
     bit rob_id_valid;
     rob_id_t rob_id;
 

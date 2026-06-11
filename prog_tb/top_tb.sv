@@ -94,7 +94,9 @@ module top_tb();
     rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_disi;
     rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_diso;
 
-    wire rename_jump;
+    wire rename_jump, rename_jump_accept;
+
+    assign rename_jump_accept = 1; // TODO: temp
 
     rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_comi;
     rename_commit_o_t [COMMIT_WIDTH - 1:0] rename_como;
@@ -173,6 +175,7 @@ module top_tb();
         .flush_i(flush),
 
         .rename_jump_o(rename_jump),
+        .rename_jump_accept_i(rename_jump_accept),
 
         .dispatch_i(buffered_dispatchi),
         .dispatch_o(buffered_dispatcho),

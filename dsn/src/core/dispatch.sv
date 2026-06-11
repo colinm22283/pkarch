@@ -13,6 +13,7 @@ module dispatch_m(
     input wire flush_i,
 
     output logic rename_jump_o,
+    input  logic rename_jump_accept_i,
 
     input  dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatch_i,
     output dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatch_o,
@@ -47,11 +48,21 @@ module dispatch_m(
     logic entries_complete;
     dispatch_entry_t [DISPATCH_WIDTH - 1:0] entries;
 
+    logic [DISPATCH_WIDTH - 1:0] entry_jump;
+
     always_comb begin
         entries_complete = 1;
         for (int i = 0; i < DISPATCH_WIDTH; i++) entries_complete &= !entries[i].valid;
     end
 
+    always_comb begin
+        for (int i = 0; i < DISPATCH_WIDTH; i++) begin
+            entry_jump[i] =
+                entries[i].dec_inst.opcode == OPCODE_BRANCH ||
+                entries[i].dec_inst.opcode == OPCODE_LINK ||
+                entries[i].dec_inst.opcode == OPCODE_LINKREG;
+        end
+    end
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -145,11 +156,13 @@ module dispatch_m(
                             res_index < DISPATCH_WIDTH &&
                             res_dispatchi[res_index].ready
                         ) begin
-                            `DL(log, ("Instruction sent to reservation station"));
+                            if (entry_jump[i] ? rename_jump_accept_i : 1) begin
+                                `DL(log, ("Instruction sent to reservation station"));
 
-                            entries[i].valid <= 0;
+                                entries[i].valid <= 0;
 
-                            res_index++;
+                                res_index++;
+                            end
                         end
                     end
                 end
@@ -236,36 +249,32 @@ module dispatch_m(
                     end
 
                     if (
-                        entries[i].dec_inst.opcode == OPCODE_BRANCH ||
-                        entries[i].dec_inst.opcode == OPCODE_LINK ||
-                        entries[i].dec_inst.opcode == OPCODE_LINKREG
-                    ) begin
-                        rename_jump_o = 1;
-                    end
-
-                    if (
                         entries[i].rob_id_valid &&
                         (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
                         (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
                         (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
                         res_index < DISPATCH_WIDTH
                     ) begin
-                        res_dispatcho[res_index].valid = 1;
+                        if (entry_jump[i]) rename_jump_o = 1;
 
-                        res_dispatcho[res_index].pc = entries[i].pc;
+                        if (entry_jump[i] ? rename_jump_accept_i : 1) begin
+                            res_dispatcho[res_index].valid = 1;
 
-                        res_dispatcho[res_index].dec_inst = entries[i].dec_inst;
+                            res_dispatcho[res_index].pc = entries[i].pc;
 
-                        res_dispatcho[res_index].rob_id = entries[i].rob_id;
+                            res_dispatcho[res_index].dec_inst = entries[i].dec_inst;
 
-                        res_dispatcho[res_index].rs1 = entries[i].rs1;
-                        res_dispatcho[res_index].rs2 = entries[i].rs2;
-                        res_dispatcho[res_index].rd = entries[i].rd;
-                        res_dispatcho[res_index].prev_rd = entries[i].prev_rd;
+                            res_dispatcho[res_index].rob_id = entries[i].rob_id;
 
-                        res_dispatcho[res_index].isa_addr = entries[i].dec_inst.rd;
+                            res_dispatcho[res_index].rs1 = entries[i].rs1;
+                            res_dispatcho[res_index].rs2 = entries[i].rs2;
+                            res_dispatcho[res_index].rd = entries[i].rd;
+                            res_dispatcho[res_index].prev_rd = entries[i].prev_rd;
 
-                        res_index++;
+                            res_dispatcho[res_index].isa_addr = entries[i].dec_inst.rd;
+
+                            res_index++;
+                        end
                     end
                 end
             end
