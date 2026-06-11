@@ -95,8 +95,7 @@ module top_tb();
     rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_diso;
 
     wire rename_jump, rename_jump_accept;
-
-    assign rename_jump_accept = 1; // TODO: temp
+    wire rename_jump_commit;
 
     rename_commit_i_t [COMMIT_WIDTH - 1:0] rename_comi;
     rename_commit_o_t [COMMIT_WIDTH - 1:0] rename_como;
@@ -198,6 +197,8 @@ module top_tb();
         .flush_complete_o(rename_flush_complete),
 
         .jump_i(rename_jump),
+        .jump_accept_o(rename_jump_accept),
+        .jump_commit_i(rename_jump_commit),
 
         .dispatch_i(rename_disi),
         .dispatch_o(rename_diso),
@@ -213,6 +214,8 @@ module top_tb();
         .nrst_i(nrst),
 
         .flush_i(flush),
+
+        .rename_jump_commit_o(rename_jump_commit),
 
         .dispatch_i(rob_disi),
         .dispatch_o(rob_diso),

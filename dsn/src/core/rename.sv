@@ -11,6 +11,9 @@ module rename_m(
     output reg flush_complete_o,
 
     input  wire jump_i,
+    output wire jump_accept_o,
+
+    input  wire jump_commit_i,
 
     input  rename_dispatch_i_t [RENAME_WIDTH - 1:0] dispatch_i,
     output rename_dispatch_o_t [RENAME_WIDTH - 1:0] dispatch_o,
@@ -21,14 +24,20 @@ module rename_m(
     output prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_o
 );
 
+    localparam CP_INDEX_WIDTH = $clog2(RENAME_CHECKPOINT_SIZE);
+    localparam CP_SIZE_WIDTH = $clog2(RENAME_CHECKPOINT_SIZE + 1);
+
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
-    prf_addr_t committed_freelist_head;
-    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size;
-    prf_addr_t [PRF_SIZE - 1:0] committed_freelist;
+    logic [CP_INDEX_WIDTH - 1:0] cp_head, cp_tail;
+    logic [CP_SIZE_WIDTH - 1:0] cp_size;
 
-    rename_map_entry_t [REG_COUNT - 1:0] committed_map_table;
+    prf_addr_t                         committed_freelist_head [RENAME_CHECKPOINT_SIZE - 1:0];
+    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [RENAME_CHECKPOINT_SIZE - 1:0];
+    prf_addr_t [PRF_SIZE - 1:0]        committed_freelist [RENAME_CHECKPOINT_SIZE - 1:0];
+
+    rename_map_entry_t [REG_COUNT - 1:0] committed_map_table [RENAME_CHECKPOINT_SIZE - 1:0];
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
@@ -45,20 +54,24 @@ module rename_m(
             freelist_head = 0;
             freelist_size = ($bits(freelist_size))'(PRF_SIZE);
 
-            committed_freelist_head = 0;
-            committed_freelist_size = ($bits(freelist_size))'(PRF_SIZE);
+            // committed_freelist_head = 0;
+            // committed_freelist_size = ($bits(freelist_size))'(PRF_SIZE);
             
             for (int i = 0; i < PRF_SIZE; i++) begin
                 freelist[i] = PRF_ADDR_WIDTH'(i);
-                committed_freelist[i] = PRF_ADDR_WIDTH'(i);
+                // committed_freelist[i] = PRF_ADDR_WIDTH'(i);
             end
 
             for (int i = 0; i < REG_COUNT; i++) begin
                 map_table[i].valid = 0;
-                committed_map_table[i].valid = 0;
+                // committed_map_table[i].valid = 0;
             end
 
             flushing = 0;
+
+            cp_head <= 0;
+            cp_tail <= 0;
+            cp_size <= 0;
         end
         else begin
             if (flushing) begin
@@ -66,18 +79,20 @@ module rename_m(
 
                 `DL(log, ("Flushing and reloading checkpoint"));
 
-                // TEMP
-                freelist_head = committed_freelist_head;
-                freelist_size = committed_freelist_size;
+                freelist_head = committed_freelist_head[cp_head];
+                freelist_size = committed_freelist_size[cp_head];
                 
                 for (int i = 0; i < PRF_SIZE; i++) begin
-                    freelist[i] = committed_freelist[i];
+                    freelist[i] = committed_freelist[cp_head][i];
                 end
 
                 for (int i = 0; i < REG_COUNT; i++) begin
-                    map_table[i] = committed_map_table[i];
+                    map_table[i] = committed_map_table[cp_head][i];
                 end
-                // TEMP
+
+                cp_head = 0;
+                cp_tail = 0;
+                cp_size = 0;
 
                 flush_complete_o = 0;
             end
@@ -87,18 +102,26 @@ module rename_m(
                 flush_complete_o = 1;
             end
             else begin
+                if (jump_commit_i && cp_size != 0) begin
+                    cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % RENAME_CHECKPOINT_SIZE);
+                    cp_size <= cp_size - 1;
+                end
+
                 if (jump_i) begin
                     `DL(log, ("Got jump in rename table"));
-                    committed_freelist_head = freelist_head;
-                    committed_freelist_size = freelist_size;
+                    committed_freelist_head[cp_tail] = freelist_head;
+                    committed_freelist_size[cp_tail] = freelist_size;
                     
                     for (int i = 0; i < PRF_SIZE; i++) begin
-                        committed_freelist[i] = freelist[i];
+                        committed_freelist[cp_tail][i] = freelist[i];
                     end
 
                     for (int i = 0; i < REG_COUNT; i++) begin
-                        committed_map_table[i] = map_table[i];
+                        committed_map_table[cp_tail][i] = map_table[i];
                     end
+
+                    cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % RENAME_CHECKPOINT_SIZE);
+                    cp_size <= cp_size + 1;
                 end
 
                 for (int i = 0; i < RENAME_WIDTH; i++) begin
@@ -145,6 +168,10 @@ module rename_m(
                 end
             end
         end
+    end
+
+    always_comb begin
+        jump_accept_o = cp_size != RENAME_CHECKPOINT_SIZE;
     end
 
     always_comb begin

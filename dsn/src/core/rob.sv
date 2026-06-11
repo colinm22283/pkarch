@@ -11,6 +11,8 @@ module rob_m(
     input wire nrst_i,
 
     input wire flush_i,
+    
+    output logic rename_jump_commit_o,
 
     input  rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_i,
     output rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_o,
@@ -184,6 +186,7 @@ module rob_m(
         rename_commit_o = 0;
         commit_entry = 0;
         rob_write_valid_o = 0;
+        rename_jump_commit_o = 0;
 
         if (!flush_i) begin
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
@@ -235,6 +238,8 @@ module rob_m(
 
                             if (entries[index].jmp) begin
                                 jump_o.valid = 1;
+
+                                rename_jump_commit_o = 1;
                             end
                         end
                     end
