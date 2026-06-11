@@ -176,6 +176,7 @@ module lsq_m(
             mports_o[i].data = active_entries[i].data.write.value;
 
             commit_o[i].rob_id = active_entries[i].rob_id;
+            commit_o[i].mem = 0;
             commit_o[i].jmp = 0;
             commit_o[i].jmp_target = 0;
             commit_o[i].isa_addr = active_entries[i].data.read.isa_addr;
