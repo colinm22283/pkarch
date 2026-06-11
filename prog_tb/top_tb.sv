@@ -172,7 +172,7 @@ module top_tb();
 
         .flush_i(flush),
 
-        .rename_jump_o(),
+        .rename_jump_o(rename_jump),
 
         .dispatch_i(buffered_dispatchi),
         .dispatch_o(buffered_dispatcho),
@@ -210,8 +210,6 @@ module top_tb();
         .nrst_i(nrst),
 
         .flush_i(flush),
-
-        .rename_jump_o(rename_jump),
 
         .dispatch_i(rob_disi),
         .dispatch_o(rob_diso),

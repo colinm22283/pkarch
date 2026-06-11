@@ -17,31 +17,6 @@ entry:
 
             blt t1, s0, .x
 
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-
         sb s2, (a0)
 
         addi t0, t0, 1

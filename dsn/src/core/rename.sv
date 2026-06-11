@@ -64,6 +64,8 @@ module rename_m(
             if (flushing) begin
                 flushing = 0;
 
+                `DL(log, ("Flushing and reloading checkpoint"));
+
                 // TEMP
                 freelist_head = committed_freelist_head;
                 freelist_size = committed_freelist_size;

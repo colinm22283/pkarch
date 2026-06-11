@@ -12,8 +12,6 @@ module rob_m(
 
     input wire flush_i,
 
-    output logic rename_jump_o,
-
     input  rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_i,
     output rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] dispatch_o,
 
@@ -168,8 +166,6 @@ module rob_m(
 
         rob_ids = 0;
 
-        rename_jump_o = 0;
-
         if (dispatch_any_valid) begin
             for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
                 rob_ids[i] = tail + ($bits(rob_id_t))'(i);
@@ -239,8 +235,6 @@ module rob_m(
 
                             if (entries[index].jmp) begin
                                 jump_o.valid = 1;
-
-                                rename_jump_o = 1;
                             end
                         end
                     end
