@@ -1,3 +1,9 @@
+`timescale 1ns/100ps
+
+`include "isa.svh"
+`include "bus/bus.svh"
+`include "bus/icache.svh"
+
 module top_m #(
     parameter MEMORY_PORTS = 1,
     parameter MEMORY_CROSSBARS = MEMORY_PORTS
@@ -5,24 +11,33 @@ module top_m #(
     input wire clk_i,
     input wire nrst_i,
 
-    bus_siport_i [MEMORY_PORTS - 1:0] sports_i,
-    bus_soport_o [MEMORY_PORTS - 1:0] sports_o
+    input  bus_miport_t [MEMORY_PORTS - 1:0] mports_i,
+    output bus_moport_t [MEMORY_PORTS - 1:0] mports_o
 );
 
-    busarb_m #(MEMORY_PORTS, 3, MEMORY_CROSSBARS) arbiter(
-        .clk_i(clk),
-        .nrst_i(nrst),
+    bus_miport_t mportai;
+    bus_moport_t mportao;
+
+    bus_miport_t mportbi;
+    bus_moport_t mportbo;
+
+    icache_i_t icachei;
+    icache_o_t icacheo;
+
+    busarb_m #(2, MEMORY_PORTS, MEMORY_CROSSBARS) arbiter(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .mports_i({ mportao, mportbo }),
         .mports_o({ mportai, mportbi }),
 
-        .sports_i(sports_i),
-        .sports_o(sports_o)
+        .sports_i(mports_i),
+        .sports_o(mports_o)
     );
 
     icache_m #(10, 5, 2) icache(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .icache_i(icachei),
         .icache_o(icacheo),
@@ -80,8 +95,8 @@ module top_m #(
     commit_o_t [FU_COUNT - 1:0] como, reg_como;
 
     fetch_m fetch(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .icache_i(icacheo),
         .icache_o(icachei),
@@ -97,8 +112,8 @@ module top_m #(
     );
 
     fetch_expander_m fetch_expander(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -110,8 +125,8 @@ module top_m #(
     );
     
     issue_queue_m issue_queue(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -123,8 +138,8 @@ module top_m #(
     );
 
     dispatch_m dispatch(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -145,8 +160,8 @@ module top_m #(
     );
 
     rename_m rename(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
         .flush_complete_o(rename_flush_complete),
@@ -165,8 +180,8 @@ module top_m #(
     );
 
     rob_m rob(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -189,8 +204,8 @@ module top_m #(
     );
 
     prf_m prf(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .prf_wport_i(prf_wporti),
 
@@ -201,8 +216,8 @@ module top_m #(
     );
 
     alu_m #(1, 16) alu(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -217,8 +232,8 @@ module top_m #(
     );
 
     mem_m #(16) mem(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -233,8 +248,8 @@ module top_m #(
     );
 
     pipe_reg_m #(lsq_dispatch_i_t, lsq_dispatch_o_t) lsq_reg(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -246,8 +261,8 @@ module top_m #(
     );
 
     lsq_m lsq(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -268,8 +283,8 @@ module top_m #(
     );
 
     jmp_m #(3) jmp(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -284,8 +299,8 @@ module top_m #(
     );
 
     pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .flush_i(flush),
 
@@ -297,8 +312,8 @@ module top_m #(
     );
 
     commit_m commit(
-        .clk_i(clk),
-        .nrst_i(nrst),
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
         .commit_i(reg_comi),
         .commit_o(reg_como),

@@ -35,5 +35,7 @@ SRCS+=test/clk_rst.v
 
 SRCS+=pipe_reg.sv
 
+SRCS+=top.sv
+
 export DSN_SRCS=$(foreach s, $(SRCS), $(SRC_DIR)/$s)
 
