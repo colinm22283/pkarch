@@ -27,7 +27,7 @@ module jmp_m #(
     fu_dispatch_i_t fu_dispi;
     fu_dispatch_o_t fu_dispo;
 
-    jmp_test_m alu_test(
+    jmp_test_m jmp_test(
         .test_i(fu_testi),
         .test_o(fu_testo)
     );

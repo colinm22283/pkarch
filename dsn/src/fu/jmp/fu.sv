@@ -28,7 +28,6 @@ module jmp_fu_m(
     assign b_u = b;
 
     logic jump;
-    logic relative;
     spc_t  offset;
 
     always_comb begin
@@ -81,7 +80,7 @@ module jmp_fu_m(
 
         commit_o = 0;
         
-        commit_o.valid = run;
+        commit_o.valid = run && read_ports_valid;
 
         commit_o.rob_id = dispatch_i.rob_id;
 

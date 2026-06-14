@@ -27,6 +27,8 @@ module lsq_m(
     output wire rob_write_ready_o
 );
 
+    siport_breakout_m siport(.sport_i(mports_o[0]));
+
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
     localparam LSQ_SIZE_WIDTH = $clog2(LSQ_SIZE + 1);
@@ -180,6 +182,7 @@ module lsq_m(
             commit_o[i].jmp = 0;
             commit_o[i].jmp_target = 0;
             commit_o[i].isa_addr = active_entries[i].data.read.isa_addr;
+            commit_o[i].rd_a = active_entries[i].rw == BUS_RW_READ;
             commit_o[i].rd = active_entries[i].data.read.rd;
             commit_o[i].prev_rd = active_entries[i].data.read.prev_rd;
             commit_o[i].value = commit_data[i];

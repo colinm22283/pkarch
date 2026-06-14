@@ -29,6 +29,7 @@ SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
 SRCS+=bus/sim_stop.sv
 SRCS+=bus/bus_master.sv
+SRCS+=bus/mem_breakout.sv
 
 SRCS+=test/clk_rst.v
 
