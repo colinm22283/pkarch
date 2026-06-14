@@ -5,19 +5,19 @@ module top_m #(
     input wire clk_i,
     input wire nrst_i,
 
-    bus_miport_i [MEMORY_PORTS - 1:0] mports_i,
-    bus_moport_o [MEMORY_PORTS - 1:0] mports_o
+    bus_siport_i [MEMORY_PORTS - 1:0] sports_i,
+    bus_soport_o [MEMORY_PORTS - 1:0] sports_o
 );
 
-    busarb_m #(MEMORY_PORTS, 3, 2) arbiter(
+    busarb_m #(MEMORY_PORTS, 3, MEMORY_CROSSBARS) arbiter(
         .clk_i(clk),
         .nrst_i(nrst),
 
         .mports_i({ mportao, mportbo }),
         .mports_o({ mportai, mportbi }),
 
-        .sports_i({ sportao, sportbo, sportco }),
-        .sports_o({ sportai, sportbi, sportci })
+        .sports_i(sports_i),
+        .sports_o(sports_o)
     );
 
     icache_m #(10, 5, 2) icache(
@@ -308,6 +308,6 @@ module top_m #(
 
         .prf_wport_o(prf_wporti)
     );
-    
 
 endmodule
+
