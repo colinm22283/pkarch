@@ -100,8 +100,6 @@ module rob_m(
                         entries[commit_i[i].rob_id].rd_a = commit_i[i].rd_a;
                         entries[commit_i[i].rob_id].isa_rd = commit_i[i].isa_addr;
                         entries[commit_i[i].rob_id].prev_rd = commit_i[i].prev_addr;
-
-                        if (commit_i[i].mem) $display("                                                                              GOT MEM %0d", commit_i[i].rob_id);
                     end
                 end
 
