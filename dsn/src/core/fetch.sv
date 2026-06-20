@@ -26,6 +26,7 @@ module fetch_m(
     `DL_DEFINE(log, "fetch_m", `DL_CYAN, `DL_ENABLE_FETCH);
 
     pc_t pc;
+    pc_t predicted_pc;
 
     inst_t     inst;
     dec_inst_t dec_inst;
@@ -52,7 +53,7 @@ module fetch_m(
                     else begin
                         if (dispatch_i.ready && icache_i.ack) begin
                             `DL(log, ("Instruction dispatch from %h, inst = %h", pc, inst));
-                            pc <= pc + 4;
+                            pc <= predicted_pc;
                         end
                     end
                 end
@@ -77,6 +78,16 @@ module fetch_m(
 
         jump_o.ready = state == STATE_RUN;
         flush_o      = state == STATE_FLUSH;
+
+        case (dec_inst.opcode)
+            OPCODE_BRANCH, OPCODE_LINK: begin
+                predicted_pc = $signed(pc) + $signed(dec_inst.imm);
+            end
+
+            default: begin
+                predicted_pc = pc + 4;
+            end
+        endcase
     end
 
     decoder_m decoder(

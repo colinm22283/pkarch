@@ -1,7 +1,7 @@
 .global entry
 entry:
     addi a0, zero, 1024
-    addi s3, zero, 256
+    addi s3, zero, 60
     
     addi s0, zero, 1
     addi s1, zero, 1
