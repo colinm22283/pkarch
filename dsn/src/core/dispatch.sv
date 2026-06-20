@@ -82,7 +82,8 @@ module dispatch_m(
                     entries[i].valid <= 0;
                 end
                 else begin
-                    if (entries_complete) begin
+                    if (dispatch_i[i].dec_inst.illegal) ;
+                    else if (entries_complete) begin
                         if (dispatch_i[i].valid) begin
                             `DL(log, ("NEW ENT: 0x%h", dispatch_i[i].dec_inst.opcode));
                             entries[i].valid <= 1;

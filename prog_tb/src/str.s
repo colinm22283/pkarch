@@ -1,6 +1,6 @@
 .global entry
 entry:
-    addi s0, zero, 0x68
+    la  s0, str
     jal print
 
     addi a0, zero, 1025
@@ -21,25 +21,7 @@ print:
         j .loop
     .exit:
 
-    nop
-    nop
-    nop
-    nop
-    nop
-
     ret
-
-    ; addi a0, zero, 1025
-    ; sw   zero, 0(a0)
-
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
 
 str: .asciz "hello world!\n"
 

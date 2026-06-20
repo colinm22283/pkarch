@@ -32,14 +32,20 @@ module alu_fu_m(
         a = rport_i[0].data;
 
         case (dispatch_i.dec_inst.opcode)
-            7'b0110011: begin
+            OPCODE_REGALU: begin
                 read_ports_valid = rport_i[0].valid && rport_i[1].valid;
 
                 b = rport_i[1].data;
             end
 
-            7'b0010011: begin
+            OPCODE_IMMALU: begin
                 read_ports_valid = rport_i[0].valid;
+
+                b = dispatch_i.dec_inst.imm;
+            end
+
+            OPCODE_LUI, OPCODE_AUIPC: begin
+                read_ports_valid = 1;
 
                 b = dispatch_i.dec_inst.imm;
             end
@@ -51,26 +57,40 @@ module alu_fu_m(
             end
         endcase
 
-        case (dispatch_i.dec_inst.funct)
-            FUNCT_ADD: y = a + b;
+        case (dispatch_i.dec_inst.opcode)
+            OPCODE_REGALU, OPCODE_IMMALU: begin
+                case (dispatch_i.dec_inst.funct)
+                    FUNCT_ADD: y = a + b;
 
-            FUNCT_SUB: y = a - b;
+                    FUNCT_SUB: y = a - b;
 
-            FUNCT_XOR: y = a ^ b;
+                    FUNCT_XOR: y = a ^ b;
 
-            FUNCT_OR: y = a | b;
+                    FUNCT_OR: y = a | b;
 
-            FUNCT_AND: y = a & b;
+                    FUNCT_AND: y = a & b;
 
-            FUNCT_SLL: y = a >> b;
+                    FUNCT_SLL: y = a >> b;
 
-            FUNCT_SRL: y = a << b;
+                    FUNCT_SRL: y = a << b;
 
-            FUNCT_SRA: y = a >>> b;
+                    FUNCT_SRA: y = a >>> b;
 
-            FUNCT_SLT: y = a < b ? WORD_WIDTH'(1'b1) : WORD_WIDTH'(1'b0);
+                    FUNCT_SLT: y = a < b ? WORD_WIDTH'(1'b1) : WORD_WIDTH'(1'b0);
 
-            FUNCT_SLTU: y = a_u < b_u ? WORD_WIDTH'(1'b1) : WORD_WIDTH'(1'b0);
+                    FUNCT_SLTU: y = a_u < b_u ? WORD_WIDTH'(1'b1) : WORD_WIDTH'(1'b0);
+
+                    default: y = WORD_WIDTH'(0);
+                endcase
+            end
+
+            OPCODE_LUI: begin
+                y = b << 12;
+            end
+
+            OPCODE_AUIPC: begin
+                y = dispatch_i.pc + (b << 12);
+            end
 
             default: y = WORD_WIDTH'(0);
         endcase

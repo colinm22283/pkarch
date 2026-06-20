@@ -54,6 +54,8 @@ parameter OPCODE_STORE   = 7'b0100011;
 parameter OPCODE_BRANCH  = 7'b1100011;
 parameter OPCODE_LINK    = 7'b1101111;
 parameter OPCODE_LINKREG = 7'b1100111;
+parameter OPCODE_LUI     = 7'b0110111;
+parameter OPCODE_AUIPC   = 7'b0010111;
 
 typedef struct packed {
     union packed {
@@ -177,6 +179,8 @@ parameter FUNCT_BLTU = (`FUNCT_CONCAT(FUNCT3_BLTU, FUNCT7_BLTU));
 parameter FUNCT_BGEU = (`FUNCT_CONCAT(FUNCT3_BGEU, FUNCT7_BGEU));
 
 typedef struct packed {
+    bit illegal;
+
     bit rs1_a, rs2_a, rd_a;
     reg_addr_t rs1, rs2, rd;
     imm_t imm;

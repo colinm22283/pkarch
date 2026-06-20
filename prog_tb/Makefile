@@ -4,6 +4,7 @@ PROG_SRC_DIR=src
 AS=riscv32-none-elf-as
 OBJCOPY=riscv32-none-elf-objcopy
 OBJDUMP=riscv32-none-elf-objdump
+LD=riscv32-none-elf-ld
 
 ARCH=rv32i
 ABI=ilp32
@@ -56,7 +57,11 @@ $(BUILD_DIR)/prog.o: $(PROG_SRC_DIR)/$(PROG_NAME).s .FORCE
 	mkdir -p $(@D)
 	$(AS) -c -march=$(ARCH) -mabi=$(ABI) $(ASFLAGS) $< -o $@
 
-$(BUILD_DIR)/prog.bin: $(BUILD_DIR)/prog.o
+$(BUILD_DIR)/prog.linked.o: $(BUILD_DIR)/prog.o
+	mkdir -p $(@D)
+	$(LD) $< -o $@
+
+$(BUILD_DIR)/prog.bin: $(BUILD_DIR)/prog.linked.o
 	mkdir -p $(@D)
 	$(OBJCOPY) -O binary $< $@
 

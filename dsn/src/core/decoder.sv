@@ -19,6 +19,14 @@ module decoder_m(
 
     // inst_type
     always_comb begin
+        reg signed [11:0] imm_i;
+        reg signed [11:0] imm_s;
+        reg signed [11:0] imm_b;
+        reg signed [19:0] imm_j;
+        reg signed [19:0] imm_u;
+
+        decoded_o.illegal = 0;
+
         case (inst_i.opcode)
             7'b0110011: inst_type = TYPE_R;
 
@@ -37,12 +45,12 @@ module decoder_m(
 
             7'b1110011: inst_type = TYPE_I;
 
-            default: inst_type = TYPE_ERROR;
+            default: begin
+                decoded_o.illegal = 1;
+                inst_type = TYPE_ERROR;
+            end
         endcase
-    end
 
-    // regs
-    always_comb begin
         case (inst_type)
             TYPE_R: begin
                 decoded_o.rs1_a = 1'b1;
@@ -99,6 +107,7 @@ module decoder_m(
             end
 
             default: begin
+                decoded_o.illegal = 1;
                 decoded_o.rs1_a = 1'bx;
                 decoded_o.rs2_a = 1'bx;
                 decoded_o.rd_a  = 1'bx;
@@ -107,15 +116,6 @@ module decoder_m(
                 decoded_o.rd  = REG_ERROR;
             end
         endcase
-    end
-
-    // imm
-    always_comb begin : IMM_COMB
-        reg signed [11:0] imm_i;
-        reg signed [11:0] imm_s;
-        reg signed [11:0] imm_b;
-        reg signed [19:0] imm_j;
-        reg signed [19:0] imm_u;
 
         imm_i = $signed(inst_i.t.i.imm0);
         imm_s = $signed({ inst_i.t.s.imm1, inst_i.t.s.imm0 });
@@ -131,12 +131,12 @@ module decoder_m(
             TYPE_U: decoded_o.imm = 32'(imm_u << 12);
             TYPE_J: decoded_o.imm = 32'(imm_j << 1);
 
-            default: decoded_o.imm = IMM_ERROR;
+            default: begin
+                decoded_o.illegal = 1;
+                decoded_o.imm = IMM_ERROR;
+            end
         endcase
-    end
 
-    // funct
-    always_comb begin
         case (inst_type)
             TYPE_R: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.r.funct3, inst_i.t.r.funct7);
             TYPE_I: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.i.funct3, 7'h00);
@@ -145,11 +145,15 @@ module decoder_m(
             TYPE_U: decoded_o.funct = `FUNCT_CONCAT(3'h0, 7'h00);
             TYPE_J: decoded_o.funct = `FUNCT_CONCAT(3'h0, 7'h00);
 
-            default: decoded_o.funct = 10'hxxx;
+            default: begin
+                decoded_o.illegal = 1;
+                decoded_o.funct = 10'hxxx;
+            end
         endcase
+
+        decoded_o.opcode = inst_i.opcode;
     end
 
-    always_comb decoded_o.opcode = inst_i.opcode;
 
 endmodule
 
