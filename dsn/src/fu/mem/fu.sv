@@ -1,6 +1,7 @@
 `include "fu/fu.svh"
 `include "core/commit.svh"
 `include "core/prf.svh"
+`include "core/lsq.svh"
 `include "test/logger.svh"
 
 module mem_fu_m(

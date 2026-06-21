@@ -1,7 +1,11 @@
 `timescale 1ns/100ps
 
 `include "config.svh"
+`include "isa.svh"
 `include "core/lsq.svh"
+`include "core/prf.svh"
+`include "core/rob.svh"
+`include "core/commit.svh"
 `include "bus/bus.svh"
 `include "test/logger.svh"
 

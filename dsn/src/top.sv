@@ -1,6 +1,13 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
+`include "core/fetch.svh"
+`include "core/rob.svh"
+`include "core/rename.svh"
+`include "core/dispatch.svh"
+`include "core/lsq.svh"
+`include "core/commit.svh"
+`include "fu/fu.svh"
 `include "bus/bus.svh"
 `include "bus/icache.svh"
 

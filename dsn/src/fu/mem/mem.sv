@@ -2,6 +2,7 @@
 
 `include "fu/fu.svh"
 `include "core/commit.svh"
+`include "core/lsq.svh"
 `include "bus/bus.svh"
 
 module mem_m #(

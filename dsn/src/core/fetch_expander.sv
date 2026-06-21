@@ -1,5 +1,7 @@
 `timescale 1ns/100ps
 
+`include "core/dispatch.svh"
+
 module fetch_expander_m(
     input wire clk_i,
     input wire nrst_i,
