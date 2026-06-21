@@ -49,13 +49,12 @@ module icache_m #(
 
     set_t [SET_COUNT - 1:0] sets;
 
-    enum {
+    enum logic [0:0] {
         STATE_READY,
-        STATE_ACCESS,
         STATE_FETCH
     } state;
 
-    enum {
+    enum logic [1:0] {
         FSTATE_REQ,
         FSTATE_ACK,
         FSTATE_DONE
@@ -83,8 +82,7 @@ module icache_m #(
             case (state)
                 STATE_READY: begin
                     if (icache_i.req) begin
-                        if (test_found) state <= STATE_ACCESS;
-                        else begin
+                        if (!test_found) begin
                             state  <= STATE_FETCH;
                             fstate <= FSTATE_REQ;
 
@@ -102,10 +100,6 @@ module icache_m #(
                             `DL(log, ("Address 0x%h not found", test_addr.addr));
                         end
                     end
-                end
-
-                STATE_ACCESS: begin
-                    state <= STATE_READY;
                 end
 
                 STATE_FETCH: begin
@@ -137,6 +131,8 @@ module icache_m #(
                             fetch_addr <= fetch_addr + 4;
                             fetch_offset <= fetch_offset + 1;
                         end
+
+                        default: ;
                     endcase
                 end
             endcase
@@ -145,7 +141,7 @@ module icache_m #(
 
     always_comb begin
         case (state)
-            STATE_ACCESS: begin
+            STATE_READY: begin
                 icache_o.ack  = test_found;
                 icache_o.data = sets[test_addr.parts.index][test_way].mem[test_addr.parts.offset / 4];
             end
@@ -166,6 +162,8 @@ module icache_m #(
                 FSTATE_REQ, FSTATE_ACK: begin
                     mport_o.req  = 1;
                 end
+
+                default: ;
             endcase
         end
     end
