@@ -140,7 +140,7 @@ module rename_m(
                         else begin
                             if (!map_table[dispatch_i[i].isa_addr].valid) begin
                                 `DL(error, ("BADDDD"));
-                                $finish;
+                                // $finish;
 
                                 map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
                                 map_table[dispatch_i[i].isa_addr].valid = 1;

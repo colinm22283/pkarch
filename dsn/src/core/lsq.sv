@@ -27,11 +27,11 @@ module lsq_m(
     input  commit_o_t write_commit_i,
     output commit_i_t write_commit_o,
 
-    input  wire rob_write_valid_i,
-    output wire rob_write_ready_o
+    input  wire  rob_write_valid_i,
+    output logic rob_write_ready_o
 );
 
-    siport_breakout_m siport(.sport_i(mports_o[0]));
+    // siport_breakout_m siport(.sport_i(mports_o[0]));
 
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
@@ -184,6 +184,7 @@ module lsq_m(
             commit_o[i].rob_id = active_entries[i].rob_id;
             commit_o[i].mem = 0;
             commit_o[i].jmp = 0;
+            commit_o[i].mispred = 0;
             commit_o[i].jmp_target = 0;
             commit_o[i].isa_addr = active_entries[i].data.read.isa_addr;
             commit_o[i].rd_a = active_entries[i].rw == BUS_RW_READ;
@@ -210,6 +211,7 @@ module lsq_m(
                 STATE_DONE: begin
                     mports_o[i].req = 0;
                     if (active_entries[i].rw == BUS_RW_READ) commit_o[i].valid = 1;
+                    else commit_o[i].valid = 0;
                 end
             endcase
         end

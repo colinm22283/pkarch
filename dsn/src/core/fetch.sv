@@ -16,8 +16,8 @@ module fetch_m(
     input  fetch_jump_i_t jump_i,
     output fetch_jump_o_t jump_o,
 
-    input  wire flush_complete_i,
-    output wire flush_o,
+    input  wire  flush_complete_i,
+    output logic flush_o,
 
     input  dispatch_o_t dispatch_i,
     output dispatch_i_t dispatch_o
