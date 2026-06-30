@@ -42,7 +42,7 @@ module top_m #(
         .sports_o(mports_o)
     );
 
-    icache_m #(10, 5, 2) icache(
+    icache_m #(2, 2, 1) icache(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -254,18 +254,21 @@ module top_m #(
         .lsq_dispatch_o(lsq_disi[0])
     );
 
-    pipe_reg_m #(lsq_dispatch_i_t, lsq_dispatch_o_t) lsq_reg(
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
+    // pipe_reg_m #(lsq_dispatch_i_t, lsq_dispatch_o_t) lsq_reg(
+        // .clk_i(clk_i),
+        // .nrst_i(nrst_i),
 
-        .flush_i(flush),
+        // .flush_i(flush),
 
-        .s_i(lsq_disi[0]),
-        .s_o(lsq_diso[0]),
+        // .s_i(lsq_disi[0]),
+        // .s_o(lsq_diso[0]),
 
-        .m_i(lsq_diso[1]),
-        .m_o(lsq_disi[1])
-    );
+        // .m_i(lsq_diso[1]),
+        // .m_o(lsq_disi[1])
+    // );
+
+    assign lsq_disi[1] = lsq_disi[0];
+    assign lsq_diso[0] = lsq_diso[1];
 
     lsq_m lsq(
         .clk_i(clk_i),
@@ -305,18 +308,25 @@ module top_m #(
         .commit_o(comi[3])
     );
 
-    pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
+    // pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
+        // .clk_i(clk_i),
+        // .nrst_i(nrst_i),
 
-        .flush_i(flush),
+        // .flush_i(flush),
 
-        .s_i(comi),
-        .s_o(como),
+        // .s_i(comi),
+        // .s_o(como),
 
-        .m_i(reg_como),
-        .m_o(reg_comi)
-    );
+        // .m_i(reg_como),
+        // .m_o(reg_comi)
+    // );
+
+    generate
+        for (genvar i = 0; i < FU_COUNT; i++) begin
+            assign reg_comi[i] = comi[i];
+            assign como[i] = reg_como[i];
+        end
+    endgenerate
 
     commit_m commit(
         .clk_i(clk_i),
