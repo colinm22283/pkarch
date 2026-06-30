@@ -90,9 +90,9 @@ module rename_m(
                     map_table[i] = committed_map_table[CP_INDEX_WIDTH'(cp_head)][i];
                 end
 
-                cp_head = 0;
-                cp_tail = 0;
-                cp_size = 0;
+                cp_head <= 0;
+                cp_tail <= 0;
+                cp_size <= 0;
 
                 flush_complete_o = 0;
             end

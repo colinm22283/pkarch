@@ -42,17 +42,17 @@ module busarb_m #(
         if (!nrst_i) begin : RESET
             integer i;
 
-            master_handled <= 0;
-            slave_handled  <= 0;
+            master_handled = 0;
+            slave_handled  = 0;
 
             for (i = 0; i < CROSSBARS; i = i + 1) begin
                 state[i] <= STATE_READY;
 
-                master_sel[i] <= 0;
-                slave_sel[i]  <= 0;
+                master_sel[i] = 0;
+                slave_sel[i]  = 0;
             end
 
-            crossbar <= 0;
+            crossbar = 0;
         end
         else if (clk_i) begin : CLOCK
             integer cb;

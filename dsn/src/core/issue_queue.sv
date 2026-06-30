@@ -46,11 +46,11 @@ module issue_queue_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            size = 0;
+            size <= 0;
         end
         else begin
             if (flush_i) begin
-                size = 0;
+                size <= 0;
             end
             else begin
                 logic [SIZE_WIDTH - 1:0] t_size;
