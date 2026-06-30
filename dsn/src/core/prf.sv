@@ -19,6 +19,8 @@ module prf_m(
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
+    localparam INDEX_WIDTH = $clog2(PRF_SIZE);
+
     prf_entry_t mem [PRF_SIZE - 1:0];
 
     logic [PRF_SIZE - 1:0] valids;
@@ -44,7 +46,7 @@ module prf_m(
                 if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
 
-                    mem[prf_rel_i[i].addr].valid <= 0;
+                    mem[INDEX_WIDTH'(prf_rel_i[i].addr)].valid <= 0;
                 end
             end
 
@@ -52,8 +54,8 @@ module prf_m(
                 if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr));
 
-                    mem[prf_wport_i[i].addr].valid <= 1;
-                    mem[prf_wport_i[i].addr].data <= prf_wport_i[i].data;
+                    mem[INDEX_WIDTH'(prf_wport_i[i].addr)].valid <= 1;
+                    mem[INDEX_WIDTH'(prf_wport_i[i].addr)].data <= prf_wport_i[i].data;
                 end
             end
         end
@@ -62,8 +64,8 @@ module prf_m(
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
             if (prf_rport_i[i].addr != PRF_ZERO_ADDR) begin
-                prf_rport_o[i].valid = mem[prf_rport_i[i].addr].valid;
-                prf_rport_o[i].data  = mem[prf_rport_i[i].addr].data;
+                prf_rport_o[i].valid = mem[INDEX_WIDTH'(prf_rport_i[i].addr)].valid;
+                prf_rport_o[i].data  = mem[INDEX_WIDTH'(prf_rport_i[i].addr)].data;
             end
             else begin
                 prf_rport_o[i].valid = 1;

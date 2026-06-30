@@ -54,16 +54,16 @@ module issue_queue_m(
             end
             else begin
                 logic [SIZE_WIDTH - 1:0] t_size;
-                entry_t [ISSUE_QUEUE_SIZE - 1:0] t_entries;
+                entry_t t_entries [ISSUE_QUEUE_SIZE - 1:0];
 
                 t_size = size;
                 t_entries = entries;
 
                 if (push) begin
                     for (int i = 0; i < DISPATCH_WIDTH; i++) begin
-                        t_entries[size][i].valid    = sdispatch_i[i].valid;
-                        t_entries[size][i].pc       = sdispatch_i[i].pc;
-                        t_entries[size][i].dec_inst = sdispatch_i[i].dec_inst;
+                        t_entries[INDEX_WIDTH'(size)][i].valid    = sdispatch_i[i].valid;
+                        t_entries[INDEX_WIDTH'(size)][i].pc       = sdispatch_i[i].pc;
+                        t_entries[INDEX_WIDTH'(size)][i].dec_inst = sdispatch_i[i].dec_inst;
                     end
 
                     t_size = t_size + 1;

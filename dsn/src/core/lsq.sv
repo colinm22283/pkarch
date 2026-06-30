@@ -35,6 +35,7 @@ module lsq_m(
 
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
+    localparam LSQ_INDEX_WIDTH = $clog2(LSQ_SIZE);
     localparam LSQ_SIZE_WIDTH = $clog2(LSQ_SIZE + 1);
 
     logic [LSQ_SIZE_WIDTH - 1:0] size;
@@ -67,7 +68,7 @@ module lsq_m(
             end
             else begin
                 logic [LSQ_SIZE_WIDTH - 1:0] t_size;
-                lsq_entry_t [LSQ_SIZE - 1:0] t_entries;
+                lsq_entry_t t_entries [LSQ_SIZE - 1:0];
 
                 t_size = size;
                 t_entries = entries;
@@ -114,11 +115,11 @@ module lsq_m(
                 end
 
                 if (dispatch_i.valid && accept_dispatch) begin
-                    t_entries[t_size].rob_id = dispatch_i.rob_id;
-                    t_entries[t_size].size = dispatch_i.size;
-                    t_entries[t_size].rw = dispatch_i.rw;
-                    t_entries[t_size].addr = dispatch_i.addr;
-                    t_entries[t_size].data = dispatch_i.data;
+                    t_entries[LSQ_INDEX_WIDTH'(t_size)].rob_id = dispatch_i.rob_id;
+                    t_entries[LSQ_INDEX_WIDTH'(t_size)].size = dispatch_i.size;
+                    t_entries[LSQ_INDEX_WIDTH'(t_size)].rw = dispatch_i.rw;
+                    t_entries[LSQ_INDEX_WIDTH'(t_size)].addr = dispatch_i.addr;
+                    t_entries[LSQ_INDEX_WIDTH'(t_size)].data = dispatch_i.data;
 
                     t_size = t_size + 1;
                 end

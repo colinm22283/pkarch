@@ -35,9 +35,9 @@ module rename_m(
 
     prf_addr_t                         committed_freelist_head [RENAME_CHECKPOINT_SIZE - 1:0];
     logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [RENAME_CHECKPOINT_SIZE - 1:0];
-    prf_addr_t        committed_freelist [PRF_SIZE - 1:0] [RENAME_CHECKPOINT_SIZE - 1:0];
+    prf_addr_t        committed_freelist [RENAME_CHECKPOINT_SIZE - 1:0] [PRF_SIZE - 1:0];
 
-    rename_map_entry_t committed_map_table [REG_COUNT - 1:0] [RENAME_CHECKPOINT_SIZE - 1:0];
+    rename_map_entry_t committed_map_table [RENAME_CHECKPOINT_SIZE - 1:0] [REG_COUNT - 1:0];
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
@@ -83,11 +83,11 @@ module rename_m(
                 freelist_size = committed_freelist_size[cp_head];
                 
                 for (int i = 0; i < PRF_SIZE; i++) begin
-                    freelist[i] = committed_freelist[cp_head][i];
+                    freelist[i] = committed_freelist[CP_INDEX_WIDTH'(cp_head)][i];
                 end
 
                 for (int i = 0; i < REG_COUNT; i++) begin
-                    map_table[i] = committed_map_table[cp_head][i];
+                    map_table[i] = committed_map_table[CP_INDEX_WIDTH'(cp_head)][i];
                 end
 
                 cp_head = 0;
@@ -162,7 +162,7 @@ module rename_m(
                             freelist_head = freelist_head - 1;
                             freelist_size = freelist_size + 1;
 
-                            freelist[freelist_head] = commit_i[i].prev_addr;
+                            freelist[$clog2(PRF_SIZE)'(freelist_head)] = commit_i[i].prev_addr;
                         end
                     end
                 end
@@ -178,14 +178,14 @@ module rename_m(
         for (int i = 0; i < RENAME_WIDTH; i++) begin
             if (dispatch_i[i].valid && i < freelist_size) begin : TEST
                 if (dispatch_i[i].write) begin
-                    prf_addrs[i] = freelist[freelist_head];
+                    prf_addrs[i] = freelist[$clog2(PRF_SIZE)'(freelist_head)];
                 end
                 else begin
                     if (map_table[dispatch_i[i].isa_addr].valid) begin
                         prf_addrs[i] = map_table[dispatch_i[i].isa_addr].prf_addr;
                     end
                     else begin
-                        prf_addrs[i] = freelist[freelist_head];
+                        prf_addrs[i] = freelist[$clog2(PRF_SIZE)'(freelist_head)];
                     end
                 end
             end
