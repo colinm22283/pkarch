@@ -38,7 +38,7 @@ module lsq_m(
     localparam LSQ_SIZE_WIDTH = $clog2(LSQ_SIZE + 1);
 
     logic [LSQ_SIZE_WIDTH - 1:0] size;
-    lsq_entry_t [LSQ_SIZE - 1:0] entries;
+    lsq_entry_t entries [LSQ_SIZE - 1:0];
 
     logic mem_active;
     enum logic [1:0] {
@@ -46,10 +46,10 @@ module lsq_m(
         STATE_REQ,
         STATE_ACK,
         STATE_DONE
-    } [MEMORY_PORTS - 1:0] states;
-    lsq_entry_t [MEMORY_PORTS - 1:0] active_entries;
+    } states [MEMORY_PORTS - 1:0];
+    lsq_entry_t active_entries [MEMORY_PORTS - 1:0];
 
-    word_t [MEMORY_PORTS - 1:0] commit_data;
+    word_t commit_data [MEMORY_PORTS - 1:0];
 
     logic accept_dispatch;
 

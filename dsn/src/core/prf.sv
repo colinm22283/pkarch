@@ -19,7 +19,7 @@ module prf_m(
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
-    prf_entry_t [PRF_SIZE - 1:0] mem;
+    prf_entry_t mem [PRF_SIZE - 1:0];
 
     logic [PRF_SIZE - 1:0] valids;
     always_comb begin

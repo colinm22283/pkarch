@@ -26,7 +26,7 @@ module issue_queue_m(
     logic push, pop;
 
     logic [SIZE_WIDTH - 1:0] size;
-    entry_t [ISSUE_QUEUE_SIZE - 1:0] entries;
+    entry_t entries [ISSUE_QUEUE_SIZE - 1:0];
 
     always_comb begin
         push = 0;

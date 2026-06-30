@@ -46,7 +46,7 @@ module dispatch_m(
     end
 
     logic entries_complete;
-    dispatch_entry_t [DISPATCH_WIDTH - 1:0] entries;
+    dispatch_entry_t entries [DISPATCH_WIDTH - 1:0];
 
     logic [DISPATCH_WIDTH - 1:0] entry_jump;
 

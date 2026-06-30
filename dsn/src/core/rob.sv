@@ -27,7 +27,7 @@ module rob_m(
     output fetch_jump_i_t jump_o,
 
     input  wire rob_write_ready_i,
-    output wire rob_write_valid_o
+    output logic rob_write_valid_o
 );
 
     `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);

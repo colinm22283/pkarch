@@ -11,7 +11,7 @@ module rename_m(
     output reg flush_complete_o,
 
     input  wire jump_i,
-    output wire jump_accept_o,
+    output logic jump_accept_o,
 
     input  wire jump_commit_i,
 
@@ -35,17 +35,17 @@ module rename_m(
 
     prf_addr_t                         committed_freelist_head [RENAME_CHECKPOINT_SIZE - 1:0];
     logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [RENAME_CHECKPOINT_SIZE - 1:0];
-    prf_addr_t [PRF_SIZE - 1:0]        committed_freelist [RENAME_CHECKPOINT_SIZE - 1:0];
+    prf_addr_t        committed_freelist [PRF_SIZE - 1:0] [RENAME_CHECKPOINT_SIZE - 1:0];
 
-    rename_map_entry_t [REG_COUNT - 1:0] committed_map_table [RENAME_CHECKPOINT_SIZE - 1:0];
+    rename_map_entry_t committed_map_table [REG_COUNT - 1:0] [RENAME_CHECKPOINT_SIZE - 1:0];
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
-    prf_addr_t [PRF_SIZE - 1:0] freelist;
+    prf_addr_t freelist [PRF_SIZE - 1:0];
 
-    rename_map_entry_t [REG_COUNT - 1:0] map_table;
+    rename_map_entry_t map_table [REG_COUNT - 1:0];
 
-    prf_addr_t [RENAME_WIDTH - 1:0] prf_addrs;
+    prf_addr_t prf_addrs [RENAME_WIDTH - 1:0];
 
     logic flushing;
 
