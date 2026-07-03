@@ -1,7 +1,7 @@
 `include "bus/bus.svh"
 `include "bus/icache.svh"
 
-module icache_2_2_1_m(
+module icache_6_4_2_m(
     input wire clk_i,
     input wire nrst_i,
 
@@ -12,7 +12,7 @@ module icache_2_2_1_m(
     output bus_moport_t mport_o
 );
 
-    icache_m #(2, 2, 1) icache(
+    icache_m #(6, 4, 2) icache(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 

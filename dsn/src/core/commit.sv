@@ -8,8 +8,8 @@ module commit_m(
     input wire clk_i,
     input wire nrst_i,
 
-    input  commit_i_t [FU_COUNT - 1:0] commit_i,
-    output commit_o_t [FU_COUNT - 1:0] commit_o,
+    input  commit_i_t [COMMIT_COUNT - 1:0] commit_i,
+    output commit_o_t [COMMIT_COUNT - 1:0] commit_o,
 
     input  rob_commit_o_t [ROB_COMMIT_WIDTH - 1:0] rob_commit_i,
     output rob_commit_i_t [ROB_COMMIT_WIDTH - 1:0] rob_commit_o,
@@ -26,7 +26,7 @@ module commit_m(
         prf_wport_o  = 0;
         commit_o     = 0;
 
-        for (int i = 0; i < FU_COUNT; i++) begin
+        for (int i = 0; i < COMMIT_COUNT; i++) begin
             if (commit_i[i].valid && commit_num < ROB_COMMIT_WIDTH) begin
                 commit_o[i].ready = rob_commit_i[commit_num].ready;
 

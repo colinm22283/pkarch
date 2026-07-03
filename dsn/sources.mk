@@ -24,12 +24,14 @@ SRCS+=fu/jmp/test.sv
 SRCS+=fu/jmp/jmp.sv
 
 SRCS+=bus/busarb.sv
-SRCS+=bus/icache.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
 SRCS+=bus/sim_stop.sv
 SRCS+=bus/bus_master.sv
 SRCS+=bus/mem_breakout.sv
+
+SRCS+=bus/icache.sv
+SRCS+=bus/icache_6_4_2.sv
 
 SRCS+=test/clk_rst.v
 

@@ -6,6 +6,8 @@ export INCLUDE_DIR=$(DSN_DIR)/include
 
 export VERILATOR?=verilator
 export GTKWAVE?=gtkwave
+export SURFER?=surfer
+export WAVE=$(SURFER)
 
 export VFLAGS+=--threads 1 -j 16
 export VFLAGS+=--timing

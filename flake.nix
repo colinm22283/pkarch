@@ -19,6 +19,7 @@
           buildInputs = [
             pkgs.verilator
             pkgs.gtkwave
+            pkgs.surfer
             pkgs.zlib
 
             riscvPkgs.buildPackages.binutils

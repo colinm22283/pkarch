@@ -42,6 +42,7 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 	$(VERILATOR) \
 		$(VFLAGS) \
 		--trace-fst \
+		--trace-structs \
 		--cc \
 		--exe \
 		--build \
@@ -74,7 +75,7 @@ run: build
 
 .PHONY: wave
 wave: run
-	$(GTKWAVE) $(BUILD_DIR)/out.fst
+	$(WAVE) $(BUILD_DIR)/out.fst
 
 .PHONY: objdump
 objdump: $(BUILD_DIR)/prog.bin
