@@ -38,7 +38,7 @@ module busarb_m #(
 
     reg [CROSSBAR_WIDTH - 1:0] crossbar;
 
-    always @(posedge clk_i, negedge nrst_i) begin
+    always @(posedge clk_i) begin
         if (!nrst_i) begin : RESET
             integer i;
 
@@ -54,7 +54,7 @@ module busarb_m #(
 
             crossbar = 0;
         end
-        else if (clk_i) begin : CLOCK
+        else begin : CLOCK
             integer cb;
 
             for (cb = 0; cb < CROSSBARS; cb = cb + 1) begin

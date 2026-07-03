@@ -2,6 +2,9 @@
 `define LSQ_SVH
 
 `include "defs.svh"
+`include "isa.svh"
+`include "core/prf.svh"
+`include "core/rob.svh"
 `include "bus/bus.svh"
 
 parameter LSQ_DATA_SIZE = `MAX($bits(reg_addr_t) + 2 * $bits(prf_addr_t), $bits(word_t));

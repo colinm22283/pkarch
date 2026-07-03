@@ -15,6 +15,11 @@ module top_m #(
     parameter MEMORY_PORTS = 1,
     parameter MEMORY_CROSSBARS = MEMORY_PORTS
 ) (
+`ifdef USE_POWER_PINS
+    inout wire vccd1,
+    inout wire vssd1,
+`endif
+
     input wire clk_i,
     input wire nrst_i,
 
@@ -42,7 +47,7 @@ module top_m #(
         .sports_o(mports_o)
     );
 
-    icache_m #(2, 2, 1) icache(
+    icache_2_2_1_m icache(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -98,8 +103,8 @@ module top_m #(
     lsq_dispatch_i_t [1:0] lsq_disi;
     lsq_dispatch_o_t [1:0] lsq_diso;
 
-    commit_i_t [FU_COUNT - 1:0] comi, reg_comi;
-    commit_o_t [FU_COUNT - 1:0] como, reg_como;
+    commit_i_t [COMMIT_COUNT - 1:0] comi, reg_comi;
+    commit_o_t [COMMIT_COUNT - 1:0] como, reg_como;
 
     fetch_m fetch(
         .clk_i(clk_i),
@@ -145,6 +150,10 @@ module top_m #(
     );
 
     dispatch_m dispatch(
+`ifdef USE_POWER_PINS
+        .vccd1(vccd1),
+        .vssd1(vssd1),
+`endif
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -167,6 +176,10 @@ module top_m #(
     );
 
     rename_m rename(
+`ifdef USE_POWER_PINS
+        .vccd1(vccd1),
+        .vssd1(vssd1),
+`endif
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -187,6 +200,10 @@ module top_m #(
     );
 
     rob_m rob(
+`ifdef USE_POWER_PINS
+        .vccd1(vccd1),
+        .vssd1(vssd1),
+`endif
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -211,6 +228,10 @@ module top_m #(
     );
 
     prf_m prf(
+`ifdef USE_POWER_PINS
+        .vccd1(vccd1),
+        .vssd1(vssd1),
+`endif
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -222,7 +243,7 @@ module top_m #(
         .prf_rel_i(prf_reli)
     );
 
-    alu_m #(1, 16) alu(
+    alu_m #(1, 4) alu(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -238,7 +259,7 @@ module top_m #(
         .commit_o(comi[0])
     );
 
-    mem_m #(16) mem(
+    mem_m #(4) mem(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -254,23 +275,27 @@ module top_m #(
         .lsq_dispatch_o(lsq_disi[0])
     );
 
-    // pipe_reg_m #(lsq_dispatch_i_t, lsq_dispatch_o_t) lsq_reg(
-        // .clk_i(clk_i),
-        // .nrst_i(nrst_i),
+    pipe_reg_lsq_m lsq_reg(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
-        // .flush_i(flush),
+        .flush_i(flush),
 
-        // .s_i(lsq_disi[0]),
-        // .s_o(lsq_diso[0]),
+        .s_i(lsq_disi[0]),
+        .s_o(lsq_diso[0]),
 
-        // .m_i(lsq_diso[1]),
-        // .m_o(lsq_disi[1])
-    // );
+        .m_i(lsq_diso[1]),
+        .m_o(lsq_disi[1])
+    );
 
-    assign lsq_disi[1] = lsq_disi[0];
-    assign lsq_diso[0] = lsq_diso[1];
+    // assign lsq_disi[1] = lsq_disi[0];
+    // assign lsq_diso[0] = lsq_diso[1];
 
     lsq_m lsq(
+`ifdef USE_POWER_PINS
+        .vccd1(vccd1),
+        .vssd1(vssd1),
+`endif
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -292,7 +317,7 @@ module top_m #(
         .rob_write_ready_o(rob_write_ready)
     );
 
-    jmp_m #(3) jmp(
+    jmp_m #(4) jmp(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -308,25 +333,29 @@ module top_m #(
         .commit_o(comi[3])
     );
 
-    // pipe_reg_m #(commit_i_t, commit_o_t) commit_pipe_reg [FU_COUNT - 1:0] (
-        // .clk_i(clk_i),
-        // .nrst_i(nrst_i),
-
-        // .flush_i(flush),
-
-        // .s_i(comi),
-        // .s_o(como),
-
-        // .m_i(reg_como),
-        // .m_o(reg_comi)
-    // );
-
     generate
-        for (genvar i = 0; i < FU_COUNT; i++) begin
-            assign reg_comi[i] = comi[i];
-            assign como[i] = reg_como[i];
+        for (genvar i = 0; i < COMMIT_COUNT; i++) begin
+            pipe_reg_commit_m commit_pipe_reg (
+                .clk_i(clk_i),
+                .nrst_i(nrst_i),
+
+                .flush_i(flush),
+
+                .s_i(comi[i]),
+                .s_o(como[i]),
+
+                .m_i(reg_como[i]),
+                .m_o(reg_comi[i])
+            );
         end
     endgenerate
+
+    // generate
+        // for (genvar i = 0; i < FU_COUNT; i++) begin
+            // assign reg_comi[i] = comi[i];
+            // assign como[i] = reg_como[i];
+        // end
+    // endgenerate
 
     commit_m commit(
         .clk_i(clk_i),
