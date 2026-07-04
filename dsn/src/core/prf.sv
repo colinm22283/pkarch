@@ -50,6 +50,8 @@ module prf_m(
                 mem_rporti[mem_port].req  = 1;
                 mem_rporti[mem_port].tag  = i;
                 mem_rporti[mem_port].addr = prf_rport_i[i].addr;
+
+                mem_port++;
             end
         end
     end
