@@ -42,12 +42,12 @@ module icache_m #(
     typedef struct packed {
         bit valid;
         tag_t tag;
-        word_t [BLOCK_SIZE - 1:0] mem;
+        word_t mem [BLOCK_SIZE - 1:0];
     } way_t;
 
-    typedef way_t [WAYS - 1:0] set_t;
+    typedef way_t set_t [WAYS - 1:0];
 
-    set_t [SET_COUNT - 1:0] sets;
+    set_t sets [SET_COUNT - 1:0];
 
     enum logic [0:0] {
         STATE_READY,

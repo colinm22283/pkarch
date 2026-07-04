@@ -21,6 +21,7 @@ parameter COMMIT_COUNT           = FU_COUNT + 1;
 
 parameter PRF_SIZE               = 64;
 parameter PRF_RPORTS             = 6;
+parameter PRF_MEM_RPORTS         = 3;
 
 parameter LSQ_SIZE               = 4;
 parameter MEMORY_PORTS           = 1;
