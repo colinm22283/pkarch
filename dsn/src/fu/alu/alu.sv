@@ -55,6 +55,8 @@ module alu_m #(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
 
+                .flush_i(flush_i),
+
                 .dispatch_i(fu_dispi[i]),
                 .dispatch_o(fu_dispo[i]),
 

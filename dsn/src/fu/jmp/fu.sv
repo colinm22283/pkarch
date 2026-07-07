@@ -6,6 +6,8 @@ module jmp_fu_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input logic flush_i,
+
     input  fu_dispatch_i_t dispatch_i,
     output fu_dispatch_o_t dispatch_o,
 
@@ -15,6 +17,12 @@ module jmp_fu_m(
     input  commit_o_t commit_i,
     output commit_i_t commit_o
 );
+
+    logic [1:0]      rport_req;
+    prf_addr_t [1:0] rport_addr;
+
+    logic [1:0]  rport_valid;
+    word_t [1:0] rport_data;
 
     logic run;
     logic read_ports_valid;
@@ -30,13 +38,37 @@ module jmp_fu_m(
     logic jump;
     spc_t  offset;
 
+    generate for (genvar i = 0; i < 2; i++) begin
+        prf_req_m prf_req(
+            .clk_i(clk_i),
+            .nrst_i(nrst_i),
+
+            .flush_i(flush_i),
+
+            .req_i(rport_req[i]),
+            .addr_i(rport_addr[i]),
+
+            .accept_i(read_ports_valid),
+            .valid_o(rport_valid[i]),
+            .data_o(rport_data[i]),
+
+            .rport_i(rport_i[i]),
+            .rport_o(rport_o[i])
+        );
+    end endgenerate
+
     always_comb begin
+        rport_req = 0;
+
         case (dispatch_i.dec_inst.opcode)
             OPCODE_BRANCH: begin
                 run = 1;
-                read_ports_valid = rport_i[0].valid && rport_i[1].valid;
+                read_ports_valid = rport_valid[0] && rport_valid[1];
                 // offset = dispatch_i.pc + $signed(dispatch_i.dec_inst.imm);
                 offset = $signed(dispatch_i.pc) + 4;
+
+                rport_req[0] = dispatch_i.valid;
+                rport_req[1] = dispatch_i.valid;
 
                 case (dispatch_i.dec_inst.funct)
                     FUNCT_BEQ:  jump = a == b;
@@ -60,9 +92,11 @@ module jmp_fu_m(
 
             OPCODE_LINKREG: begin
                 run = 1;
-                read_ports_valid = rport_i[0].valid;
+                read_ports_valid = rport_valid[0];
                 jump = 1;
-                offset = $signed(rport_i[0].data) + $signed(dispatch_i.dec_inst.imm);
+                offset = $signed(rport_data[0]) + $signed(dispatch_i.dec_inst.imm);
+
+                rport_req[0] = dispatch_i.valid;
             end
 
             default: begin
@@ -75,8 +109,8 @@ module jmp_fu_m(
     end
 
     always_comb begin
-        rport_o[0].addr = dispatch_i.rs1;
-        rport_o[1].addr = dispatch_i.rs2;
+        rport_addr[0] = dispatch_i.rs1;
+        rport_addr[1] = dispatch_i.rs2;
 
         dispatch_o.ready = commit_i.ready && read_ports_valid;
 

@@ -5,20 +5,20 @@ $(BUILD_DIR)/sim.cpp:
 	
 	echo '#include "V$(TOP_LEVEL).h"' > $@
 	echo '#include "verilated.h"' >> $@
-	echo '#include "verilated_vcd_c.h"' >> $@
+	echo '#include "verilated_fst_c.h"' >> $@
 	echo 'int main(int argc, char** argv) {' >> $@
 	echo 'VerilatedContext* contextp = new VerilatedContext;' >> $@
-	echo 'VerilatedVcdC* tfp = nullptr;' >> $@
+	echo 'VerilatedFstC* tfp = nullptr;' >> $@
 	echo 'Verilated::traceEverOn(true);' >> $@
-	echo 'tfp = new VerilatedVcdC;' >> $@
+	echo 'tfp = new VerilatedFstC;' >> $@
 	echo 'contextp->commandArgs(argc, argv);' >> $@
 	echo 'V$(TOP_LEVEL)* top = new V$(TOP_LEVEL){contextp};' >> $@
 	echo 'top->trace(tfp, 99);' >> $@
-	echo 'tfp->open("$(BUILD_DIR)/out.vcd");' >> $@
+	echo 'tfp->open("$(BUILD_DIR)/out.fst");' >> $@
 	echo 'while (!contextp->gotFinish()) {' >> $@
-	echo 'contextp->timeInc(1);' >> $@
-	echo 'tfp->dump(contextp->time());' >> $@
 	echo 'top->eval();' >> $@
+	echo 'tfp->dump(contextp->time());' >> $@
+	echo 'contextp->timeInc(1);' >> $@
 	echo '}' >> $@
 	echo 'tfp->close();' >> $@
 	echo 'delete top;' >> $@
@@ -29,7 +29,8 @@ $(BUILD_DIR)/sim.cpp:
 $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 	$(VERILATOR) \
 		$(VFLAGS) \
-		--trace-vcd \
+		--trace-fst \
+		--trace-structs \
 		--cc \
 		--exe \
 		--build \
@@ -50,7 +51,7 @@ run: build
 
 .PHONY: wave
 wave: run
-	$(GTKWAVE) $(BUILD_DIR)/out.vcd
+	$(WAVE) $(BUILD_DIR)/out.fst
 
 .PHONY: clean
 clean:

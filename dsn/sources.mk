@@ -5,11 +5,13 @@ SRCS+=core/decoder.sv
 SRCS+=core/dispatch.sv
 SRCS+=core/rob.sv
 SRCS+=core/prf.sv
+SRCS+=core/prf_mem.sv
 SRCS+=core/rename.sv
 SRCS+=core/commit.sv
 SRCS+=core/lsq.sv
 
 SRCS+=fu/res_station.sv
+SRCS+=fu/prf_req.sv
 
 SRCS+=fu/alu/fu.sv
 SRCS+=fu/alu/test.sv

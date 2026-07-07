@@ -52,6 +52,8 @@ module jmp_m #(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
+        .flush_i(flush_i),
+
         .dispatch_i(fu_dispi),
         .dispatch_o(fu_dispo),
 

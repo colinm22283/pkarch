@@ -35,32 +35,30 @@ typedef struct packed {
 } prf_rel_i_t;
 
 typedef struct packed {
-    bit claim;
-
-    prf_addr_t addr;
-} prf_claim_i_t;
-
-typedef struct packed {
     bit valid;
 
     word_t data;
 } prf_entry_t;
 
-typedef logic [$clog2(PRF_RPORTS) - 1:0] prf_mem_rport_tag_t;
+typedef logic [$clog2(PRF_RPORTS) - 1:0] prf_rport_tag_t;
 
 typedef struct packed {
-    bit req;
+    bit valid;
 
-    prf_mem_rport_tag_t tag;
+    prf_rport_tag_t tag;
     prf_addr_t addr;
-} prf_mem_rport_i_t;
+} prf_mem_rport_req_i_t;
 
 typedef struct packed {
-    bit ack;
+    bit ready;
+} prf_mem_rport_req_o_t;
 
-    prf_mem_rport_tag_t tag;
+typedef struct packed {
+    bit valid;
+
+    prf_rport_tag_t tag;
     word_t data;
-} prf_mem_rport_o_t;
+} prf_mem_rport_ack_o_t;
 
 typedef prf_wport_i_t prf_mem_wport_i_t;
 typedef prf_rel_i_t prf_mem_rel_i_t;

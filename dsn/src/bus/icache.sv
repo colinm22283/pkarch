@@ -20,9 +20,9 @@ module icache_m #(
 
     `DL_DEFINE(log, "icache_m", `DL_GREEN, `DL_ENABLE_ICACHE);
 
-    localparam BLOCK_SIZE = 2 ** OFFSET_BITS / 4;
+    localparam BLOCK_SIZE = (2 ** OFFSET_BITS) / 4;
     localparam SIZE = BLOCK_SIZE * (2 ** INDEX_BITS);
-    localparam SET_COUNT = SIZE / WAYS / BLOCK_SIZE;
+    localparam SET_COUNT = SIZE / BLOCK_SIZE;
 
     typedef logic [OFFSET_BITS - 1:0] offset_t;
     typedef logic [INDEX_BITS - 1:0] index_t;
@@ -42,7 +42,7 @@ module icache_m #(
     typedef struct packed {
         bit valid;
         tag_t tag;
-        word_t mem [BLOCK_SIZE - 1:0];
+        word_t [BLOCK_SIZE - 1:0] mem;
     } way_t;
 
     typedef way_t set_t [WAYS - 1:0];

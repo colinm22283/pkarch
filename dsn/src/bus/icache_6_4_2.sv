@@ -12,7 +12,7 @@ module icache_6_4_2_m(
     output bus_moport_t mport_o
 );
 
-    icache_m #(2, 2, 2) icache(
+    icache_m #(6, 4, 2) icache(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 

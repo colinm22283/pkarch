@@ -9,6 +9,8 @@ module prf_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input logic flush_i,
+
     input  prf_wport_i_t [PRF_WPORTS - 1:0] prf_wport_i,
 
     input  prf_rport_i_t [PRF_RPORTS - 1:0] prf_rport_i,
@@ -19,53 +21,101 @@ module prf_m(
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
-    prf_mem_rport_i_t [PRF_MEM_RPORTS - 1:0] mem_rporti;
-    prf_mem_rport_o_t [PRF_MEM_RPORTS - 1:0] mem_rporto;
+    prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
+    prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] mem_reqo;
+
+    prf_mem_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] mem_acko;
 
     prf_mem_m mem(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
+        .flush_i(flush_i),
+
         .prf_wport_i(prf_wport_i),
         
-        .prf_rport_i(mem_rporti),
-        .prf_rport_o(mem_rporto),
+        .prf_rport_req_i(mem_reqi),
+        .prf_rport_req_o(mem_reqo),
+
+        .prf_rport_ack_o(mem_acko),
 
         .prf_rel_i(prf_rel_i)
     );
 
-    always_comb begin
-        logic [$clog2(PRF_MEM_RPORTS + 1) - 1:0] mem_port;
+    logic [PRF_RPORTS - 1:0] rport_avail;
+    logic [PRF_RPORTS - 1:0] rport_valid;
+    logic [PRF_RPORTS - 1:0] rport_accept;
 
-        mem_port = 0;
+    prf_addr_t [PRF_RPORTS - 1:0] rport_addr;
+    prf_addr_t [PRF_RPORTS - 1:0] rport_accept_addr;
 
-        for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-            mem_rporti[i].req  = 0;
-            mem_rporti[i].tag  = 0;
-            mem_rporti[i].addr = 0;
+    always_ff @(posedge clk_i) begin
+        if (!nrst_i) begin
+            for (int i = 0; i < PRF_RPORTS; i++) begin
+                rport_valid[i] <= 0;
+            end
         end
+        else if (flush_i) begin
+            for (int i = 0; i < PRF_RPORTS; i++) begin
+                rport_valid[i] <= 0;
+            end
+        end
+        else begin
+            for (int i = 0; i < PRF_RPORTS; i++) begin
+                if (rport_avail[i] && !rport_accept[i]) rport_valid[i] <= 1;
 
-        for (int i = 0; i < PRF_RPORTS; i++) begin
-            if (mem_port < PRF_MEM_RPORTS && prf_rport_i[i].req) begin
-                mem_rporti[mem_port].req  = 1;
-                mem_rporti[mem_port].tag  = i;
-                mem_rporti[mem_port].addr = prf_rport_i[i].addr;
-
-                mem_port++;
+                if (!rport_avail[i] && rport_accept[i]) rport_valid[i] <= 0;
             end
         end
     end
 
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            prf_rport_o[i].ack  = 0;
-            prf_rport_o[i].data = 0;
+            rport_avail[i] = prf_rport_i[i].req;
+
+            if (rport_valid[i]) rport_accept_addr[i] = rport_addr[i];
+            else rport_accept_addr[i]                = prf_rport_i[i].addr;
+        end
+    end
+
+    always_comb begin
+        integer current_rport;
+
+        current_rport = 0;
+
+        for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
+            mem_reqi[i] = 0;
+        end
+
+        for (int i = 0; i < PRF_RPORTS; i++) begin
+            rport_accept[i] = 0;
+
+            if (current_rport < PRF_MEM_RPORTS && mem_reqo[current_rport].ready) begin
+                if (
+                    rport_valid[i] ||
+                    rport_avail[i]
+                ) begin
+                    rport_accept[i] = 1;
+
+                    mem_reqi[current_rport].valid = 1;
+                    mem_reqi[current_rport].tag   = $bits(prf_rport_tag_t)'(i);
+                    mem_reqi[current_rport].addr  = rport_accept_addr[i];
+
+                    current_rport++;
+                end
+            end
+        end
+    end
+
+    always_comb begin
+        for (int i = 0; i < PRF_RPORTS; i++) begin
+            prf_rport_o[i] = 0;
         end
 
         for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-            if (mem_rporto[i].ack) begin
-                prf_rport_o[mem_rporto[i].tag].ack  = 1;
-                prf_rport_o[mem_rporto[i].tag].data = mem_rporto[i].data;
+            if (mem_acko[i].valid) begin
+                prf_rport_o[mem_acko[i].tag].ack  = 1;
+                prf_rport_o[mem_acko[i].tag].data = mem_acko[i].data;
             end
         end
     end

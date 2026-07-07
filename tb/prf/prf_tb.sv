@@ -2,8 +2,6 @@
 
 `include "isa.svh"
 
-parameter CYCLES = 1000;
-
 module prf_tb();
 
     wire clk, nrst;
@@ -13,94 +11,69 @@ module prf_tb();
         .nrst_o(nrst)
     );
 
-    prf_port_i_t portsi [1:0];
-    prf_port_o_t portso [1:0];
+    prf_wport_i_t [PRF_WPORTS - 1:0] wports;
+
+    prf_rport_i_t [PRF_RPORTS - 1:0] rportsi;
+    prf_rport_o_t [PRF_RPORTS - 1:0] rportso;
+
+    prf_rel_i_t [COMMIT_WIDTH - 1:0] reli;
 
     prf_m dut(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .prf_port_i({ portsi[1], portsi[0] }),
-        .prf_port_o({ portso[1], portso[0] })
+        .prf_wport_i(wports),
+
+        .prf_rport_i(rportsi),
+        .prf_rport_o(rportso),
+
+        .prf_rel_i(reli)
     );
 
     initial begin
-        word_t data;
+        wports  = 0;
+        rportsi = 0;
+        rportso = 0;
+        reli    = 0;
 
         clk_rst.RESET();
 
-        $display("0 test");
-        MAIN(0);
+        fork
+            begin
+                #1000;
 
-        #1000;
+                wait(!clk);
 
-        $display("1 test");
-        MAIN(1);
+                wports[0].we = 1;
+                wports[0].addr = 10;
+                wports[0].data = 123;
 
-        #1000;
+                wait(clk);
+                wait(!clk);
 
-        $display("Success!");
+                wports[0].we = 0;
+            end
+            begin
+                wait(!clk);
 
+                rportsi[0].req  = 1;
+                rportsi[0].addr = 10;
+                wait(clk);
+                wait(!clk);
+                rportsi[0].req  = 0;
+
+                wait(rportso[0].ack);
+                #1;
+
+                $display(rportso[0].data);
+            end
+        join
+    end
+
+    initial begin
+        #1000000;
         $finish;
     end
-
-    task MAIN;
-        input index;
-    begin
-        for (int i = 0; i < CYCLES; i++) begin
-            prf_addr_t addr;
-            word_t write_data;
-            word_t read_data;
-
-            addr = PRF_ADDR_WIDTH'({$random} % PRF_SIZE);
-            write_data = {$random};
-
-            PRF_WRITE(index, addr, write_data);
-            PRF_READ(index, addr, read_data);
-
-            if (write_data != read_data) begin
-                $display("MISMATCH AT 0x%h", addr);
-                $stop;
-            end
-        end
-    end
-    endtask
-
-    task PRF_WRITE;
-        input index;
-
-        input prf_addr_t addr;
-        input word_t data;
-    begin
-        wait(!clk);
-
-        portsi[index].addr = addr;
-        portsi[index].data = data;
-        portsi[index].we   = 1;
-
-        wait(clk);
-        #1;
-
-        portsi[index].we   = 0;
-    end
-    endtask
-
-    task PRF_READ;
-        input index;
-
-        input prf_addr_t addr;
-        output word_t data;
-    begin
-        wait(!clk);
-
-        portsi[index].addr = addr;
-
-        wait(clk);
-        #1;
-
-        data = portso[index].data;
-    end
-    endtask
 
 endmodule
 

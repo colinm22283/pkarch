@@ -6,6 +6,8 @@ module alu_fu_m(
     input wire clk_i,
     input wire nrst_i,
 
+    input logic flush_i,
+
     input  fu_dispatch_i_t dispatch_i,
     output fu_dispatch_o_t dispatch_o,
 
@@ -16,6 +18,12 @@ module alu_fu_m(
     output commit_i_t commit_o
 );
 
+    logic [1:0]      rport_req;
+    prf_addr_t [1:0] rport_addr;
+
+    logic [1:0]  rport_valid;
+    word_t [1:0] rport_data;
+
     sword_t a, b;
     word_t a_u, b_u;
     sword_t y;
@@ -25,21 +33,45 @@ module alu_fu_m(
 
     logic read_ports_valid;
 
-    always_comb begin
-        rport_o[0].addr = dispatch_i.rs1;
-        rport_o[1].addr = dispatch_i.rs2;
+    generate for (genvar i = 0; i < 2; i++) begin
+        prf_req_m prf_req(
+            .clk_i(clk_i),
+            .nrst_i(nrst_i),
 
-        a = rport_i[0].data;
+            .flush_i(flush_i),
+
+            .req_i(rport_req[i]),
+            .addr_i(rport_addr[i]),
+
+            .accept_i(read_ports_valid),
+            .valid_o(rport_valid[i]),
+            .data_o(rport_data[i]),
+
+            .rport_i(rport_i[i]),
+            .rport_o(rport_o[i])
+        );
+    end endgenerate
+
+    always_comb begin
+        rport_addr[0] = dispatch_i.rs1;
+        rport_addr[1] = dispatch_i.rs2;
+
+        rport_req = 0;
+
+        a = rport_data[0];
 
         case (dispatch_i.dec_inst.opcode)
             OPCODE_REGALU: begin
-                read_ports_valid = rport_i[0].valid && rport_i[1].valid;
+                read_ports_valid = rport_valid[0] && rport_valid[1];
+                rport_req[0] = dispatch_i.valid;
+                rport_req[1] = dispatch_i.valid;
 
                 b = rport_i[1].data;
             end
 
             OPCODE_IMMALU: begin
-                read_ports_valid = rport_i[0].valid;
+                read_ports_valid = rport_valid[0];
+                rport_req[0] = dispatch_i.valid;
 
                 b = dispatch_i.dec_inst.imm;
             end

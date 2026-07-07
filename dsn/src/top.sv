@@ -235,6 +235,8 @@ module top_m #(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
+        .flush_i(flush),
+
         .prf_wport_i(prf_wporti),
 
         .prf_rport_i(prf_rporti),
