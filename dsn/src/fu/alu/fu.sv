@@ -102,9 +102,9 @@ module alu_fu_m(
 
                     FUNCT_AND: y = a & b;
 
-                    FUNCT_SLL: y = a >> b;
+                    FUNCT_SLL: y = a << b;
 
-                    FUNCT_SRL: y = a << b;
+                    FUNCT_SRL: y = a >> b;
 
                     FUNCT_SRA: y = a >>> b;
 
