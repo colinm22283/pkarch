@@ -126,7 +126,7 @@ module decoder_m(
         case (inst_type)
             TYPE_R: decoded_o.imm = IMM_ERROR;
             TYPE_I: decoded_o.imm = 32'(imm_i);
-            TYPE_S: decoded_o.imm = 32'(imm_s << 1);
+            TYPE_S: decoded_o.imm = 32'(imm_s);
             TYPE_B: decoded_o.imm = 32'(imm_b << 1);
             TYPE_U: decoded_o.imm = 32'(imm_u << 12);
             TYPE_J: decoded_o.imm = 32'(imm_j << 1);

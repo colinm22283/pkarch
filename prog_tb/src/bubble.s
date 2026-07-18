@@ -10,32 +10,26 @@ entry:
 
     li t0, 0
     outer:
-        slli a2, t0, 2
-        add  a2, a2, a1
-
-        lw   t1, (a2)
-
-        addi t2, t0, 1
+        li t1, 1
         inner:
-            slli a3, t2, 2
-            add  a3, a3, a1
+            slli t2, t1, 2
+            # the issue happens here when there isnt a gap
+            add  t2, t2, a1
+            sw t0, (a0)
+            lw   t3, (t2)
+            lw   t4, -4(t2)
 
-            lw   t3, (a3)
+            blt t4, t3, noswap
+                sw   t3, -4(t2)
+                sw   t4, (t2)
+            noswap:
 
-            blt  t1, t3, inner_done
+            addi t1, t1, 1
+            blt  t1, s0, inner
 
-            sw   t3, (a2)
-            sw   t1, (a3)
-
-            addi t2, t2, 1
-            addi a2, a2, 4
-
-            blt t2, s0, inner
-
-        inner_done:
+        sw t0, (a0)
 
         addi t0, t0, 1
-
         blt  t0, s0, outer
 
     la   a1, data

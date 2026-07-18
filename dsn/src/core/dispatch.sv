@@ -102,7 +102,7 @@ module dispatch_m(
                             entries[i].rob_id_valid <= 1;
                             entries[i].rob_id       <= rob_dispatch_i[i].id;
 
-                            `DL(log, ("Alloc ROB ID of 0x%h", rob_dispatch_i[i].id));
+                            `DL(log, ("Alloc ROB ID of 0x%h for instruction from 0x%h", rob_dispatch_i[i].id, entries[i].pc));
                         end
 
                         if (
