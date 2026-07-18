@@ -62,7 +62,10 @@ module prf_m(
         end
         else begin
             for (int i = 0; i < PRF_RPORTS; i++) begin
-                if (rport_avail[i] && !rport_accept[i]) rport_valid[i] <= 1;
+                if (rport_avail[i] && !rport_accept[i]) begin
+                    rport_valid[i] <= 1;
+                    rport_addr[i] <= prf_rport_i[i].addr;
+                end
 
                 if (!rport_avail[i] && rport_accept[i]) rport_valid[i] <= 0;
             end
@@ -90,18 +93,23 @@ module prf_m(
         for (int i = 0; i < PRF_RPORTS; i++) begin
             rport_accept[i] = 0;
 
-            if (current_rport < PRF_MEM_RPORTS && mem_reqo[current_rport].ready) begin
-                if (
-                    rport_valid[i] ||
-                    rport_avail[i]
-                ) begin
-                    rport_accept[i] = 1;
-
-                    mem_reqi[current_rport].valid = 1;
-                    mem_reqi[current_rport].tag   = $bits(prf_rport_tag_t)'(i);
-                    mem_reqi[current_rport].addr  = rport_accept_addr[i];
-
+            if (current_rport < PRF_MEM_RPORTS) begin
+                if (!mem_reqo[current_rport].ready) begin
                     current_rport++;
+                end
+                else begin
+                    if (
+                        rport_valid[i] ||
+                        rport_avail[i]
+                    ) begin
+                        rport_accept[i] = 1;
+
+                        mem_reqi[current_rport].valid = 1;
+                        mem_reqi[current_rport].tag   = $bits(prf_rport_tag_t)'(i);
+                        mem_reqi[current_rport].addr  = rport_accept_addr[i];
+
+                        current_rport++;
+                    end
                 end
             end
         end

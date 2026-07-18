@@ -190,5 +190,47 @@ typedef struct packed {
     opcode_t opcode;
 } dec_inst_t;
 
+function string REG_NAME(reg_addr_t r);
+    case (r)
+        REG_ZERO: return "zero";
+
+        REG_RA: return "ra";
+
+        REG_SP: return "SP";
+
+    REG_GP: return "gp";
+    REG_TP: return "tp";
+    REG_T0: return "t0";
+    REG_T1: return "t1";
+    REG_T2: return "t2";
+    REG_S0: return "s0";
+    REG_S1: return "s1";
+    REG_A0: return "a0";
+    REG_A1: return "a1";
+    REG_A2: return "a2";
+    REG_A3: return "a3";
+    REG_A4: return "a4";
+    REG_A5: return "a5";
+    REG_A6: return "a6";
+    REG_A7: return "a7";
+    REG_S2: return "s2";
+    REG_S3: return "s3";
+    REG_S4: return "s4";
+    REG_S5: return "s5";
+    REG_S6: return "s6";
+    REG_S7: return "s7";
+    REG_S8: return "s8";
+    REG_S9: return "s9";
+    REG_S10: return "s10";
+    REG_S11: return "s11";
+    REG_T3: return "t3";
+    REG_T4: return "t4";
+    REG_T5: return "t5";
+    REG_T6: return "t6";
+
+        default: return "UNDEFINED";
+    endcase
+endfunction
+
 `endif
 

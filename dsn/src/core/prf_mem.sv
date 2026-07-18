@@ -26,13 +26,6 @@ module prf_mem_m(
 
     prf_entry_t [PRF_SIZE - 1:0] mem;
 
-    logic [PRF_SIZE - 1:0] valids;
-    always_comb begin
-        for (int i = 0; i < PRF_SIZE; i++) begin
-            valids[i] = mem[i].valid;
-        end
-    end
-
     prf_addr_t      read_addr  [PRF_MEM_RPORTS - 1:0];
     prf_rport_tag_t addr_tag   [PRF_MEM_RPORTS - 1:0];
     logic           addr_valid [PRF_MEM_RPORTS - 1:0];
@@ -99,6 +92,9 @@ module prf_mem_m(
 
                     data_tag[i] <= addr_tag[i];
                 end
+                else begin
+                    data_valid[i] <= 0;
+                end
             end
         end
     end
@@ -110,11 +106,12 @@ module prf_mem_m(
             prf_rport_ack_o[i].valid = data_valid[i];
 
             data_ready[i] =
-                !addr_valid[i] ||
-                mem[INDEX_WIDTH'(read_addr[i])].valid ||
-                read_addr[i] == PRF_ZERO_ADDR;
-            prf_rport_req_o[i].ready = data_ready[i] || !data_valid[i];
+                read_addr[i] == PRF_ZERO_ADDR ||
+                (
+                    mem[INDEX_WIDTH'(read_addr[i])].valid
+                );
             addr_ready[i] = addr_valid[i] ? data_ready[i] : 1;
+            prf_rport_req_o[i].ready = addr_ready[i];
         end
     end
 

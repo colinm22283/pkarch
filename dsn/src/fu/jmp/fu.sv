@@ -30,8 +30,8 @@ module jmp_fu_m(
     sword_t a, b;
     word_t a_u, b_u;
 
-    assign a   = rport_i[0].data;
-    assign b   = rport_i[1].data;
+    assign a   = rport_data[0];
+    assign b   = rport_data[1];
     assign a_u = a;
     assign b_u = b;
 
@@ -93,7 +93,7 @@ module jmp_fu_m(
             OPCODE_LINKREG: begin
                 run = 1;
                 read_ports_valid = rport_valid[0];
-                jump = 1;
+                jump = 0;
                 offset = $signed(rport_data[0]) + $signed(dispatch_i.dec_inst.imm);
 
                 rport_req[0] = dispatch_i.valid;

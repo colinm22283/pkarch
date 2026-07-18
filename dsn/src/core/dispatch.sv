@@ -114,7 +114,7 @@ module dispatch_m(
                             entries[i].rs1_valid <= 1;
                             entries[i].rs1       <= rename_dispatch_i[rename_index].prf_addr;
 
-                            `DL(log, ("Alloc RS1 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs1, rename_dispatch_i[rename_index].prf_addr));
+                            `DL(log, ("Alloc RS1 (%s) at paddr 0x%h", REG_NAME(entries[i].dec_inst.rs1), rename_dispatch_i[rename_index].prf_addr));
 
                             rename_index++;
                         end
@@ -128,7 +128,7 @@ module dispatch_m(
                             entries[i].rs2_valid <= 1;
                             entries[i].rs2       <= rename_dispatch_i[rename_index].prf_addr;
 
-                            `DL(log, ("Alloc RS2 (r%0d) at paddr 0x%h", entries[i].dec_inst.rs2, rename_dispatch_i[rename_index].prf_addr));
+                            `DL(log, ("Alloc RS2 (%s) at paddr 0x%h", REG_NAME(entries[i].dec_inst.rs2), rename_dispatch_i[rename_index].prf_addr));
 
                             rename_index++;
                         end
@@ -143,7 +143,7 @@ module dispatch_m(
                             entries[i].rd       <= rename_dispatch_i[rename_index].prf_addr;
                             entries[i].prev_rd  <= rename_dispatch_i[rename_index].prev_addr;
 
-                            `DL(log, ("Alloc RD (r%0d) at paddr 0x%h, with prev paddr 0x%x", entries[i].dec_inst.rd, rename_dispatch_i[rename_index].prf_addr, rename_dispatch_i[rename_index].prev_addr));
+                            `DL(log, ("Alloc RD (%s) at paddr 0x%h, with prev paddr 0x%x", REG_NAME(entries[i].dec_inst.rd), rename_dispatch_i[rename_index].prf_addr, rename_dispatch_i[rename_index].prev_addr));
 
                             rename_index++;
                         end
