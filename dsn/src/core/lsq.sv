@@ -31,8 +31,6 @@ module lsq_m(
     output logic rob_write_ready_o
 );
 
-    // siport_breakout_m siport(.sport_i(mports_o[0]));
-
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
     localparam LSQ_INDEX_WIDTH = $clog2(LSQ_SIZE);

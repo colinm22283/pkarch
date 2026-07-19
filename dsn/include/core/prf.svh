@@ -35,8 +35,6 @@ typedef struct packed {
 } prf_rel_i_t;
 
 typedef struct packed {
-    bit valid;
-
     word_t data;
 } prf_entry_t;
 
@@ -48,10 +46,6 @@ typedef struct packed {
     prf_rport_tag_t tag;
     prf_addr_t addr;
 } prf_mem_rport_req_i_t;
-
-typedef struct packed {
-    bit ready;
-} prf_mem_rport_req_o_t;
 
 typedef struct packed {
     bit valid;

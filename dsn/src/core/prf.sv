@@ -10,6 +10,8 @@ module prf_m(
     input wire nrst_i,
 
     input logic flush_i,
+    input  wire jump_i,
+    input  wire jump_commit_i,
 
     input  prf_wport_i_t [PRF_WPORTS - 1:0] prf_wport_i,
 
@@ -21,10 +23,19 @@ module prf_m(
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
+    localparam INDEX_WIDTH = $clog2(PRF_SIZE);
+    localparam CP_INDEX_WIDTH = $clog2(CHECKPOINT_COUNT);
+    localparam CP_SIZE_WIDTH = $clog2(CHECKPOINT_COUNT + 1);
+
     prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
-    prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] mem_reqo;
 
     prf_mem_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] mem_acko;
+
+    logic [PRF_SIZE - 1:0] mem_valid;
+
+    logic [CP_INDEX_WIDTH - 1:0] cp_head, cp_tail;
+    logic [CP_SIZE_WIDTH - 1:0] cp_size;
+    logic [PRF_SIZE - 1:0] mem_checkpoints [CHECKPOINT_COUNT - 1:0];
 
     prf_mem_m mem(
         .clk_i(clk_i),
@@ -35,11 +46,8 @@ module prf_m(
         .prf_wport_i(prf_wport_i),
         
         .prf_rport_req_i(mem_reqi),
-        .prf_rport_req_o(mem_reqo),
 
-        .prf_rport_ack_o(mem_acko),
-
-        .prf_rel_i(prf_rel_i)
+        .prf_rport_ack_o(mem_acko)
     );
 
     logic [PRF_RPORTS - 1:0] rport_avail;
@@ -54,13 +62,55 @@ module prf_m(
             for (int i = 0; i < PRF_RPORTS; i++) begin
                 rport_valid[i] <= 0;
             end
+
+            for (int i = 0; i < PRF_SIZE; i++) begin
+                mem_valid[i] <= 0;
+            end
+
+            cp_head <= 0;
+            cp_size <= 0;
+            cp_size <= 0;
         end
         else if (flush_i) begin
             for (int i = 0; i < PRF_RPORTS; i++) begin
                 rport_valid[i] <= 0;
             end
+            
+            mem_valid <= mem_checkpoints[cp_head];
+            
+            cp_head <= 0;
+            cp_tail <= 0;
+            cp_size <= 0;
         end
         else begin
+            if (jump_commit_i && cp_size != 0) begin
+                cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % CHECKPOINT_COUNT);
+                cp_size <= cp_size - 1;
+            end
+
+            if (jump_i) begin
+                mem_checkpoints[cp_tail] <= mem_valid;
+
+                cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % CHECKPOINT_COUNT);
+                cp_size <= cp_size + 1;
+            end
+
+            for (int i = 0; i < COMMIT_WIDTH; i++) begin
+                if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
+                    `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
+
+                    mem_valid[INDEX_WIDTH'(prf_rel_i[i].addr)] <= 0;
+                end
+            end
+
+            for (int i = 0; i < PRF_WPORTS; i++) begin
+                if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
+                    `DL(log, ("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr));
+
+                    mem_valid[INDEX_WIDTH'(prf_wport_i[i].addr)] <= 1;
+                end
+            end
+
             for (int i = 0; i < PRF_RPORTS; i++) begin
                 if (rport_avail[i] && !rport_accept[i]) begin
                     rport_valid[i] <= 1;
@@ -94,10 +144,10 @@ module prf_m(
             rport_accept[i] = 0;
 
             if (current_rport < PRF_MEM_RPORTS) begin
-                if (!mem_reqo[current_rport].ready) begin
-                    current_rport++;
-                end
-                else begin
+                if (
+                    rport_accept_addr[i] == PRF_ZERO_ADDR ||
+                    mem_valid[INDEX_WIDTH'(rport_accept_addr[i])]
+                ) begin
                     if (
                         rport_valid[i] ||
                         rport_avail[i]

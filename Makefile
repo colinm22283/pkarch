@@ -11,6 +11,8 @@ export WAVE=$(SURFER)
 
 export VFLAGS+=--threads 1 -j 16
 export VFLAGS+=--timing
+export VFLAGS+=--trace-max-array 300
+export VFLAGS+=--trace-max-width 0
 # export VFLAGS+=-Wno-UNOPTFLAT
 
 include dsn/sources.mk

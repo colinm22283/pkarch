@@ -14,7 +14,7 @@ module ram_m #(
 );
 
     localparam ADDR_WIDTH = $clog2(SIZE);
-    word_t [SIZE - 1:0] mem;
+    word_t mem [SIZE - 1:0];
 
     enum logic [1:0] {
         STATE_READY,

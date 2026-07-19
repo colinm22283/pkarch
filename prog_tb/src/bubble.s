@@ -12,10 +12,10 @@ entry:
     outer:
         li t1, 1
         inner:
+            sw   t1, (a0)
+
             slli t2, t1, 2
-            # the issue happens here when there isnt a gap
             add  t2, t2, a1
-            sw t0, (a0)
             lw   t3, (t2)
             lw   t4, -4(t2)
 

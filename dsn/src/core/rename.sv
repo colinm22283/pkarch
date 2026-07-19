@@ -24,8 +24,8 @@ module rename_m(
     output prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_o
 );
 
-    localparam CP_INDEX_WIDTH = $clog2(RENAME_CHECKPOINT_SIZE);
-    localparam CP_SIZE_WIDTH = $clog2(RENAME_CHECKPOINT_SIZE + 1);
+    localparam CP_INDEX_WIDTH = $clog2(CHECKPOINT_COUNT);
+    localparam CP_SIZE_WIDTH = $clog2(CHECKPOINT_COUNT + 1);
 
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
@@ -33,11 +33,11 @@ module rename_m(
     logic [CP_INDEX_WIDTH - 1:0] cp_head, cp_tail;
     logic [CP_SIZE_WIDTH - 1:0] cp_size;
 
-    prf_addr_t                         committed_freelist_head [RENAME_CHECKPOINT_SIZE - 1:0];
-    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [RENAME_CHECKPOINT_SIZE - 1:0];
-    prf_addr_t        committed_freelist [RENAME_CHECKPOINT_SIZE - 1:0] [PRF_SIZE - 1:0];
+    prf_addr_t                         committed_freelist_head [CHECKPOINT_COUNT - 1:0];
+    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [CHECKPOINT_COUNT - 1:0];
+    prf_addr_t        committed_freelist [CHECKPOINT_COUNT - 1:0] [PRF_SIZE - 1:0];
 
-    rename_map_entry_t committed_map_table [RENAME_CHECKPOINT_SIZE - 1:0] [REG_COUNT - 1:0];
+    rename_map_entry_t committed_map_table [CHECKPOINT_COUNT - 1:0] [REG_COUNT - 1:0];
 
     prf_addr_t freelist_head;
     logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
@@ -103,7 +103,7 @@ module rename_m(
             end
             else begin
                 if (jump_commit_i && cp_size != 0) begin
-                    cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % RENAME_CHECKPOINT_SIZE);
+                    cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % CHECKPOINT_COUNT);
                     cp_size <= cp_size - 1;
                 end
 
@@ -120,7 +120,7 @@ module rename_m(
                         committed_map_table[cp_tail][i] = map_table[i];
                     end
 
-                    cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % RENAME_CHECKPOINT_SIZE);
+                    cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % CHECKPOINT_COUNT);
                     cp_size <= cp_size + 1;
                 end
 
@@ -171,7 +171,7 @@ module rename_m(
     end
 
     always_comb begin
-        jump_accept_o = cp_size != RENAME_CHECKPOINT_SIZE;
+        jump_accept_o = cp_size != CHECKPOINT_COUNT;
     end
 
     always_comb begin

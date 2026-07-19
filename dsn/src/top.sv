@@ -236,6 +236,8 @@ module top_m #(
         .nrst_i(nrst_i),
 
         .flush_i(flush),
+        .jump_i(rename_jump),
+        .jump_commit_i(rename_jump_commit),
 
         .prf_wport_i(prf_wporti),
 

@@ -1,6 +1,7 @@
 `ifndef ROB_SVH
 `define ROB_SVH
 
+`include "config.svh"
 `include "isa.svh"
 `include "core/prf.svh"
 `include "core/pc.svh"
