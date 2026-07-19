@@ -66,7 +66,7 @@ module alu_fu_m(
                 rport_req[0] = dispatch_i.valid;
                 rport_req[1] = dispatch_i.valid;
 
-                b = rport_i[1].data;
+                b = rport_data[1];
             end
 
             OPCODE_IMMALU: begin

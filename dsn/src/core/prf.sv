@@ -33,10 +33,6 @@ module prf_m(
 
     logic [PRF_SIZE - 1:0] mem_valid;
 
-    logic [CP_INDEX_WIDTH - 1:0] cp_head, cp_tail;
-    logic [CP_SIZE_WIDTH - 1:0] cp_size;
-    logic [PRF_SIZE - 1:0] mem_checkpoints [CHECKPOINT_COUNT - 1:0];
-
     prf_mem_m mem(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
@@ -66,35 +62,13 @@ module prf_m(
             for (int i = 0; i < PRF_SIZE; i++) begin
                 mem_valid[i] <= 0;
             end
-
-            cp_head <= 0;
-            cp_size <= 0;
-            cp_size <= 0;
         end
         else if (flush_i) begin
             for (int i = 0; i < PRF_RPORTS; i++) begin
                 rport_valid[i] <= 0;
             end
-            
-            mem_valid <= mem_checkpoints[cp_head];
-            
-            cp_head <= 0;
-            cp_tail <= 0;
-            cp_size <= 0;
         end
         else begin
-            if (jump_commit_i && cp_size != 0) begin
-                cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % CHECKPOINT_COUNT);
-                cp_size <= cp_size - 1;
-            end
-
-            if (jump_i) begin
-                mem_checkpoints[cp_tail] <= mem_valid;
-
-                cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % CHECKPOINT_COUNT);
-                cp_size <= cp_size + 1;
-            end
-
             for (int i = 0; i < COMMIT_WIDTH; i++) begin
                 if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
