@@ -9,7 +9,7 @@ entry:
     la   sp, stack_top
     addi sp, sp, -4
 
-    # jal print_arr
+    jal print_arr
 
     la   a1, size
     lw   s0, (a1)
@@ -76,13 +76,18 @@ print_arr:
 
 data:
     .word 5
-    .word 4
+    .word 5
     .word 3
     .word 2
     .word 1
+    .word 9
+    .word 10
+    .word 6
+    .word 8
+    .word 7
 
 size:
-    .word 5
+    .word 10
 
 stack_bottom:
     .skip 64
