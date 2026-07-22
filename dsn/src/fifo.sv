@@ -22,7 +22,7 @@ module fifo_m #(
     logic [INDEX_WIDTH - 1:0] head, tail;
     logic [SIZE_WIDTH - 1:0]  size;
 
-    logic [WIDTH - 1:0] data [DEPTH - 1:0]
+    logic [WIDTH - 1:0] data [DEPTH - 1:0];
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
