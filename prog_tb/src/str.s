@@ -23,5 +23,16 @@ print:
 
     ret
 
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+nop
+
 str: .asciz "hello world!\n"
 
