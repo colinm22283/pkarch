@@ -13,6 +13,8 @@ parameter CHECKPOINT_COUNT   = 4;
 
 parameter ISSUE_QUEUE_SIZE   = 2;
 
+parameter IQ_IN_SIZE = 4;
+
 parameter ROB_SIZE           = 256;
 parameter ROB_COMMIT_WIDTH   = 2;
 
