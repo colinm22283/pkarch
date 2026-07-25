@@ -13,7 +13,9 @@ module prf_mem_m(
     input  prf_mem_wport_i_t [PRF_WPORTS - 1:0] prf_wport_i,
 
     input  prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_req_i,
+    output prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_req_o,
 
+    input  prf_mem_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_i,
     output prf_mem_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_o
 );
 
@@ -23,13 +25,17 @@ module prf_mem_m(
 
     prf_entry_t [PRF_SIZE - 1:0] mem;
 
-    prf_addr_t      read_addr  [PRF_MEM_RPORTS - 1:0];
-    prf_rport_tag_t addr_tag   [PRF_MEM_RPORTS - 1:0];
-    logic           addr_valid [PRF_MEM_RPORTS - 1:0];
+    prf_addr_t read_addr  [PRF_MEM_RPORTS - 1:0];
+    logic      addr_port  [PRF_MEM_RPORTS - 1:0];
+    rob_id_t   addr_id    [PRF_MEM_RPORTS - 1:0];
+    logic      addr_valid [PRF_MEM_RPORTS - 1:0];
+    logic      addr_ready [PRF_MEM_RPORTS - 1:0];
 
-    word_t          read_data  [PRF_MEM_RPORTS - 1:0];
-    prf_rport_tag_t data_tag   [PRF_MEM_RPORTS - 1:0];
-    logic           data_valid [PRF_MEM_RPORTS - 1:0];
+    word_t     read_data  [PRF_MEM_RPORTS - 1:0];
+    logic      data_port  [PRF_MEM_RPORTS - 1:0];
+    rob_id_t   data_id    [PRF_MEM_RPORTS - 1:0];
+    logic      data_valid [PRF_MEM_RPORTS - 1:0];
+    logic      data_ready [PRF_MEM_RPORTS - 1:0];
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -54,22 +60,28 @@ module prf_mem_m(
             end
 
             for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-                read_addr[i]  <= prf_rport_req_i[i].addr;
-                addr_tag[i]   <= prf_rport_req_i[i].tag;
-                addr_valid[i] <= prf_rport_req_i[i].valid;
+                if (addr_ready[i]) begin
+                    read_addr[i]  <= prf_rport_req_i[i].addr;
+                    addr_port[i]  <= prf_rport_req_i[i].port;
+                    addr_id[i]    <= prf_rport_req_i[i].rob_id;
+                    addr_valid[i] <= prf_rport_req_i[i].valid;
+                end
             end
 
             for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-                if (read_addr[i] != PRF_ZERO_ADDR) begin
-                    read_data[i]  <= mem[INDEX_WIDTH'(read_addr[i])].data;
-                    data_valid[i] <= addr_valid[i];
-                end
-                else begin
-                    read_data[i]  <= 0;
-                    data_valid[i] <= addr_valid[i];
-                end
+                if (data_ready[i]) begin
+                    if (read_addr[i] != PRF_ZERO_ADDR) begin
+                        read_data[i]  <= mem[INDEX_WIDTH'(read_addr[i])].data;
+                        data_valid[i] <= addr_valid[i];
+                    end
+                    else begin
+                        read_data[i]  <= 0;
+                        data_valid[i] <= addr_valid[i];
+                    end
 
-                data_tag[i] <= addr_tag[i];
+                    data_port[i] <= addr_port[i];
+                    data_id[i]   <= addr_id[i];
+                end
             end
         end
     end
@@ -79,6 +91,10 @@ module prf_mem_m(
             prf_rport_ack_o[i].data  = read_data[i];
             prf_rport_ack_o[i].tag   = data_tag[i];
             prf_rport_ack_o[i].valid = data_valid[i];
+
+            data_ready[i] = !data_valid[i] || prf_rport_ack_i[i].ready;
+            addr_ready[i] = !addr_valid[i] || data_ready[i];
+            prf_rport_req_o[i].ready = addr_ready[i];
         end
     end
 

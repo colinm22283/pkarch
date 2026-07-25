@@ -90,8 +90,10 @@ module top_m #(
 
     prf_wport_i_t [PRF_WPORTS - 1:0] prf_wporti;
 
-    prf_rport_i_t [PRF_RPORTS - 1:0] prf_rporti;
-    prf_rport_o_t [PRF_RPORTS - 1:0] prf_rporto;
+    prf_rport_req_i_t [PRF_RPORTS - 1:0] prf_rport_reqi;
+    prf_rport_req_o_t [PRF_RPORTS - 1:0] prf_rport_reqo;
+    prf_rport_ack_i_t [PRF_RPORTS - 1:0] prf_rport_acki;
+    prf_rport_ack_o_t [PRF_RPORTS - 1:0] prf_rport_acko;
 
     prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_reli;
 
@@ -136,7 +138,7 @@ module top_m #(
         .mdispatch_o(expanded_dispatchi)
     );
     
-    issue_queue_m issue_queue(
+    inst_queue_m inst_queue(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -241,8 +243,10 @@ module top_m #(
 
         .prf_wport_i(prf_wporti),
 
-        .prf_rport_i(prf_rporti),
-        .prf_rport_o(prf_rporto),
+        .prf_rport_req_i(prf_rport_reqi),
+        .prf_rport_req_o(prf_rport_reqo),
+        .prf_rport_ack_i(prf_rport_acki),
+        .prf_rport_ack_o(prf_rport_acko),
 
         .prf_rel_i(prf_reli)
     );

@@ -15,8 +15,11 @@ module prf_m(
 
     input  prf_wport_i_t [PRF_WPORTS - 1:0] prf_wport_i,
 
-    input  prf_rport_i_t [PRF_RPORTS - 1:0] prf_rport_i,
-    output prf_rport_o_t [PRF_RPORTS - 1:0] prf_rport_o,
+    input  prf_rport_req_i_t [PRF_RPORTS - 1:0] prf_rport_req_i,
+    output prf_rport_req_o_t [PRF_RPORTS - 1:0] prf_rport_req_o,
+
+    input  prf_rport_ack_i_t [PRF_RPORTS - 1:0] prf_rport_ack_i,
+    output prf_rport_ack_o_t [PRF_RPORTS - 1:0] prf_rport_ack_o,
 
     input  prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_i
 );
@@ -28,7 +31,9 @@ module prf_m(
     localparam CP_SIZE_WIDTH = $clog2(CHECKPOINT_COUNT + 1);
 
     prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
+    prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] mem_reqo;
 
+    prf_mem_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] mem_acki;
     prf_mem_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] mem_acko;
 
     logic [PRF_SIZE - 1:0] mem_valid;
@@ -42,7 +47,9 @@ module prf_m(
         .prf_wport_i(prf_wport_i),
         
         .prf_rport_req_i(mem_reqi),
+        .prf_rport_req_o(mem_reqo),
 
+        .prf_rport_ack_i(mem_acki),
         .prf_rport_ack_o(mem_acko)
     );
 

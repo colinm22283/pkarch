@@ -1,6 +1,6 @@
 SRCS+=core/fetch.sv
 SRCS+=core/fetch_expander.sv
-SRCS+=core/issue_queue.sv
+SRCS+=core/inst_queue.sv
 SRCS+=core/decoder.sv
 SRCS+=core/dispatch.sv
 SRCS+=core/rob.sv
@@ -11,19 +11,10 @@ SRCS+=core/commit.sv
 SRCS+=core/lsq.sv
 
 SRCS+=fu/res_station.sv
-SRCS+=fu/prf_req.sv
-
-SRCS+=fu/alu/fu.sv
-SRCS+=fu/alu/test.sv
-SRCS+=fu/alu/alu.sv
-
-SRCS+=fu/mem/fu.sv
-SRCS+=fu/mem/test.sv
-SRCS+=fu/mem/mem.sv
-
-SRCS+=fu/jmp/fu.sv
-SRCS+=fu/jmp/test.sv
-SRCS+=fu/jmp/jmp.sv
+SRCS+=fu/issue_queue.sv
+SRCS+=fu/issue_req.sv
+SRCS+=fu/issue_acc.sv
+SRCS+=fu/execution_unit.sv
 
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv

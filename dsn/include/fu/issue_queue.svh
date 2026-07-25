@@ -1,7 +1,7 @@
 `ifndef ISSUE_QUEUE_SVH
 `define ISSUE_QUEUE_SVH
 
-typedef struct {
+typedef struct packed {
     pc_t pc;
 
     dec_inst_t dec_inst;
@@ -12,7 +12,7 @@ typedef struct {
     reg_addr_t isa_addr;
 } iq_in_data_t;
 
-typedef struct {
+typedef struct packed {
     rob_id_t rob_id;
 
     word_t rs1_v, rs2_v;
@@ -21,14 +21,24 @@ typedef struct {
     reg_addr_t isa_addr;
 } iq_out_data_t;
 
-typedef struct {
+typedef struct packed {
     bit valid;
 
     iq_in_data_t data;
 } iq_dispatch_i_t;
 
-typedef struct {
+typedef struct packed {
     bit ready;
 } iq_dispatch_o_t;
+
+typedef struct packed {
+    bit valid;
+
+    iq_out_data_t data;
+} iq_commit_i_t;
+
+typedef struct packed {
+    bit ready;
+} iq_commit_o_t;
 
 `endif

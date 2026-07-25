@@ -1,7 +1,7 @@
 `include "config.svh"
 `include "core/dispatch.svh"
 
-module issue_queue_m(
+module inst_queue_m(
     input wire clk_i,
     input wire nrst_i,
 

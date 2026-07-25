@@ -3,6 +3,7 @@
 
 `include "config.svh"
 `include "defs.svh"
+`include "core/types.svh"
 
 parameter PRF_ZERO_ADDR = PRF_SIZE;
 
@@ -19,14 +20,26 @@ typedef struct packed {
 typedef struct packed {
     bit req;
 
+    bit      port;
+    rob_id_t rob_id;
     prf_addr_t addr;
-} prf_rport_i_t;
+} prf_rport_req_i_t;
+
+typedef struct packed {
+    bit ready;
+} prf_rport_req_o_t;
+
+typedef struct packed {
+    bit ready;
+} prf_rport_ack_i_t;
 
 typedef struct packed {
     bit ack;
 
+    bit      port;
+    rob_id_t rob_id;
     word_t data;
-} prf_rport_o_t;
+} prf_rport_ack_o_t;
 
 typedef struct packed {
     bit rel;
@@ -38,20 +51,28 @@ typedef struct packed {
     word_t data;
 } prf_entry_t;
 
-typedef logic [$clog2(PRF_RPORTS) - 1:0] prf_rport_tag_t;
-
 typedef struct packed {
     bit valid;
 
-    prf_rport_tag_t tag;
+    bit      port;
+    rob_id_t rob_id;
     prf_addr_t addr;
 } prf_mem_rport_req_i_t;
 
 typedef struct packed {
+    bit ready;
+} prf_mem_rport_req_o_t;
+
+typedef struct packed {
+    bit ready;
+} prf_mem_rport_ack_i_t;
+
+typedef struct packed {
     bit valid;
 
-    prf_rport_tag_t tag;
-    word_t data;
+    bit      port;
+    rob_id_t rob_id;
+    prf_addr_t addr;
 } prf_mem_rport_ack_o_t;
 
 typedef prf_wport_i_t prf_mem_wport_i_t;

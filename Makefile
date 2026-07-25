@@ -9,7 +9,9 @@ export GTKWAVE?=gtkwave
 export SURFER?=surfer
 export WAVE=$(SURFER)
 
-export VFLAGS+=--threads 1 -j 16
+export CONC=$(shell nproc)
+
+export VFLAGS+=--threads 1 -j $(CONC)
 export VFLAGS+=--timing
 export VFLAGS+=--trace-max-array 300
 export VFLAGS+=--trace-max-width 0
