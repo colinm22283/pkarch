@@ -32,10 +32,14 @@ module fifo_m #(
         end
         else begin
             if (push && pop) begin
+                data[head] <= in_data_i;
+
                 head <= head + 1;
                 tail <= tail + 1;
             end
             else if (push) begin
+                data[head] <= in_data_i;
+
                 head <= head + 1;
                 size <= size + 1;
             end

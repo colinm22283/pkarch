@@ -10,11 +10,15 @@ SRCS+=core/rename.sv
 SRCS+=core/commit.sv
 SRCS+=core/lsq.sv
 
-SRCS+=fu/res_station.sv
 SRCS+=fu/issue_queue.sv
 SRCS+=fu/issue_req.sv
 SRCS+=fu/issue_acc.sv
 SRCS+=fu/execution_unit.sv
+SRCS+=fu/fu_sel.sv
+
+SRCS+=fu/alu.sv
+SRCS+=fu/jmp.sv
+SRCS+=fu/lsu.sv
 
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv

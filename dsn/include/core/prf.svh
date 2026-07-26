@@ -63,18 +63,6 @@ typedef struct packed {
     bit ready;
 } prf_mem_rport_req_o_t;
 
-typedef struct packed {
-    bit ready;
-} prf_mem_rport_ack_i_t;
-
-typedef struct packed {
-    bit valid;
-
-    bit      port;
-    rob_id_t rob_id;
-    prf_addr_t addr;
-} prf_mem_rport_ack_o_t;
-
 typedef prf_wport_i_t prf_mem_wport_i_t;
 typedef prf_rel_i_t prf_mem_rel_i_t;
 

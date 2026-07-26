@@ -3,7 +3,7 @@
 `include "core/dispatch.svh"
 `include "core/rename.svh"
 `include "core/rob.svh"
-`include "fu/fu.svh"
+`include "fu/issue_queue.svh"
 `include "test/logger.svh"
 
 module dispatch_m(
@@ -24,26 +24,11 @@ module dispatch_m(
     input  rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_i,
     output rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_o,
 
-    input  res_dispatch_o_t [FU_COUNT - 1:0] res_dispatch_i,
-    output res_dispatch_i_t [FU_COUNT - 1:0] res_dispatch_o
+    input  iq_dispatch_o_t [DISPATCH_WIDTH - 1:0] iq_dispatch_i,
+    output iq_dispatch_i_t [DISPATCH_WIDTH - 1:0] iq_dispatch_o
 );
 
     `DL_DEFINE(log, "dispatch_m", `DL_BLUE, `DL_ENABLE_DISPATCH);
-
-    res_dispatch_o_t res_dispatchi;
-    res_dispatch_i_t res_dispatcho;
-
-    always_comb begin
-        for (int j = 0; j < DISPATCH_WIDTH; j++) begin
-            res_dispatchi[j].ready = 0;
-
-            for (int i = 0; i < FU_COUNT; i++) begin
-                res_dispatchi[j].ready |= res_dispatch_i[i][j].ready;
-
-                res_dispatch_o[i][j] = res_dispatcho[j];
-            end
-        end
-    end
 
     logic entries_complete;
     dispatch_entry_t entries [DISPATCH_WIDTH - 1:0];
@@ -72,10 +57,8 @@ module dispatch_m(
         end
         else begin
             logic [$clog2(RENAME_WIDTH + 1) - 1:0] rename_index;
-            logic [$clog2(DISPATCH_WIDTH + 1) - 1:0] res_index;
 
             rename_index = 0;
-            res_index = 0;
 
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (flush_i) begin
@@ -153,15 +136,12 @@ module dispatch_m(
                             (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
                             (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
                             (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
-                            res_index < DISPATCH_WIDTH &&
-                            res_dispatchi[res_index].ready
+                            iq_dispatch_i[i].ready
                         ) begin
                             if (entry_jump[i] ? rename_jump_accept_i : 1) begin
                                 `DL(log, ("Instruction sent to reservation station"));
 
                                 entries[i].valid <= 0;
-
-                                res_index++;
                             end
                         end
                     end
@@ -188,10 +168,8 @@ module dispatch_m(
 
     always_comb begin
         logic [$clog2(RENAME_WIDTH + 1) - 1:0] rename_index;
-        logic [$clog2(DISPATCH_WIDTH + 1) - 1:0] res_index;
 
         rename_index = 0;
-        res_index = 0;
 
         for (int i = 0; i < RENAME_WIDTH; i++) begin
             rename_dispatch_o[i] = 0;
@@ -200,7 +178,7 @@ module dispatch_m(
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
             rob_dispatch_o[i] = 0;
 
-            res_dispatcho[i] = 0;
+            iq_dispatch_o[i] = 0;
         end
 
         rename_jump_o = 0;
@@ -252,28 +230,25 @@ module dispatch_m(
                         entries[i].rob_id_valid &&
                         (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
                         (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
-                        (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
-                        res_index < DISPATCH_WIDTH
+                        (entries[i].rd_valid  || !entries[i].dec_inst.rd_a)
                     ) begin
                         if (entry_jump[i]) rename_jump_o = 1;
 
                         if (entry_jump[i] ? rename_jump_accept_i : 1) begin
-                            res_dispatcho[res_index].valid = 1;
+                            iq_dispatch_o[i].valid = 1;
 
-                            res_dispatcho[res_index].pc = entries[i].pc;
+                            iq_dispatch_o[i].data.pc = entries[i].pc;
 
-                            res_dispatcho[res_index].dec_inst = entries[i].dec_inst;
+                            iq_dispatch_o[i].data.dec_inst = entries[i].dec_inst;
 
-                            res_dispatcho[res_index].rob_id = entries[i].rob_id;
+                            iq_dispatch_o[i].data.rob_id = entries[i].rob_id;
 
-                            res_dispatcho[res_index].rs1 = entries[i].rs1;
-                            res_dispatcho[res_index].rs2 = entries[i].rs2;
-                            res_dispatcho[res_index].rd = entries[i].rd;
-                            res_dispatcho[res_index].prev_rd = entries[i].prev_rd;
+                            iq_dispatch_o[i].data.rs1 = entries[i].rs1;
+                            iq_dispatch_o[i].data.rs2 = entries[i].rs2;
+                            iq_dispatch_o[i].data.rd = entries[i].rd;
+                            iq_dispatch_o[i].data.prev_rd = entries[i].prev_rd;
 
-                            res_dispatcho[res_index].isa_addr = entries[i].dec_inst.rd;
-
-                            res_index++;
+                            iq_dispatch_o[i].data.isa_addr = entries[i].dec_inst.rd;
                         end
                     end
                 end

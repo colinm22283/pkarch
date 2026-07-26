@@ -1,7 +1,6 @@
 `timescale 1ns/100ps
 
 `include "config.svh"
-`include "fu/fu.svh"
 `include "core/commit.svh"
 
 module commit_m(

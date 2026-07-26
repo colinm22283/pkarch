@@ -7,11 +7,11 @@ module issue_acc_m(
     input  iq_dispatch_i_t dispatch_i,
     output iq_dispatch_o_t dispatch_o,
 
-    input  iq_commit_i_t commit_i,
-    output iq_commit_o_t commit_o,
+    input  iq_commit_i_t [IQ_COMMIT_WIDTH - 1:0] commit_i,
+    output iq_commit_o_t [IQ_COMMIT_WIDTH - 1:0] commit_o,
 
-    input  prf_rport_ack_o_t [PRF_RPORTS - 1:0] rports_ack_i,
-    output prf_rport_ack_i_t [PRF_RPORTS - 1:0] rports_ack_o
+    input  prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] rports_ack_i,
+    output prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] rports_ack_o
 );
 
     typedef struct packed {
@@ -27,7 +27,7 @@ module issue_acc_m(
     logic   entry_ready [IQ_ACC_SIZE - 1:0];
 
     logic [$clog2(IQ_ACC_SIZE) - 1:0] accept_addr;
-    logic [$clog2(IQ_ACC_SIZE) - 1:0] rport_addr [PRF_RPORTS - 1:0];
+    logic [$clog2(IQ_ACC_SIZE) - 1:0] rport_addr [PRF_MEM_RPORTS - 1:0];
 
     logic [IQ_ACC_SIZE - 1:0] commit_entry;
 
@@ -46,7 +46,7 @@ module issue_acc_m(
                 entries[accept_addr].data = dispatch_i.data;
             end
 
-            for (int i = 0; i < PRF_RPORTS; i++) begin
+            for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
                 if (rports_ack_o[i].ready) begin
                     if (rports_ack_i[i].port == 1'b0) begin
                         entries[rport_addr[i]].rs1 <= 0;
@@ -66,24 +66,30 @@ module issue_acc_m(
     end
 
     always_comb begin
+        logic cont;
+        cont = 1;
+
         dispatch_o.ready = 1'b0;
 
-        if (dispatch_i.valid) begin
-            logic cont;
-            cont = 1;
+        accept_addr = '0;
 
+        if (dispatch_i.valid) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
                 if (cont && !entries[i].valid) begin
                     dispatch_o.ready = 1;
 
-                    accept_addr = i;
+                    accept_addr = $clog2(IQ_ACC_SIZE)'(i);
 
                     cont = 0;
                 end
             end
         end
 
-        for (int i = 0; i < PRF_RPORTS; i++) begin
+        for (int i = 0; i < IQ_ACC_SIZE; i++) begin
+            rport_addr[i] = '0;
+        end
+
+        for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
             rports_ack_o[i].ready = 1'b0;
 
             for (int j = 0; j < IQ_ACC_SIZE; j++) begin
@@ -93,13 +99,13 @@ module issue_acc_m(
                         rports_ack_i[i].rob_id == entries[i].data.rob_id
                     ) begin
                         rports_ack_o[i].ready = 1'b1;
-                        rport_addr[i]         = j;
+                        rport_addr[i]         = $clog2(IQ_ACC_SIZE)'(j);
                     end
                 end
             end
         end
 
-        for (int i = 0; i < IC_ACC_SIZE; i++) begin
+        for (int i = 0; i < IQ_ACC_SIZE; i++) begin
             entry_ready[i] =
                 entries[i].valid &&
                 !entries[i].rs1 &&
@@ -119,6 +125,8 @@ module issue_acc_m(
                     commit_entry[i] = commit_i[i].ready;
 
                     commit_o[commit_port].valid = 1'b1;
+                    commit_o[commit_port].data.pc = entries[i].data.pc;
+                    commit_o[commit_port].data.dec_inst = entries[i].data.dec_inst;
                     commit_o[commit_port].data.rob_id = entries[i].data.rob_id;
                     commit_o[commit_port].data.rd = entries[i].data.rd;
                     commit_o[commit_port].data.prev_rd = entries[i].data.prev_rd;

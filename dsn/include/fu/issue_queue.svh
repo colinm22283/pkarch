@@ -13,6 +13,10 @@ typedef struct packed {
 } iq_in_data_t;
 
 typedef struct packed {
+    pc_t pc;
+
+    dec_inst_t dec_inst;
+
     rob_id_t rob_id;
 
     word_t rs1_v, rs2_v;
@@ -32,13 +36,13 @@ typedef struct packed {
 } iq_dispatch_o_t;
 
 typedef struct packed {
-    bit valid;
-
-    iq_out_data_t data;
+    bit ready;
 } iq_commit_i_t;
 
 typedef struct packed {
-    bit ready;
+    bit valid;
+
+    iq_out_data_t data;
 } iq_commit_o_t;
 
 `endif

@@ -7,7 +7,6 @@
 `include "core/dispatch.svh"
 `include "core/lsq.svh"
 `include "core/commit.svh"
-`include "fu/fu.svh"
 `include "bus/bus.svh"
 `include "bus/icache.svh"
 
@@ -92,13 +91,16 @@ module top_m #(
 
     prf_rport_req_i_t [PRF_RPORTS - 1:0] prf_rport_reqi;
     prf_rport_req_o_t [PRF_RPORTS - 1:0] prf_rport_reqo;
-    prf_rport_ack_i_t [PRF_RPORTS - 1:0] prf_rport_acki;
-    prf_rport_ack_o_t [PRF_RPORTS - 1:0] prf_rport_acko;
+    prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_acki;
+    prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_acko;
 
     prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_reli;
 
-    res_dispatch_i_t [FU_COUNT - 1:0] res_disi;
-    res_dispatch_o_t [FU_COUNT - 1:0] res_diso;
+    iq_dispatch_i_t [DISPATCH_WIDTH - 1:0] iq_disi;
+    iq_dispatch_o_t [DISPATCH_WIDTH - 1:0] iq_diso;
+
+    iq_commit_i_t [IQ_OUT_WIDTH - 1:0] iq_comi;
+    iq_commit_o_t [IQ_OUT_WIDTH - 1:0] iq_como;
 
     wire rob_write_ready, rob_write_valid;
 
@@ -173,8 +175,8 @@ module top_m #(
         .rob_dispatch_i(rob_diso),
         .rob_dispatch_o(rob_disi),
 
-        .res_dispatch_i(res_diso),
-        .res_dispatch_o(res_disi)
+        .iq_dispatch_i(iq_diso),
+        .iq_dispatch_o(iq_disi)
     );
 
     rename_m rename(
@@ -251,33 +253,31 @@ module top_m #(
         .prf_rel_i(prf_reli)
     );
 
-    alu_m #(1, 4) alu(
+    issue_queue_m issue_queue(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
-        .flush_i(flush),
+        .dispatch_i(iq_disi),
+        .dispatch_o(iq_diso),
+        
+        .commit_i(iq_comi),
+        .commit_o(iq_como),
 
-        .dispatch_i(res_disi[0]),
-        .dispatch_o(res_diso[0]),
-
-        .rport_i(prf_rporto[1:0]),
-        .rport_o(prf_rporti[1:0]),
-
-        .commit_i(como[0]),
-        .commit_o(comi[0])
+        .rports_req_i(prf_rport_reqo),
+        .rports_req_o(prf_rport_reqi),
+        .rports_ack_i(prf_rport_acko),
+        .rports_ack_o(prf_rport_acki)
     );
 
-    mem_m #(4) mem(
+    execution_unit_m execution_unit(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
-        .flush_i(flush),
-
-        .dispatch_i(res_disi[1]),
-        .dispatch_o(res_diso[1]),
-
-        .rport_i(prf_rporto[3:2]),
-        .rport_o(prf_rporti[3:2]),
+        .dispatch_i(iq_como),
+        .dispatch_o(iq_comi),
+        
+        .commit_i(como[FU_COUNT - 1:0]),
+        .commit_o(comi[FU_COUNT - 1:0]),
 
         .lsq_dispatch_i(lsq_diso[0]),
         .lsq_dispatch_o(lsq_disi[0])
@@ -315,30 +315,14 @@ module top_m #(
         .dispatch_i(lsq_disi[1]),
         .dispatch_o(lsq_diso[1]),
 
-        .commit_i(como[1]),
-        .commit_o(comi[1]),
+        .commit_i(como[FU_COUNT]),
+        .commit_o(comi[FU_COUNT]),
 
-        .write_commit_i(como[2]),
-        .write_commit_o(comi[2]),
+        .write_commit_i(como[FU_COUNT + 1]),
+        .write_commit_o(comi[FU_COUNT + 1]),
 
         .rob_write_valid_i(rob_write_valid),
         .rob_write_ready_o(rob_write_ready)
-    );
-
-    jmp_m #(4) jmp(
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
-
-        .flush_i(flush),
-
-        .dispatch_i(res_disi[2]),
-        .dispatch_o(res_diso[2]),
-
-        .rport_i(prf_rporto[5:4]),
-        .rport_o(prf_rporti[5:4]),
-
-        .commit_i(como[3]),
-        .commit_o(comi[3])
     );
 
     generate

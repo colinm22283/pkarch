@@ -15,8 +15,8 @@ module prf_mem_m(
     input  prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_req_i,
     output prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_req_o,
 
-    input  prf_mem_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_i,
-    output prf_mem_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_o
+    input  prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_i,
+    output prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_o
 );
 
     `DL_DEFINE(log, "prf_mem_m", `DL_MAGENTA, `DL_ENABLE_PRF);
@@ -88,12 +88,13 @@ module prf_mem_m(
 
     always_comb begin
         for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-            prf_rport_ack_o[i].data  = read_data[i];
-            prf_rport_ack_o[i].tag   = data_tag[i];
-            prf_rport_ack_o[i].valid = data_valid[i];
+            prf_rport_ack_o[i].data   = read_data[i];
+            prf_rport_ack_o[i].port   = data_port[i];
+            prf_rport_ack_o[i].rob_id = data_id[i];
+            prf_rport_ack_o[i].ack    = data_valid[i];
 
-            data_ready[i] = !data_valid[i] || prf_rport_ack_i[i].ready;
-            addr_ready[i] = !addr_valid[i] || data_ready[i];
+            data_ready[i]            = !data_valid[i] || prf_rport_ack_i[i].ready;
+            addr_ready[i]            = !addr_valid[i] || data_ready[i];
             prf_rport_req_o[i].ready = addr_ready[i];
         end
     end
