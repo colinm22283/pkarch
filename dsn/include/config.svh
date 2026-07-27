@@ -1,7 +1,7 @@
 `ifndef CONFIG_SVH
 `define CONFIG_SVH
 
-`define DEBUG_MODE 1
+`define DEBUG_MODE 0
 `define SERIAL_ASCII_MODE 0
 
 // CONFIGURABLE

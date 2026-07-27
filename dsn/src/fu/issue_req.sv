@@ -31,7 +31,7 @@ module issue_req_m(
         rports_req_o[1].rob_id = dispatch_i.data.rob_id;
 
         rports_req_o[0].addr = dispatch_i.data.rs1;
-        rports_req_o[1].addr = dispatch_i.data.rs1;
+        rports_req_o[1].addr = dispatch_i.data.rs2;
 
         commit_o.valid = rports_ready;
         commit_o.data  = dispatch_i.data;

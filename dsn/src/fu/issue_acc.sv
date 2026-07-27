@@ -49,10 +49,12 @@ module issue_acc_m(
             for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
                 if (rports_ack_o[i].ready) begin
                     if (rports_ack_i[i].port == 1'b0) begin
-                        entries[rport_addr[i]].rs1 <= 0;
+                        entries[rport_addr[i]].rs1_v <= rports_ack_i[i].data;
+                        entries[rport_addr[i]].rs1   <= 0;
                     end
                     else begin
-                        entries[rport_addr[i]].rs2 <= 0;
+                        entries[rport_addr[i]].rs2_v <= rports_ack_i[i].data;
+                        entries[rport_addr[i]].rs2   <= 0;
                     end
                 end
             end
@@ -96,7 +98,7 @@ module issue_acc_m(
                 if (rports_ack_i[i].ack) begin
                     if (
                         (rports_ack_i[i].port ? entries[j].rs2 : entries[j].rs1) &&
-                        rports_ack_i[i].rob_id == entries[i].data.rob_id
+                        rports_ack_i[i].rob_id == entries[j].data.rob_id
                     ) begin
                         rports_ack_o[i].ready = 1'b1;
                         rport_addr[i]         = $clog2(IQ_ACC_SIZE)'(j);
@@ -122,7 +124,7 @@ module issue_acc_m(
 
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
                 if (commit_port != IQ_COMMIT_WIDTH && entry_ready[i]) begin
-                    commit_entry[i] = commit_i[i].ready;
+                    commit_entry[i] = commit_i[commit_port].ready;
 
                     commit_o[commit_port].valid = 1'b1;
                     commit_o[commit_port].data.pc = entries[i].data.pc;

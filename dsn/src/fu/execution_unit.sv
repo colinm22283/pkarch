@@ -53,7 +53,7 @@ module execution_unit_m(
         end
 
         for (genvar i = 0; i < JMP_COUNT; i++) begin
-            jmp_m alu(
+            jmp_m jmp(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
 
