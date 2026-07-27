@@ -9,5 +9,8 @@ module lsu_m(
     output lsq_dispatch_i_t lsq_dispatch_o
 );
 
+    always_comb begin
+    end
+
 endmodule
 

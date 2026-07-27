@@ -1,3 +1,5 @@
+`include "fu/execution_unit.svh"
+
 module execution_unit_m(
     input  logic clk_i,
     input  logic nrst_i,
@@ -5,20 +7,20 @@ module execution_unit_m(
     input  iq_commit_o_t [IQ_OUT_WIDTH - 1:0] dispatch_i,
     output iq_commit_i_t [IQ_OUT_WIDTH - 1:0] dispatch_o,
 
-    input  commit_o_t [ALU_COUNT + JMP_COUNT - 1:0] commit_i,
-    output commit_i_t [ALU_COUNT + JMP_COUNT - 1:0] commit_o,
+    input  commit_o_t [FU_COUNT - 1:0] commit_i,
+    output commit_i_t [FU_COUNT - 1:0] commit_o,
 
     input  lsq_dispatch_o_t lsq_dispatch_i,
     output lsq_dispatch_i_t lsq_dispatch_o
 );
 
-    fu_select_t fu_sel [IQ_OUT_WIDTH - 1:0];
+    fu_select_t disp_type [IQ_OUT_WIDTH - 1:0];
 
     generate
         for (genvar i = 0; i < IQ_OUT_WIDTH; i++) begin
             fu_sel_m fu_sel(
                 .dec_inst_i(dispatch_i[i].data.dec_inst),
-                .select_o(fu_sel[i])
+                .select_o(disp_type[i])
             );
         end
     endgenerate
@@ -77,9 +79,66 @@ module execution_unit_m(
 
     always_comb begin
         int alu_idx, jmp_idx, lsu_idx;
+        alu_idx = 0;
+        jmp_idx = 0;
+        lsu_idx = 0;
+
+        for (int i = 0; i < ALU_COUNT; i++) alu_dispatchi[i] = '0;
+        for (int i = 0; i < JMP_COUNT; i++) jmp_dispatchi[i] = '0;
+        lsu_dispatchi = '0;
+
+        for (int i = 0; i < IQ_OUT_WIDTH; i++) dispatch_o[i] = '0;
 
         for (int i = 0; i < IQ_OUT_WIDTH; i++) begin
-            
+            case (disp_type[i])
+                FU_ALU: begin
+                    if (alu_idx != ALU_COUNT) begin
+                        alu_dispatchi[alu_idx] = dispatch_i[i];
+                        dispatch_o[i]          = alu_dispatcho[alu_idx];
+
+                        alu_idx++;
+                    end
+                end
+
+                FU_JMP: begin
+                    if (jmp_idx != JMP_COUNT) begin
+                        jmp_dispatchi[jmp_idx] = dispatch_i[i];
+                        dispatch_o[i]          = jmp_dispatcho[jmp_idx];
+
+                        jmp_idx++;
+                    end
+                end
+
+                FU_LSU: begin
+                    if (lsu_idx != 1) begin
+                        lsu_dispatchi = dispatch_i[i];
+                        dispatch_o[i] = lsu_dispatcho;
+
+                        lsu_idx++;
+                    end
+                end
+
+                default: ;
+            endcase
+        end
+    end
+
+    always_comb begin
+        int i;
+        i = 0;
+
+        for (int j = 0; j < ALU_COUNT; j++) begin
+            alu_commiti[j] = commit_i[i];
+            commit_o[i]    = alu_commito[j];
+
+            i++;
+        end
+
+        for (int j = 0; j < JMP_COUNT; j++) begin
+            jmp_commiti[j] = commit_i[i];
+            commit_o[i]    = jmp_commito[j];
+
+            i++;
         end
     end
 
