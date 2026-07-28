@@ -42,7 +42,7 @@ module jmp_m(
             OPCODE_LINK: begin
                 run     = 1;
                 mispred = 0;
-                offset  = $signed(dispatch_i.data.pc) + $signed(dispatch_i.data.dec_inst.imm);
+                offset = $signed(dispatch_i.data.pc) + 4;
             end
 
             OPCODE_LINKREG: begin

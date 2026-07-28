@@ -257,6 +257,8 @@ module top_m #(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
+        .flush_i(flush),
+
         .dispatch_i(iq_disi),
         .dispatch_o(iq_diso),
         
@@ -272,6 +274,8 @@ module top_m #(
     execution_unit_m execution_unit(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
+
+        .flush_i(flush),
 
         .dispatch_i(iq_como),
         .dispatch_o(iq_comi),

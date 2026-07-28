@@ -4,6 +4,8 @@ module issue_acc_m(
     input  logic clk_i,
     input  logic nrst_i,
 
+    input  logic flush_i,
+
     input  iq_dispatch_i_t dispatch_i,
     output iq_dispatch_o_t dispatch_o,
 
@@ -33,6 +35,11 @@ module issue_acc_m(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
+            for (int i = 0; i < IQ_ACC_SIZE; i++) begin
+                entries[i].valid = 0;
+            end
+        end
+        else if (flush_i) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
                 entries[i].valid = 0;
             end

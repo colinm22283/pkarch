@@ -5,6 +5,8 @@ module fifo_m #(
     input  logic clk_i,
     input  logic nrst_i,
 
+    input  logic flush_i,
+
     output logic               in_ready_o,
     input  logic               in_valid_i,
     input  logic [WIDTH - 1:0] in_data_i,
@@ -26,6 +28,11 @@ module fifo_m #(
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
+            head <= 0;
+            tail <= 0;
+            size <= 0;
+        end
+        else if (flush_i) begin
             head <= 0;
             tail <= 0;
             size <= 0;

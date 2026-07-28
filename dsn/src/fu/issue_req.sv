@@ -4,6 +4,8 @@ module issue_req_m(
     input logic clk_i,
     input logic nrst_i,
 
+    input logic flush_i,
+
     input  iq_dispatch_i_t dispatch_i,
     output iq_dispatch_o_t dispatch_o,
 

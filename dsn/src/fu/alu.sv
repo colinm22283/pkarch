@@ -60,6 +60,14 @@ module alu_m(
                 endcase
             end
 
+            OPCODE_LUI: begin
+                y = b << 12;
+            end
+
+            OPCODE_AUIPC: begin
+                y = dispatch_i.data.pc + (b << 12);
+            end
+
             default: y = '0;
         endcase
 

@@ -4,6 +4,8 @@ module issue_queue_m(
     input  logic clk_i,
     input  logic nrst_i,
 
+    input  logic flush_i,
+
     input  iq_dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatch_i,
     output iq_dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatch_o,
 
@@ -30,6 +32,8 @@ module issue_queue_m(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
 
+                .flush_i(flush_i),
+
                 .in_ready_o(dispatch_o[i].ready),
                 .in_valid_i(dispatch_i[i].valid),
                 .in_data_i(dispatch_i[i].data),
@@ -42,6 +46,8 @@ module issue_queue_m(
             issue_req_m issue_req(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
+
+                .flush_i(flush_i),
 
                 .dispatch_i(dispatchi[0]),
                 .dispatch_o(dispatcho[0]),
@@ -60,6 +66,8 @@ module issue_queue_m(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
 
+                .flush_i(flush_i),
+
                 .in_ready_o(dispatcho[1].ready),
                 .in_valid_i(dispatchi[1].valid),
                 .in_data_i(dispatchi[1].data),
@@ -72,6 +80,8 @@ module issue_queue_m(
             issue_acc_m issue_acc(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
+
+                .flush_i(flush_i),
 
                 .dispatch_i(dispatchi[2]),
                 .dispatch_o(dispatcho[2]),

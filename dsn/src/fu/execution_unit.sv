@@ -4,6 +4,8 @@ module execution_unit_m(
     input  logic clk_i,
     input  logic nrst_i,
 
+    input  logic flush_i,
+
     input  iq_commit_o_t [IQ_OUT_WIDTH - 1:0] dispatch_i,
     output iq_commit_i_t [IQ_OUT_WIDTH - 1:0] dispatch_o,
 
