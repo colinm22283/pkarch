@@ -99,8 +99,8 @@ module top_m #(
     iq_dispatch_i_t [DISPATCH_WIDTH - 1:0] iq_disi;
     iq_dispatch_o_t [DISPATCH_WIDTH - 1:0] iq_diso;
 
-    iq_commit_i_t [IQ_OUT_WIDTH - 1:0] iq_comi;
-    iq_commit_o_t [IQ_OUT_WIDTH - 1:0] iq_como;
+    iq_commit_i_t [IQ_OUT_WIDTH - 1:0] iq_comi [1:0];
+    iq_commit_o_t [IQ_OUT_WIDTH - 1:0] iq_como [1:0];
 
     wire rob_write_ready, rob_write_valid;
 
@@ -262,8 +262,8 @@ module top_m #(
         .dispatch_i(iq_disi),
         .dispatch_o(iq_diso),
         
-        .commit_i(iq_comi),
-        .commit_o(iq_como),
+        .commit_i(iq_comi[0]),
+        .commit_o(iq_como[0]),
 
         .rports_req_i(prf_rport_reqo),
         .rports_req_o(prf_rport_reqi),
@@ -271,14 +271,36 @@ module top_m #(
         .rports_ack_o(prf_rport_acki)
     );
 
+    generate
+        for (genvar i = 0; i < IQ_OUT_WIDTH; i++) begin
+            fifo_m #(
+                .WIDTH($bits(iq_out_data_t)),
+                .DEPTH(2)
+            ) iq_com_fifo(
+                .clk_i(clk_i),
+                .nrst_i(nrst_i),
+
+                .flush_i(flush),
+
+                .in_ready_o(iq_comi[0][i].ready),
+                .in_valid_i(iq_como[0][i].valid),
+                .in_data_i(iq_como[0][i].data),
+
+                .out_ready_i(iq_comi[1][i].ready),
+                .out_valid_o(iq_como[1][i].valid),
+                .out_data_o(iq_como[1][i].data)
+            );
+        end
+    endgenerate
+
     execution_unit_m execution_unit(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
         .flush_i(flush),
 
-        .dispatch_i(iq_como),
-        .dispatch_o(iq_comi),
+        .dispatch_i(iq_como[1]),
+        .dispatch_o(iq_comi[1]),
         
         .commit_i(como[FU_COUNT - 1:0]),
         .commit_o(comi[FU_COUNT - 1:0]),

@@ -57,14 +57,12 @@ module fifo_m #(
         end
     end
 
-    always_comb begin
-        in_ready_o  = size != DEPTH;
-        out_valid_o = size != 0;
+    assign in_ready_o  = size != DEPTH;
+    assign out_valid_o = size != 0;
 
-        out_data_o  = data[tail];
+    assign out_data_o  = data[tail];
 
-        push = in_ready_o && in_valid_i;
-        pop  = out_ready_i && out_valid_o;
-    end
+    assign push = in_ready_o && in_valid_i;
+    assign pop  = out_ready_i && out_valid_o;
 
 endmodule

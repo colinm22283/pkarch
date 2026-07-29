@@ -89,14 +89,11 @@ module execution_unit_m(
         for (int i = 0; i < JMP_COUNT; i++) jmp_dispatchi[i] = '0;
         lsu_dispatchi = '0;
 
-        for (int i = 0; i < IQ_OUT_WIDTH; i++) dispatch_o[i] = '0;
-
         for (int i = 0; i < IQ_OUT_WIDTH; i++) begin
             case (disp_type[i])
                 FU_ALU: begin
                     if (alu_idx != ALU_COUNT) begin
                         alu_dispatchi[alu_idx] = dispatch_i[i];
-                        dispatch_o[i]          = alu_dispatcho[alu_idx];
 
                         alu_idx++;
                     end
@@ -105,7 +102,6 @@ module execution_unit_m(
                 FU_JMP: begin
                     if (jmp_idx != JMP_COUNT) begin
                         jmp_dispatchi[jmp_idx] = dispatch_i[i];
-                        dispatch_o[i]          = jmp_dispatcho[jmp_idx];
 
                         jmp_idx++;
                     end
@@ -114,6 +110,44 @@ module execution_unit_m(
                 FU_LSU: begin
                     if (lsu_idx != 1) begin
                         lsu_dispatchi = dispatch_i[i];
+
+                        lsu_idx++;
+                    end
+                end
+
+                default: ;
+            endcase
+        end
+    end
+
+    always_comb begin
+        int alu_idx, jmp_idx, lsu_idx;
+        alu_idx = 0;
+        jmp_idx = 0;
+        lsu_idx = 0;
+
+        for (int i = 0; i < IQ_OUT_WIDTH; i++) dispatch_o[i] = '0;
+
+        for (int i = 0; i < IQ_OUT_WIDTH; i++) begin
+            case (disp_type[i])
+                FU_ALU: begin
+                    if (alu_idx != ALU_COUNT) begin
+                        dispatch_o[i]          = alu_dispatcho[alu_idx];
+
+                        alu_idx++;
+                    end
+                end
+
+                FU_JMP: begin
+                    if (jmp_idx != JMP_COUNT) begin
+                        dispatch_o[i]          = jmp_dispatcho[jmp_idx];
+
+                        jmp_idx++;
+                    end
+                end
+
+                FU_LSU: begin
+                    if (lsu_idx != 1) begin
                         dispatch_o[i] = lsu_dispatcho;
 
                         lsu_idx++;

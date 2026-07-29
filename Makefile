@@ -15,6 +15,7 @@ export VFLAGS+=--threads 1 -j $(CONC)
 export VFLAGS+=--timing
 export VFLAGS+=--trace-max-array 300
 export VFLAGS+=--trace-max-width 0
+export VFLAGS+=--report-unoptflat
 export VFLAGS+=-Wno-UNOPTFLAT
 
 include dsn/sources.mk
