@@ -21,7 +21,7 @@ module top_tb();
     bus_siport_t sportci;
     bus_soport_t sportco;
 
-    ram_m #(0, 1024) ram(
+    ram_m #(0, 4096) ram(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -29,7 +29,7 @@ module top_tb();
         .sport_o(sportao)
     );
 
-    serial_m #(1024) serial(
+    serial_m #(4096) serial(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -37,7 +37,7 @@ module top_tb();
         .sport_o(sportbo)
     );
 
-    sim_stop_m #(1025) sim_stop(
+    sim_stop_m #(4097) sim_stop(
         .clk_i(clk),
         .nrst_i(nrst),
         

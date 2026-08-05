@@ -1,6 +1,6 @@
 .global entry
 entry:
-    addi a0, zero, 1024
+    li a0, 4096
     addi s3, zero, 0
     li   s3, 10000
 
@@ -16,6 +16,6 @@ entry:
 
         blt s0, s3, .loop
     
-    addi a0, zero, 1025
+    li   a0, 4097
     sw   zero, 0(a0)
 
