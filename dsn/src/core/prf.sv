@@ -27,8 +27,6 @@ module prf_m(
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
     localparam INDEX_WIDTH = $clog2(PRF_SIZE);
-    localparam CP_INDEX_WIDTH = $clog2(CHECKPOINT_COUNT);
-    localparam CP_SIZE_WIDTH = $clog2(CHECKPOINT_COUNT + 1);
 
     prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
     prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] mem_reqo;
@@ -50,16 +48,12 @@ module prf_m(
         .prf_rport_ack_o(prf_rport_ack_o)
     );
 
-    logic    [PRF_RPORTS - 1:0] rport_avail;
-    logic    [PRF_RPORTS - 1:0] rport_valid;
-    logic    [PRF_RPORTS - 1:0] rport_port;
-    rob_id_t [PRF_RPORTS - 1:0] rport_rob_id;
-    logic    [PRF_RPORTS - 1:0] rport_accept;
+    prf_addr_t rport_addr   [PRF_RPORTS - 1:0];
+    logic      rport_valid  [PRF_RPORTS - 1:0];
+    logic      rport_port   [PRF_RPORTS - 1:0];
+    rob_id_t   rport_rob_id [PRF_RPORTS - 1:0];
 
-    prf_addr_t [PRF_RPORTS - 1:0] rport_addr;
-    prf_addr_t [PRF_RPORTS - 1:0] rport_accept_addr;
-    logic      [PRF_RPORTS - 1:0] rport_accept_port;
-    rob_id_t   [PRF_RPORTS - 1:0] rport_accept_id;
+    logic rport_accept [PRF_RPORTS - 1:0];
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -94,72 +88,56 @@ module prf_m(
             end
 
             for (int i = 0; i < PRF_RPORTS; i++) begin
-                if (rport_avail[i] && !rport_accept[i]) begin
-                    rport_valid[i]  <= 1;
+                if (rport_accept[i]) begin
+                    rport_valid[i] <= 'b0;
+                end
+            end
+            
+            for (int i = 0; i < PRF_RPORTS; i++) begin
+                if (prf_rport_req_i[i].req && prf_rport_req_o[i].ready) begin
+                    rport_valid[i] <= 'b1;
                     rport_port[i]   <= prf_rport_req_i[i].port;
                     rport_rob_id[i] <= prf_rport_req_i[i].rob_id;
                     rport_addr[i]   <= prf_rport_req_i[i].addr;
                 end
-
-                if (!rport_avail[i] && rport_accept[i]) rport_valid[i] <= 0;
             end
         end
     end
 
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            rport_avail[i] = prf_rport_req_i[i].req;
-
-            if (rport_valid[i]) begin
-                rport_accept_addr[i] = rport_addr[i];
-                rport_accept_id[i]   = rport_rob_id[i];
-                rport_accept_port[i] = rport_port[i];
-            end
-            else begin
-                rport_accept_addr[i] = prf_rport_req_i[i].addr;
-                rport_accept_id[i]   = prf_rport_req_i[i].rob_id;
-                rport_accept_port[i] = prf_rport_req_i[i].port;
-            end
+            prf_rport_req_o[i].ready = !rport_valid[i] || rport_accept[i];
         end
     end
 
     always_comb begin
-        integer current_rport;
+        logic [$clog2(PRF_MEM_RPORTS + 1) - 1:0] current_rport;
+        current_rport = '0;
 
-        current_rport = 0;
-
-        for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-            mem_reqi[i] = 0;
-        end
+        mem_reqi = '0;
 
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            rport_accept[i] = 0;
+            rport_accept[i] = '0;
 
             if (current_rport < PRF_MEM_RPORTS) begin
-                if (
-                    rport_accept_addr[i] == PRF_ZERO_ADDR ||
-                    mem_valid[INDEX_WIDTH'(rport_accept_addr[i])]
-                ) begin
+                if (rport_valid[i] && mem_reqo[current_rport].ready) begin
                     if (
-                        rport_valid[i] ||
-                        rport_avail[i]
+                        rport_addr[i] == PRF_ZERO_ADDR ||
+                        mem_valid[INDEX_WIDTH'(rport_addr[i])]
                     ) begin
-                        rport_accept[i] = 1;
+                        rport_accept[i] = 'b1;
 
-                        mem_reqi[current_rport].valid  = 1;
-                        mem_reqi[current_rport].port   = rport_accept_port[i];
-                        mem_reqi[current_rport].rob_id = rport_accept_id[i];
-                        mem_reqi[current_rport].addr   = rport_accept_addr[i];
+                        mem_reqi[current_rport].valid  = 'b1;
+                        mem_reqi[current_rport].port   = rport_port[i];
+                        mem_reqi[current_rport].rob_id = rport_rob_id[i];
+                        mem_reqi[current_rport].addr   = rport_addr[i];
 
                         current_rport++;
                     end
                 end
             end
         end
-
-        for (int i = 0; i < PRF_RPORTS; i++) begin
-            prf_rport_req_o[i].ready = rport_valid[i] ? rport_accept[i] : 1'b1;
-        end
     end
 
 endmodule
+
