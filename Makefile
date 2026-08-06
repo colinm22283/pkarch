@@ -48,6 +48,10 @@ prog-%:
 prog_wave-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) wave
 
+.PHONY: disas-%
+disas-%:
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) disas
+
 .PHONY: objdump-%
 objdump-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) objdump

@@ -23,6 +23,7 @@
             pkgs.zlib
 
             riscvPkgs.buildPackages.binutils
+            riscvPkgs.buildPackages.gcc
           ];
         };
       });

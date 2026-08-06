@@ -5,6 +5,8 @@
 
 module top_tb();
 
+    string filename;
+
     wire clk, nrst;
 
     clk_rst_m clk_rst(
@@ -21,7 +23,7 @@ module top_tb();
     bus_siport_t sportci;
     bus_soport_t sportco;
 
-    ram_m #(0, 4096) ram(
+    ram_m #(0, 16384) ram(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -29,7 +31,7 @@ module top_tb();
         .sport_o(sportao)
     );
 
-    serial_m #(4096) serial(
+    serial_m #(32'h10000000) serial(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -37,7 +39,7 @@ module top_tb();
         .sport_o(sportbo)
     );
 
-    sim_stop_m #(4097) sim_stop(
+    sim_stop_m #(32'h10000004) sim_stop(
         .clk_i(clk),
         .nrst_i(nrst),
         
@@ -59,7 +61,9 @@ module top_tb();
 
         clk_rst.RESET();
 
-        fd = $fopen("build/prog.bin", "rb");
+        $value$plusargs("ROM=%s", filename);
+
+        fd = $fopen(filename, "rb");
         $fread(mem, fd);
         $fclose(fd);
         for (int i = 0; i < 1024; i += 4) ram.mem[i / 4] = {

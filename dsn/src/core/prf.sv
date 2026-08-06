@@ -31,7 +31,7 @@ module prf_m(
     prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
     prf_mem_rport_req_o_t [PRF_MEM_RPORTS - 1:0] mem_reqo;
 
-    logic [PRF_SIZE - 1:0] mem_valid;
+    logic mem_valid [PRF_SIZE - 1:0];
 
     prf_mem_m mem(
         .clk_i(clk_i),
@@ -71,19 +71,19 @@ module prf_m(
             end
         end
         else begin
-            for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
-                    `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
-
-                    mem_valid[INDEX_WIDTH'(prf_rel_i[i].addr)] <= 0;
-                end
-            end
-
             for (int i = 0; i < PRF_WPORTS; i++) begin
                 if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Write 0x%h to 0x%h", prf_wport_i[i].data, prf_wport_i[i].addr));
 
                     mem_valid[INDEX_WIDTH'(prf_wport_i[i].addr)] <= 1;
+                end
+            end
+
+            for (int i = 0; i < COMMIT_WIDTH; i++) begin
+                if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
+                    `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
+
+                    mem_valid[INDEX_WIDTH'(prf_rel_i[i].addr)] <= 0;
                 end
             end
 
