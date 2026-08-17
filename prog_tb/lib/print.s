@@ -45,30 +45,6 @@ print_hex_loop:
     ret
 
 .section .rodata
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
-nop
 
 hex_dict: .string "0123456789ABCDEF"
 

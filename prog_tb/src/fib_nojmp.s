@@ -1,6 +1,6 @@
-.global entry
-entry:
-    addi a0, zero, 1024
+.global main
+main:
+    li a0, 0x10000000
     
     addi s0, zero, 1
     addi s1, zero, 1
@@ -67,6 +67,6 @@ entry:
 
     sw   s0, 0(a0)
     
-    addi a0, zero, 1025
+    li   a0, 0x10000004
     sw   zero, 0(a0)
 

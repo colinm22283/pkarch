@@ -44,7 +44,6 @@ module dispatch_m(
         for (int i = 0; i < DISPATCH_WIDTH; i++) begin
             entry_jump[i] =
                 entries[i].dec_inst.opcode == OPCODE_BRANCH ||
-                entries[i].dec_inst.opcode == OPCODE_LINK ||
                 entries[i].dec_inst.opcode == OPCODE_LINKREG;
         end
     end

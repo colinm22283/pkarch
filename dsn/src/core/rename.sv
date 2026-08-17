@@ -8,7 +8,6 @@ module rename_m(
     input wire nrst_i,
 
     input  wire flush_i,
-    output reg flush_complete_o,
 
     input  wire jump_i,
     output logic jump_accept_o,
@@ -21,219 +20,132 @@ module rename_m(
     input  rename_commit_i_t [COMMIT_WIDTH - 1:0] commit_i,
     output rename_commit_o_t [COMMIT_WIDTH - 1:0] commit_o,
 
-    output prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_o
+    output prf_rel_i_t [PRF_RELPORTS - 1:0] prf_rel_o
 );
-
-    localparam CP_INDEX_WIDTH = $clog2(CHECKPOINT_COUNT);
-    localparam CP_SIZE_WIDTH = $clog2(CHECKPOINT_COUNT + 1);
 
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
-    logic [CP_INDEX_WIDTH - 1:0] cp_head, cp_tail;
-    logic [CP_SIZE_WIDTH - 1:0] cp_size;
+    typedef logic [$clog2(PRF_SIZE) - 1:0] fl_index_t;
+    typedef logic [$clog2(PRF_SIZE + 1) - 1:0] fl_size_t;
 
-    prf_addr_t                         committed_freelist_head [CHECKPOINT_COUNT - 1:0];
-    logic [$clog2(PRF_SIZE + 1) - 1:0] committed_freelist_size [CHECKPOINT_COUNT - 1:0];
-    prf_addr_t        committed_freelist [CHECKPOINT_COUNT - 1:0] [PRF_SIZE - 1:0];
+    rename_rat_t spec_rat_q, spec_rat_d;
+    rename_rat_t arch_rat_q, arch_rat_d;
 
-    rename_map_entry_t committed_map_table [CHECKPOINT_COUNT - 1:0] [REG_COUNT - 1:0];
-
-    prf_addr_t freelist_head;
-    logic [$clog2(PRF_SIZE + 1) - 1:0] freelist_size;
-    prf_addr_t freelist [PRF_SIZE - 1:0];
-
-    rename_map_entry_t map_table [REG_COUNT - 1:0];
-
-    prf_addr_t prf_addrs [RENAME_WIDTH - 1:0];
-
-    logic flushing;
+    fl_index_t fl_head_q, fl_head_d;
+    fl_index_t fl_tail_q, fl_tail_d;
+    fl_size_t  fl_size_q, fl_size_d;
+    fl_index_t fl_head_cp_q, fl_head_cp_d;
+    rename_freelist_t freelist_q, freelist_d;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            freelist_head = 0;
-            freelist_size = ($bits(freelist_size))'(PRF_SIZE);
-
-            // committed_freelist_head = 0;
-            // committed_freelist_size = ($bits(freelist_size))'(PRF_SIZE);
-            
-            for (int i = 0; i < PRF_SIZE; i++) begin
-                freelist[i] = PRF_ADDR_WIDTH'(i);
-                // committed_freelist[i] = PRF_ADDR_WIDTH'(i);
-            end
-
             for (int i = 0; i < REG_COUNT; i++) begin
-                map_table[i].valid = 0;
-                // committed_map_table[i].valid = 0;
+                spec_rat_q[i] <= PRF_ZERO_ADDR;
+                arch_rat_q[i] <= PRF_ZERO_ADDR;
             end
 
-            flushing = 0;
-
-            cp_head <= 0;
-            cp_tail <= 0;
-            cp_size <= 0;
+            fl_head_q    <= '0;
+            fl_tail_q    <= '0;
+            fl_size_q    <= PRF_SIZE;
+            fl_head_cp_q <= '0;
+            for (int i = 0; i < PRF_SIZE; i++) begin
+                freelist_q[i] <= $bits(prf_addr_t)'(i);
+            end
         end
         else begin
-            if (flushing) begin
-                flushing = 0;
-
-                `DL(log, ("Flushing and reloading checkpoint"));
-
-                freelist_head = committed_freelist_head[cp_head];
-                freelist_size = committed_freelist_size[cp_head];
-                
-                for (int i = 0; i < PRF_SIZE; i++) begin
-                    freelist[i] = committed_freelist[CP_INDEX_WIDTH'(cp_head)][i];
-                end
-
-                for (int i = 0; i < REG_COUNT; i++) begin
-                    map_table[i] = committed_map_table[CP_INDEX_WIDTH'(cp_head)][i];
-                end
-
-                cp_head <= 0;
-                cp_tail <= 0;
-                cp_size <= 0;
-
-                flush_complete_o = 0;
+            for (int i = 0; i < REG_COUNT; i++) begin
+                spec_rat_q[i] <= spec_rat_d[i];
+                arch_rat_q[i] <= arch_rat_d[i];
             end
-            else if (flush_i) begin
-                flushing = 1;
 
-                flush_complete_o = 1;
-            end
-            else begin
-                if (jump_commit_i && cp_size != 0) begin
-                    cp_head <= CP_INDEX_WIDTH'(32'(cp_head + 1) % CHECKPOINT_COUNT);
-                    cp_size <= cp_size - 1;
-                end
-
-                if (jump_i) begin
-                    `DL(log, ("Got jump in rename table"));
-                    committed_freelist_head[cp_tail] = freelist_head;
-                    committed_freelist_size[cp_tail] = freelist_size;
-                    
-                    for (int i = 0; i < PRF_SIZE; i++) begin
-                        committed_freelist[cp_tail][i] = freelist[i];
-                    end
-
-                    for (int i = 0; i < REG_COUNT; i++) begin
-                        committed_map_table[cp_tail][i] = map_table[i];
-                    end
-
-                    cp_tail <= CP_INDEX_WIDTH'(32'(cp_tail + 1) % CHECKPOINT_COUNT);
-                    cp_size <= cp_size + 1;
-                end
-
-                for (int i = 0; i < RENAME_WIDTH; i++) begin
-                    if (
-                        dispatch_i[i].valid && dispatch_o[i].ready &&
-                        dispatch_i[i].isa_addr != REG_ZERO
-                    ) begin
-                        if (dispatch_i[i].write) begin
-                            `DL(log, ("r%0d valid", dispatch_i[i].isa_addr));
-                            map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
-                            map_table[dispatch_i[i].isa_addr].valid = 1;
-
-                            freelist_head = freelist_head + 1;
-                            freelist_size = freelist_size - 1;
-                        end
-                        else begin
-                            if (!map_table[dispatch_i[i].isa_addr].valid) begin
-                                `DL(error, ("BADDDD"));
-                                // $finish;
-
-                                map_table[dispatch_i[i].isa_addr].prf_addr = prf_addrs[i];
-                                map_table[dispatch_i[i].isa_addr].valid = 1;
-
-                                freelist_head = freelist_head + 1;
-                                freelist_size = freelist_size - 1;
-                            end
-                        end
-                    end
-                end
-
-                for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                    if (commit_i[i].valid && commit_o[i].ready && commit_i[i].isa_addr != REG_ZERO) begin
-                        if (
-                            map_table[commit_i[i].isa_addr].valid &&
-                            commit_i[i].prev_addr != PRF_ZERO_ADDR
-                        ) begin
-                            `DL(log, ("release r%0d, returning 0x%x to freelist", commit_i[i].isa_addr, commit_i[i].prev_addr));
-                            freelist_head = freelist_head - 1;
-                            freelist_size = freelist_size + 1;
-
-                            freelist[$clog2(PRF_SIZE)'(freelist_head)] = commit_i[i].prev_addr;
-                        end
-                    end
-                end
+            fl_head_q    <= fl_head_d;
+            fl_tail_q    <= fl_tail_d;
+            fl_size_q    <= fl_size_d;
+            fl_head_cp_q <= fl_head_cp_d;
+            for (int i = 0; i < PRF_SIZE; i++) begin
+                freelist_q[i] <= freelist_d[i];
             end
         end
     end
 
     always_comb begin
-        jump_accept_o = cp_size != CHECKPOINT_COUNT;
-    end
+        logic cont;
 
-    always_comb begin
+        for (int i = 0; i < REG_COUNT; i++) begin
+            spec_rat_d[i] = spec_rat_q[i];
+            arch_rat_d[i] = arch_rat_q[i];
+        end
+
+        fl_head_d    = fl_head_q;
+        fl_tail_d    = fl_tail_q;
+        fl_size_d    = fl_size_q;
+        fl_head_cp_d = fl_head_cp_q;
+        for (int i = 0; i < PRF_SIZE; i++) begin
+            freelist_d[i] = freelist_q[i];
+        end
+
+        jump_accept_o = 'b1;
+        // if (jump_i) begin
+            // cp_head
+        // end
+
+        cont = 'b1;
         for (int i = 0; i < RENAME_WIDTH; i++) begin
-            if (dispatch_i[i].valid && i < freelist_size) begin : TEST
+            dispatch_o[i].prev_addr = spec_rat_d[dispatch_i[i].isa_addr];
+
+            prf_rel_o[i].rel  = '0;
+
+            if (cont) begin
                 if (dispatch_i[i].write) begin
-                    prf_addrs[i] = freelist[$clog2(PRF_SIZE)'(freelist_head)];
-                end
-                else begin
-                    if (map_table[dispatch_i[i].isa_addr].valid) begin
-                        prf_addrs[i] = map_table[dispatch_i[i].isa_addr].prf_addr;
-                    end
+                    dispatch_o[i].ready    = fl_size_d != '0;
+
+                    if (dispatch_i[i].isa_addr == REG_ZERO) dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
                     else begin
-                        prf_addrs[i] = freelist[$clog2(PRF_SIZE)'(freelist_head)];
+                        dispatch_o[i].prf_addr = freelist_q[fl_head_d];
+
+                        if (dispatch_i[i].valid && dispatch_o[i].ready) begin
+                            spec_rat_d[dispatch_i[i].isa_addr] = freelist_q[fl_head_d];
+                            fl_head_d++;
+                            fl_size_d--;
+
+                            prf_rel_o[i].rel = 'b1;
+                        end
                     end
                 end
+                else begin
+                    dispatch_o[i].ready    = 'b1;
+                    dispatch_o[i].prf_addr = spec_rat_d[dispatch_i[i].isa_addr];
+                end
+
+                if (!dispatch_o[i].ready) cont = '0;
             end
             else begin
-                prf_addrs[i] = 0;
+                dispatch_o[i].ready    = '0;
+                dispatch_o[i].prf_addr = '0;
             end
-        end
 
-        for (int i = 0; i < RENAME_WIDTH; i++) begin
-            if (dispatch_i[i].isa_addr != REG_ZERO) begin
-                dispatch_o[i].prf_addr = prf_addrs[i];
-
-                if (map_table[dispatch_i[i].isa_addr].valid) begin
-                    dispatch_o[i].prev_addr = map_table[dispatch_i[i].isa_addr].prf_addr;
-                end
-                else begin
-                    dispatch_o[i].prev_addr = PRF_ZERO_ADDR;
-                end
-
-                if (i < freelist_size) begin
-                    dispatch_o[i].ready = 1'b1;
-                end
-                else begin
-                    dispatch_o[i].ready = 1'b0;
-                end
-            end
-            else begin
-                dispatch_o[i].prf_addr  = PRF_ZERO_ADDR;
-                dispatch_o[i].prev_addr = PRF_ZERO_ADDR;
-                dispatch_o[i].ready     = 1'b1;
-            end
+            prf_rel_o[i].addr = dispatch_o[i].prf_addr;
         end
 
         for (int i = 0; i < COMMIT_WIDTH; i++) begin
-            commit_o[i].ready = 1'b1;
+            commit_o[i].ready = 'b1;
 
-            prf_rel_o[i] = 0;
-            
-            if (commit_i[i].isa_addr != REG_ZERO && commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
-                if (
-                    map_table[commit_i[i].isa_addr].valid
-                ) begin
-                    prf_rel_o[i].rel  = commit_i[i].valid;
+            if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
+                if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
+                    fl_head_d--;
+                    fl_size_d++;
+                    fl_head_cp_d = fl_head_d;
 
-                    prf_rel_o[i].addr = commit_i[i].prev_addr;
+                    freelist_d[fl_head_d] = commit_i[i].prev_addr;
                 end
             end
+        end
+
+        if (flush_i) begin
+            spec_rat_d = arch_rat_q;
         end
     end
 
 endmodule
+

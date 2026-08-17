@@ -16,7 +16,6 @@ module fetch_m(
     input  fetch_jump_i_t jump_i,
     output fetch_jump_o_t jump_o,
 
-    input  wire  flush_complete_i,
     output logic flush_o,
 
     input  dispatch_o_t dispatch_i,
@@ -59,7 +58,7 @@ module fetch_m(
                 end
 
                 STATE_FLUSH: begin
-                    if (flush_complete_i) state <= STATE_RUN;
+                    state <= STATE_RUN;
                 end
 
                 default: ;

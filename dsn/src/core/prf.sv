@@ -21,7 +21,7 @@ module prf_m(
     input  prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_i,
     output prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_ack_o,
 
-    input  prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_rel_i
+    input  prf_rel_i_t [PRF_RELPORTS - 1:0] prf_rel_i
 );
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
@@ -79,7 +79,7 @@ module prf_m(
                 end
             end
 
-            for (int i = 0; i < COMMIT_WIDTH; i++) begin
+            for (int i = 0; i < PRF_RELPORTS; i++) begin
                 if (prf_rel_i[i].rel && prf_rel_i[i].addr != PRF_ZERO_ADDR) begin
                     `DL(log, ("Release 0x%h", prf_rel_i[i].addr));
 

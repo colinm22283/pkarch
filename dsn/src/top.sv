@@ -61,7 +61,6 @@ module top_m #(
     fetch_jump_o_t jumpo;
 
     logic flush;
-    logic rename_flush_complete;
     
     dispatch_i_t dispatchi;
     dispatch_o_t dispatcho;
@@ -94,7 +93,7 @@ module top_m #(
     prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] prf_rport_acki;
     prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] prf_rport_acko;
 
-    prf_rel_i_t [COMMIT_WIDTH - 1:0] prf_reli;
+    prf_rel_i_t [PRF_RELPORTS - 1:0] prf_reli;
 
     iq_dispatch_i_t [DISPATCH_WIDTH - 1:0] iq_disi;
     iq_dispatch_o_t [DISPATCH_WIDTH - 1:0] iq_diso;
@@ -121,24 +120,26 @@ module top_m #(
         .jump_o(jumpo),
 
         .flush_o(flush),
-        .flush_complete_i(rename_flush_complete),
 
         .dispatch_i(dispatcho),
         .dispatch_o(dispatchi)
     );
 
-    fetch_expander_m fetch_expander(
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
+    // fetch_expander_m fetch_expander(
+        // .clk_i(clk_i),
+        // .nrst_i(nrst_i),
 
-        .flush_i(flush),
+        // .flush_i(flush),
 
-        .sdispatch_i(dispatchi),
-        .sdispatch_o(dispatcho),
+        // .sdispatch_i(dispatchi),
+        // .sdispatch_o(dispatcho),
 
-        .mdispatch_i(expanded_dispatcho),
-        .mdispatch_o(expanded_dispatchi)
-    );
+        // .mdispatch_i(expanded_dispatcho),
+        // .mdispatch_o(expanded_dispatchi)
+    // );
+
+    assign expanded_dispatchi = dispatchi;
+    assign dispatcho = expanded_dispatcho;
     
     inst_queue_m inst_queue(
         .clk_i(clk_i),
@@ -188,7 +189,6 @@ module top_m #(
         .nrst_i(nrst_i),
 
         .flush_i(flush),
-        .flush_complete_o(rename_flush_complete),
 
         .jump_i(rename_jump),
         .jump_accept_o(rename_jump_accept),

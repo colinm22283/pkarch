@@ -1,8 +1,8 @@
-.global entry
-entry:
-    li a0, 4096
+.global main
+main:
+    li a0, 0x10000000
     addi s3, zero, 0
-    li   s3, 10000
+    li   s3, 102334155
 
     addi s0, zero, 1
     addi s1, zero, 1
@@ -16,6 +16,6 @@ entry:
 
         blt s0, s3, .loop
     
-    li   a0, 4097
+    li   a0, 0x10000004
     sw   zero, 0(a0)
 

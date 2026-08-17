@@ -1,7 +1,7 @@
 `ifndef CONFIG_SVH
 `define CONFIG_SVH
 
-`define DEBUG_MODE 0
+`define DEBUG_MODE 1
 `define SERIAL_ASCII_MODE 1
 
 // CONFIGURABLE
@@ -9,7 +9,7 @@ parameter DISPATCH_WIDTH     = 1;
 parameter RENAME_WIDTH       = 3;
 parameter COMMIT_WIDTH       = 2;
 
-parameter CHECKPOINT_COUNT   = 4;
+parameter RENAME_CP_COUNT    = 4;
 
 parameter ISSUE_QUEUE_SIZE   = 2;
 
@@ -35,12 +35,16 @@ parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;
 
 parameter PRF_RPORTS         = 2 * DISPATCH_WIDTH;
 parameter PRF_WPORTS         = ROB_COMMIT_WIDTH;
+parameter PRF_RELPORTS       = RENAME_WIDTH;
 
 parameter IQ_OUT_WIDTH       = IQ_COMMIT_WIDTH * DISPATCH_WIDTH;
 
 parameter FU_COUNT           = ALU_COUNT + JMP_COUNT;
 
 parameter COMMIT_COUNT       = FU_COUNT + 2;
+
+parameter RENAME_CP_WPORTS   = RENAME_WIDTH;
+parameter RENAME_CP_FPORTS   = 1;
 
 `endif
 

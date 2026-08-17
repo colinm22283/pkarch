@@ -7,9 +7,9 @@ _LIB_OBJS+=startup.o
 _LIB_OBJS+=print.o
 
 LIB_OBJS=$(foreach o, $(_LIB_OBJS), $(LIB_OBJDIR)/$o)
-HEADERS=$(shell find $(LIB_INCLUDEDIR) -name "*.h" -type f)
+LIB_HEADERS=$(shell find $(LIB_INCLUDEDIR) -name "*.h" -type f)
 
-$(LIB_OBJDIR)/%.o: $(LIB_SRCDIR)/%.c $(HEADERS)
+$(LIB_OBJDIR)/%.o: $(LIB_SRCDIR)/%.c $(LIB_HEADERS)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) $< -o $@
 

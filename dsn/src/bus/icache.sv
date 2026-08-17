@@ -6,7 +6,8 @@
 module icache_m #(
     parameter INDEX_BITS = 10,
     parameter OFFSET_BITS = 5,
-    parameter WAYS = 2
+    parameter WAYS = 2,
+    parameter TIMEOUT = 50
 ) (
     input wire clk_i,
     input wire nrst_i,
@@ -68,6 +69,8 @@ module icache_m #(
     logic test_found;
     way_index_t test_way;
 
+    logic [$clog2(TIMEOUT + 1) - 1:0] timeout;
+
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             for (int i = 0; i < SET_COUNT; i++) begin
@@ -85,6 +88,8 @@ module icache_m #(
                         if (!test_found) begin
                             state  <= STATE_FETCH;
                             fstate <= FSTATE_REQ;
+
+                            timeout <= 0;
 
                             fetch_offset <= 0;
                             fetch_index  <= test_addr.parts.index;
@@ -108,6 +113,13 @@ module icache_m #(
                             if (mport_i.ack) begin
                                 fstate <= FSTATE_ACK;
                             end
+
+                            if (timeout == TIMEOUT) begin
+                                sets[fetch_index][0].valid <= 1;
+
+                                state <= STATE_READY;
+                            end
+                            else timeout <= timeout + 1;
                         end
 
                         FSTATE_ACK: begin
@@ -127,6 +139,8 @@ module icache_m #(
 
                         FSTATE_DONE: begin
                             fstate <= FSTATE_REQ;
+
+                            timeout <= 0;
 
                             fetch_addr <= fetch_addr + 4;
                             fetch_offset <= fetch_offset + 1;

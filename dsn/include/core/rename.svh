@@ -4,6 +4,8 @@
 `include "isa.svh"
 `include "core/prf.svh"
 
+typedef logic [$clog2(RENAME_CP_COUNT) - 1:0] rename_cp_id_t;
+
 typedef struct packed {
     bit valid;
 
@@ -32,11 +34,8 @@ typedef struct packed {
     bit ready;
 } rename_commit_o_t;
 
-typedef struct packed {
-    bit valid;
-
-    prf_addr_t prf_addr;
-} rename_map_entry_t;
+typedef prf_addr_t rename_rat_t [REG_COUNT - 1:0];
+typedef prf_addr_t rename_freelist_t [PRF_SIZE - 1:0];
 
 `endif
 
