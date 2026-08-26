@@ -133,17 +133,20 @@ module rename_m(
 
             if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
                 if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
-                    fl_head_d--;
+                    fl_tail_d++;
                     fl_size_d++;
                     fl_head_cp_d = fl_head_d;
 
-                    freelist_d[fl_head_d] = commit_i[i].prev_addr;
+                    freelist_d[fl_tail_d] = commit_i[i].prev_addr;
                 end
+
+                arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;
             end
         end
 
         if (flush_i) begin
             spec_rat_d = arch_rat_q;
+            fl_head_d = fl_head_cp_q;
         end
     end
 

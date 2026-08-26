@@ -66,7 +66,7 @@ module top_tb();
         fd = $fopen(filename, "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < 1024; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < 4096; i += 4) ram.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],

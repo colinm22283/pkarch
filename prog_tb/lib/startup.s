@@ -45,6 +45,6 @@ entry:
     sw   zero, 0(a0)
 
 stack_bottom:
-    .skip 64
+    .skip 256
 stack_top:
 

@@ -29,15 +29,16 @@ module commit_m(
             if (commit_i[i].valid && commit_num < ROB_COMMIT_WIDTH) begin
                 commit_o[i].ready = rob_commit_i[commit_num].ready;
 
-                rob_commit_o[commit_num].valid  = 1;
-                rob_commit_o[commit_num].rob_id = commit_i[i].rob_id;
-                rob_commit_o[commit_num].jmp = commit_i[i].jmp;
-                rob_commit_o[commit_num].mispred = commit_i[i].mispred;
+                rob_commit_o[commit_num].valid      = 1;
+                rob_commit_o[commit_num].rob_id     = commit_i[i].rob_id;
+                rob_commit_o[commit_num].jmp        = commit_i[i].jmp;
+                rob_commit_o[commit_num].mispred    = commit_i[i].mispred;
                 rob_commit_o[commit_num].jmp_target = commit_i[i].jmp_target;
-                rob_commit_o[commit_num].mem = commit_i[i].mem;
-                rob_commit_o[commit_num].rd_a   = commit_i[i].rd_a;
-                rob_commit_o[commit_num].isa_addr = commit_i[i].isa_addr;
-                rob_commit_o[commit_num].prev_addr = commit_i[i].prev_rd;
+                rob_commit_o[commit_num].mem        = commit_i[i].mem;
+                rob_commit_o[commit_num].rd_a       = commit_i[i].rd_a;
+                rob_commit_o[commit_num].isa_addr   = commit_i[i].isa_addr;
+                rob_commit_o[commit_num].prev_addr  = commit_i[i].prev_rd;
+                rob_commit_o[commit_num].prf_addr   = commit_i[i].rd;
 
                 prf_wport_o[commit_num].we = commit_i[i].rd_a;
                 prf_wport_o[commit_num].addr = commit_i[i].rd;

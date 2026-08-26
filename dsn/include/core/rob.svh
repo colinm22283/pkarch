@@ -31,6 +31,7 @@ typedef struct packed {
     bit rd_a;
     reg_addr_t isa_addr;
     prf_addr_t prev_addr;
+    prf_addr_t prf_addr;
 } rob_commit_i_t;
 
 typedef struct packed {
@@ -51,6 +52,7 @@ typedef struct packed {
     bit rd_a;
     reg_addr_t isa_rd;
     prf_addr_t prev_rd;
+    prf_addr_t rd;
 } rob_entry_t;
 
 `endif

@@ -26,6 +26,7 @@ typedef struct packed {
 
     bit jmp;
 
+    prf_addr_t prf_addr;
     reg_addr_t isa_addr;
     prf_addr_t prev_addr;
 } rename_commit_i_t;

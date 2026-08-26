@@ -1,6 +1,13 @@
 serial_addr = 0x10000000
 
 .section .text
+
+.global print_char
+print_char:
+    li   t0, serial_addr
+    sb   a0, (t0)
+    ret
+
 .global print_str
 print_str:
     li   t0, serial_addr
@@ -15,9 +22,8 @@ print_str_exit:
 
 .global print_hex
 print_hex:
-    addi sp, sp, -10
+    addi sp, sp, -12
 
-    li   t0, serial_addr
     la   t6, hex_dict
     addi t1, sp, 8
     sb   zero, (t1)
@@ -41,7 +47,7 @@ print_hex_loop:
 
     lw   ra, (sp)
 
-    addi sp, sp, 12
+    addi sp, sp, 16
     ret
 
 .section .rodata

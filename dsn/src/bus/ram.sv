@@ -3,8 +3,8 @@
 `include "bus/bus.svh"
 
 module ram_m #(
-    parameter ADDRESS = 0,
-    parameter SIZE = 16
+    parameter integer ADDRESS = 0,
+    parameter integer SIZE = 16
 ) (
     input wire clk_i,
     input wire nrst_i,
