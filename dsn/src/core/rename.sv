@@ -26,6 +26,8 @@ module rename_m(
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
+    state_logger_m state_logger(.clk_i(clk_i));
+
     typedef logic [$clog2(PRF_SIZE) - 1:0] fl_index_t;
     typedef logic [$clog2(PRF_SIZE + 1) - 1:0] fl_size_t;
 

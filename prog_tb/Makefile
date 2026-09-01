@@ -12,7 +12,7 @@ ABI=ilp32
 
 COMFLAGS=-c -march=$(ARCH) -mabi=$(ABI)
 ASFLAGS=$(COMFLAGS)
-CFLAGS=$(COMFLAGS) -nostdlib -ffreestanding -I$(LIB_INCLUDEDIR)
+CFLAGS=-O0 $(COMFLAGS) -nostdlib -ffreestanding -I$(LIB_INCLUDEDIR)
 
 TOP_LEVEL=top_tb
 TB_SRCS=$(TOP_LEVEL).sv
@@ -98,6 +98,10 @@ disas: $(BUILD_DIR)/$(PROG_NAME).bin
 .PHONY: objdump
 objdump: $(BUILD_DIR)/$(PROG_NAME).bin
 	$(OBJDUMP) -d -m riscv:rv32 $(BUILD_DIR)/$(PROG_NAME).linked.o
+
+.PHONY: objdump_all
+objdump_all: $(BUILD_DIR)/$(PROG_NAME).bin
+	$(OBJDUMP) -D -m riscv:rv32 $(BUILD_DIR)/$(PROG_NAME).linked.o
 
 .PHONY: clean
 clean:

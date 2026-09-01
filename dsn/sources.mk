@@ -32,6 +32,8 @@ SRCS+=bus/icache_6_4_2.sv
 
 SRCS+=test/clk_rst.v
 
+SRCS+=state_log/state_logger.sv
+
 SRCS+=pipe_reg.sv
 SRCS+=fifo.sv
 

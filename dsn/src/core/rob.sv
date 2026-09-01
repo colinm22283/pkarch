@@ -115,7 +115,7 @@ module rob_m(
 
                         if (commit_entry[i]) begin
                             `DL(log, (
-                                "Committing entry 0x%x, rd_a = %x, isa_rd = %s, prev_rd = 0x%x, mem = %x, jmp = %x, mispred = %x",
+                                "Committing entry %0d, rd_a = %x, isa_rd = %s, prev_rd = 0x%x, mem = %x, jmp = %x, mispred = %x",
                                 index,
                                 entries[index].rd_a,
                                 REG_NAME(entries[index].isa_rd),

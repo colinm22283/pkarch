@@ -135,7 +135,7 @@ module lsq_m(
                         if (mports_i[i].ack) begin
                             states[i] <= STATE_ACK;
 
-                            `DL(log, ("write %h to %h", mports_o[i].data, mports_o[i].addr));
+                            `DL(log, ("write 0x%h to 0x%h", mports_o[i].data, mports_o[i].addr));
                         end
                     end
 

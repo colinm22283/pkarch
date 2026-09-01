@@ -56,6 +56,10 @@ disas-%:
 objdump-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) objdump
 
+.PHONY: objdump_all-%
+objdump_all-%:
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) objdump_all
+
 .PHONY: run-%
 run-%:
 	cd $(TB_DIR)/$* && $(MAKE) run
