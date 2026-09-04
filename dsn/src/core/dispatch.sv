@@ -21,6 +21,9 @@ module dispatch_m(
     input  rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_dispatch_i,
     output rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_dispatch_o,
 
+    input  lsq_dispatch_o_t [LSQ_DISP_WIDTH - 1:0] lsq_dispatch_i,
+    input  lsq_dispatch_i_t [LSQ_DISP_WIDTH - 1:0] lsq_dispatch_o,
+
     input  rob_dispatch_o_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_i,
     output rob_dispatch_i_t [ROB_DISPATCH_WIDTH - 1:0] rob_dispatch_o,
 
