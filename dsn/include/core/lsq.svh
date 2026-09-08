@@ -35,6 +35,16 @@ typedef struct packed {
     lsq_data_t data;
 } lsq_dispatch_i_t;
 
+typedef rob_id_t lsq_timestamp_t;
+
+typedef struct packed {
+    bit valid;
+
+    lsq_timestamp_t timestamp;
+    rob_id_t rob_id;
+
+    
+
 typedef struct packed {
     bit ready;
 } lsq_dispatch_o_t;

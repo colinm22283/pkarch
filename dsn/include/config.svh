@@ -30,7 +30,8 @@ parameter PRF_SIZE           = 64;
 parameter PRF_MEM_RPORTS     = DISPATCH_WIDTH;
 
 parameter LSQ_SIZE           = 4;
-parameter MEMORY_PORTS       = 1;
+parameter READ_PORTS         = 1;
+parameter WRITE_PORTS        = 1;
 // CONFIGURABLE
 
 parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;
