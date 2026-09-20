@@ -21,13 +21,10 @@ module lsq_m(
     input  bus_miport_t [WRITE_PORTS - 1:0] write_mports_i,
     output bus_moport_t [WRITE_PORTS - 1:0] write_mports_o,
 
-    input  lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] read_dispatch_i,
-    output lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] read_dispatch_o,
+    input  lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] dispatch_i,
+    output lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] dispatch_o,
 
-    input  lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] write_dispatch_i,
-    output lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] write_dispatch_o,
-
-    input  lsq_commit_i_t   [LSQ_
+    input  lsq_commit_i_t   [LSQ_COMMIT_WIDTH - 1:0] lsq_commit_i,
 
     input  commit_o_t [MEMORY_PORTS - 1:0] commit_i,
     output commit_i_t [MEMORY_PORTS - 1:0] commit_o,
@@ -40,11 +37,6 @@ module lsq_m(
 );
 
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
-
-    lsq_timestamper_m timestamper(
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
-
 
 
 endmodule

@@ -59,8 +59,10 @@ module dispatch_m(
         end
         else begin
             logic [$clog2(RENAME_WIDTH + 1) - 1:0] rename_index;
+            logic [$clog2(LSQ_DISPATCH_WIDTH + 1) - 1:0] lsq_index;
 
             rename_index = 0;
+            lsq_index    = 0;
 
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
                 if (flush_i) begin
@@ -80,6 +82,7 @@ module dispatch_m(
                             entries[i].rs1_valid    <= 0;
                             entries[i].rs2_valid    <= 0;
                             entries[i].rd_valid     <= 0;
+                            entries[i].lsq_valid    <= 0;
                         end
                     end
                     else if (entries[i].valid) begin
@@ -131,6 +134,22 @@ module dispatch_m(
                             `DL(log, ("Alloc RD (%s) at paddr 0x%h, with prev paddr 0x%x", REG_NAME(entries[i].dec_inst.rd), rename_dispatch_i[rename_index].prf_addr, rename_dispatch_i[rename_index].prev_addr));
 
                             rename_index++;
+                        end
+
+                        if (
+                            (
+                                entries[i].dec_inst.opcode == OPCODE_LOAD ||
+                                entries[i].dec_inst.opcode == OPCODE_STORE
+                            ) &&
+                            !entries[i].lsq_valid &&
+                            lsq_index < LSQ_DISPATCH_WIDTH &&
+                            lsq_dispatch_i[lsq_index].ready &&
+                            (
+                                entries[i].rob_id_valid ||
+                                rob_dispatch_o[i].valid
+                            )
+                        ) begin
+                            entries[i].lsq_valid <= 1;
                         end
 
                         if (

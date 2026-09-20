@@ -11,6 +11,8 @@ typedef struct packed {
 
     bit write;
 
+    rob_id_t rob_id;
+
     reg_addr_t isa_addr;
 } rename_dispatch_i_t;
 
