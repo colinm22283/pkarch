@@ -8,7 +8,9 @@ SRCS+=core/prf.sv
 SRCS+=core/prf_mem.sv
 SRCS+=core/rename.sv
 SRCS+=core/commit.sv
+
 SRCS+=core/lsq.sv
+SRCS+=core/lsq/lsq_timestamper.sv
 
 SRCS+=fu/issue_queue.sv
 SRCS+=fu/issue_req.sv

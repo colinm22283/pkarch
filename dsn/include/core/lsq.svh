@@ -39,11 +39,18 @@ typedef rob_id_t lsq_timestamp_t;
 
 typedef struct packed {
     bit valid;
+} lsq_dispatch_i_t;
+
+typedef struct packed {
+    bit ready;
 
     lsq_timestamp_t timestamp;
-    rob_id_t rob_id;
+} lsq_dispatch_o_t;
 
-    
+typedef struct packed {
+    lsq_timestamp_t timestamp;
+
+} lsq_read_entry_t;
 
 typedef struct packed {
     bit ready;
