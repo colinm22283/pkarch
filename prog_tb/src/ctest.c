@@ -21,13 +21,15 @@ void test_print_hex(int num) {
         if (num == 0) break;
     }
 
-    test_print_str(buf + i);
+    test_print_str(buf + i + 1);
 }
 
 int main() {
-    test_print_str("Hello world\n");
+    /* test_print_str("Hello world\n"); */
 
-    test_print_str("Hello\n");
+    /* test_print_str("Hello\n"); */
+
+    test_print_hex(1000);
 
     /* int a = 1, b = 1; */
     /* for (int i = 0; i < 40; i++) { */
