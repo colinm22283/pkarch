@@ -232,5 +232,9 @@ function string REG_NAME(reg_addr_t r);
     endcase
 endfunction
 
+function logic DEC_INST_IS_MEM(input dec_inst_t dec_inst);
+    return dec_inst.opcode == OPCODE_LOAD || dec_inst.opcode == OPCODE_STORE;
+endfunction
+
 `endif
 

@@ -28,11 +28,7 @@ typedef struct packed {
 
     rob_id_t rob_id;
 
-    bus_size_t size;
     bus_rw_t   rw;
-    word_t     addr;
-
-    lsq_data_t data;
 } lsq_dispatch_i_t;
 
 typedef struct packed {
@@ -40,14 +36,38 @@ typedef struct packed {
 } lsq_dispatch_o_t;
 
 typedef struct packed {
+    bit valid;
+
     rob_id_t rob_id;
 
     bus_size_t size;
-    bus_rw_t   rw;
+    word_t     addr;
+    lsq_data_t data;
+} lsq_commit_i_t;
+
+typedef struct packed {
+    bit ready;
+} lsq_commit_o_t;
+
+typedef struct packed {
+    rob_id_t rob_id;
+
+    bus_size_t size;
     word_t     addr;
 
-    lsq_data_t data;
-} lsq_entry_t;
+    reg_addr_t isa_addr;
+    prf_addr_t rd;
+    prf_addr_t prev_rd;
+} lsq_read_entry_t;
+
+typedef struct packed {
+    rob_id_t rob_id;
+
+    bus_size_t size;
+    word_t     addr;
+
+    word_t value;
+} lsq_write_entry_t;
 
 `endif
 

@@ -29,6 +29,8 @@ typedef struct packed {
     bit rob_id_valid;
     rob_id_t rob_id;
 
+    bit lsq_valid;
+
     bit rs1_valid;
     prf_addr_t rs1;
 

@@ -2,35 +2,36 @@
 `define CONFIG_SVH
 
 `define DEBUG_MODE 0
-`define SERIAL_ASCII_MODE 0
+`define SERIAL_ASCII_MODE 1
 
 parameter COMMIT_DEBUG_REGFILE = 1;
 
 // CONFIGURABLE
-parameter DISPATCH_WIDTH     = 1;
-parameter RENAME_WIDTH       = 1;
-parameter COMMIT_WIDTH       = 2;
+parameter DISPATCH_WIDTH      = 1;
+parameter RENAME_WIDTH        = 2;
+parameter COMMIT_WIDTH        = 2;
 
-parameter RENAME_CP_COUNT    = 4;
+parameter RENAME_CP_COUNT     = 4;
 
-parameter ISSUE_QUEUE_SIZE   = 2;
+parameter ISSUE_QUEUE_SIZE    = 2;
 
-parameter IQ_IN_SIZE         = 4;
-parameter IQ_OUT_SIZE        = 4;
-parameter IQ_ACC_SIZE        = 2;
-parameter IQ_COMMIT_WIDTH    = 2;
+parameter IQ_IN_SIZE          = 4;
+parameter IQ_OUT_SIZE         = 4;
+parameter IQ_ACC_SIZE         = 2;
+parameter IQ_COMMIT_WIDTH     = 2;
 
-parameter ROB_SIZE           = 256;
-parameter ROB_COMMIT_WIDTH   = 2;
+parameter ROB_SIZE            = 256;
+parameter ROB_COMMIT_WIDTH    = 2;
 
-parameter ALU_COUNT = 1;
-parameter JMP_COUNT = 1;
+parameter ALU_COUNT           = 1;
+parameter JMP_COUNT           = 1;
 
-parameter PRF_SIZE           = 64;
-parameter PRF_MEM_RPORTS     = DISPATCH_WIDTH;
+parameter PRF_SIZE            = 64;
+parameter PRF_MEM_RPORTS      = DISPATCH_WIDTH;
 
-parameter LSQ_SIZE           = 4;
-parameter MEMORY_PORTS       = 1;
+parameter LSQ_DISPATCH_WIDTH  = 1;
+parameter LSQ_READ_QUEUE_SIZE = 4;
+parameter MEMORY_PORTS        = 1;
 // CONFIGURABLE
 
 parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;

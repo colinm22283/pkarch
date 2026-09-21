@@ -1,6 +1,7 @@
 `timescale 1ns/100ps
 
 `include "core/dispatch.svh"
+`include "core/lsq.svh"
 `include "core/rename.svh"
 `include "core/rob.svh"
 `include "fu/issue_queue.svh"
@@ -17,6 +18,9 @@ module dispatch_m(
 
     input  dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatch_i,
     output dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatch_o,
+
+    input  lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatch_i,
+    output lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatch_o,
 
     input  rename_dispatch_o_t [RENAME_WIDTH - 1:0] rename_dispatch_i,
     output rename_dispatch_i_t [RENAME_WIDTH - 1:0] rename_dispatch_o,
@@ -55,8 +59,10 @@ module dispatch_m(
             end
         end
         else begin
+            logic [$clog2(LSQ_DISPATCH_WIDTH + 1) - 1:0] lsq_index;
             logic [$clog2(RENAME_WIDTH + 1) - 1:0] rename_index;
 
+            lsq_index    = 0;
             rename_index = 0;
 
             for (int i = 0; i < DISPATCH_WIDTH; i++) begin
@@ -74,6 +80,7 @@ module dispatch_m(
                             entries[i].dec_inst <= dispatch_i[i].dec_inst;
 
                             entries[i].rob_id_valid <= 0;
+                            entries[i].lsq_valid    <= 0;
                             entries[i].rs1_valid    <= 0;
                             entries[i].rs2_valid    <= 0;
                             entries[i].rd_valid     <= 0;
@@ -85,6 +92,26 @@ module dispatch_m(
                             entries[i].rob_id       <= rob_dispatch_i[i].id;
 
                             `DL(log, ("Alloc ROB ID of 0x%h for instruction from 0x%h", rob_dispatch_i[i].id, entries[i].pc));
+                        end
+
+                        if (
+                            DEC_INST_IS_MEM(entries[i].dec_inst) &&
+                            !entries[i].lsq_valid &&
+                            lsq_index < LSQ_DISPATCH_WIDTH &&
+                            lsq_dispatch_i[lsq_index].ready &&
+                            (entries[i].rob_id_valid || rob_dispatch_i[i].ready)
+                        ) begin
+                            entries[i].lsq_valid <= 1;
+
+                            `DL(
+                                log,
+                                (
+                                    "Alloc LSQ entry for ROB ID 0x%h",
+                                    entries[i].rob_id_valid ? entries[i].rob_id : rob_dispatch_i[i].id
+                                )
+                            );
+
+                            lsq_index++;
                         end
 
                         if (
@@ -166,9 +193,15 @@ module dispatch_m(
     end
 
     always_comb begin
+        logic [$clog2(LSQ_DISPATCH_WIDTH + 1) - 1:0] lsq_index;
         logic [$clog2(RENAME_WIDTH + 1) - 1:0] rename_index;
 
+        lsq_index    = 0;
         rename_index = 0;
+
+        for (int i = 0; i < LSQ_DISPATCH_WIDTH; i++) begin
+            lsq_dispatch_o[i] = 0;
+        end
 
         for (int i = 0; i < RENAME_WIDTH; i++) begin
             rename_dispatch_o[i] = 0;
@@ -187,6 +220,23 @@ module dispatch_m(
                 if (!rename_jump_o && entries[i].valid) begin
                     if (!entries[i].rob_id_valid) begin
                         rob_dispatch_o[i].valid = 1;
+                    end
+
+                    if (
+                        DEC_INST_IS_MEM(entries[i].dec_inst) &&
+                        !entries[i].lsq_valid &&
+                        lsq_index < LSQ_DISPATCH_WIDTH &&
+                        lsq_dispatch_i[lsq_index].ready &&
+                        (entries[i].rob_id_valid || rob_dispatch_i[i].ready)
+                    ) begin
+                        lsq_dispatch_o[lsq_index].valid = 1;
+
+                        lsq_dispatch_o[lsq_index].rob_id =
+                            entries[i].rob_id_valid ? entries[i].rob_id : rob_dispatch_i[i].id;
+
+                        lsq_dispatch_o[lsq_index].rw = entries[i].dec_inst.opcode == OPCODE_LOAD ? BUS_RW_READ : BUS_RW_WRITE;
+
+                        lsq_index++;
                     end
 
                     if (

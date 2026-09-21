@@ -7,8 +7,8 @@ module lsu_m(
     input  iq_commit_o_t dispatch_i,
     output iq_commit_i_t dispatch_o,
 
-    input  lsq_dispatch_o_t lsq_dispatch_i,
-    output lsq_dispatch_i_t lsq_dispatch_o
+    input  lsq_commit_o_t lsq_commit_i,
+    output lsq_commit_i_t lsq_commit_o
 );
 
     word_t addr;
@@ -72,21 +72,20 @@ module lsu_m(
         addr   = dispatch_i.data.rs1_v;
         offset = dispatch_i.data.dec_inst.imm;
 
-        dispatch_o.ready = lsq_dispatch_i.ready;
+        dispatch_o.ready = lsq_commit_i.ready;
 
-        lsq_dispatch_o.valid  = dispatch_i.valid;
-        lsq_dispatch_o.rob_id = dispatch_i.data.rob_id;
-        lsq_dispatch_o.size   = size;
-        lsq_dispatch_o.rw     = rw;
-        lsq_dispatch_o.addr   = addr + offset;
+        lsq_commit_o.valid  = dispatch_i.valid;
+        lsq_commit_o.rob_id = dispatch_i.data.rob_id;
+        lsq_commit_o.size   = size;
+        lsq_commit_o.addr   = addr + offset;
 
         if (rw == BUS_RW_READ) begin
-            lsq_dispatch_o.data.read.isa_addr = dispatch_i.data.isa_addr;
-            lsq_dispatch_o.data.read.rd = dispatch_i.data.rd;
-            lsq_dispatch_o.data.read.prev_rd = dispatch_i.data.prev_rd;
+            lsq_commit_o.data.read.isa_addr = dispatch_i.data.isa_addr;
+            lsq_commit_o.data.read.rd = dispatch_i.data.rd;
+            lsq_commit_o.data.read.prev_rd = dispatch_i.data.prev_rd;
         end
         else begin
-            lsq_dispatch_o.data.write.value = dispatch_i.data.rs2_v;
+            lsq_commit_o.data.write.value = dispatch_i.data.rs2_v;
         end
     end
 

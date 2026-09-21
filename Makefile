@@ -48,6 +48,10 @@ prog-%:
 prog_wave-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) wave
 
+.PHONY: prog_build-%
+prog_build-%:
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) build
+
 .PHONY: disas-%
 disas-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) disas

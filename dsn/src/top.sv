@@ -103,8 +103,8 @@ module top_m #(
 
     wire rob_write_ready, rob_write_valid;
 
-    lsq_dispatch_i_t [1:0] lsq_disi;
-    lsq_dispatch_o_t [1:0] lsq_diso;
+    lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_disi;
+    lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_diso;
 
     commit_i_t [COMMIT_COUNT - 1:0] comi, reg_comi;
     commit_o_t [COMMIT_COUNT - 1:0] como, reg_como;
@@ -169,6 +169,9 @@ module top_m #(
 
         .dispatch_i(buffered_dispatchi),
         .dispatch_o(buffered_dispatcho),
+
+        .lsq_dispatch_i(lsq_diso),
+        .lsq_dispatch_o(lsq_disi),
 
         .rename_dispatch_i(rename_diso),
         .rename_dispatch_o(rename_disi),
@@ -305,25 +308,9 @@ module top_m #(
         .commit_i(como[FU_COUNT - 1:0]),
         .commit_o(comi[FU_COUNT - 1:0]),
 
-        .lsq_dispatch_i(lsq_diso[0]),
-        .lsq_dispatch_o(lsq_disi[0])
+        .lsq_commit_i('0), // TODO
+        .lsq_commit_o()
     );
-
-    pipe_reg_lsq_m lsq_reg(
-        .clk_i(clk_i),
-        .nrst_i(nrst_i),
-
-        .flush_i(flush),
-
-        .s_i(lsq_disi[0]),
-        .s_o(lsq_diso[0]),
-
-        .m_i(lsq_diso[1]),
-        .m_o(lsq_disi[1])
-    );
-
-    // assign lsq_disi[1] = lsq_disi[0];
-    // assign lsq_diso[0] = lsq_diso[1];
 
     lsq_m lsq(
 `ifdef USE_POWER_PINS
@@ -338,8 +325,11 @@ module top_m #(
         .mports_i(mportbi),
         .mports_o(mportbo),
 
-        .dispatch_i(lsq_disi[1]),
-        .dispatch_o(lsq_diso[1]),
+        .lsq_dispatch_i(lsq_disi),
+        .lsq_dispatch_o(lsq_diso),
+
+        .lsq_commit_i('0), // TODO
+        .lsq_commit_o(),
 
         .commit_i(como[FU_COUNT]),
         .commit_o(comi[FU_COUNT]),

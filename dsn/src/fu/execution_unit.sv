@@ -12,8 +12,8 @@ module execution_unit_m(
     input  commit_o_t [FU_COUNT - 1:0] commit_i,
     output commit_i_t [FU_COUNT - 1:0] commit_o,
 
-    input  lsq_dispatch_o_t lsq_dispatch_i,
-    output lsq_dispatch_i_t lsq_dispatch_o
+    input  lsq_commit_o_t lsq_commit_i,
+    output lsq_commit_i_t lsq_commit_o
 );
 
     fu_select_t disp_type [IQ_OUT_WIDTH - 1:0];
@@ -75,8 +75,8 @@ module execution_unit_m(
         .dispatch_i(lsu_dispatchi),
         .dispatch_o(lsu_dispatcho),
 
-        .lsq_dispatch_i(lsq_dispatch_i),
-        .lsq_dispatch_o(lsq_dispatch_o)
+        .lsq_commit_i(lsq_commit_i),
+        .lsq_commit_o(lsq_commit_o)
     );
 
     always_comb begin
