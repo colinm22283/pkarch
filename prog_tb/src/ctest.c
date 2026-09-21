@@ -25,7 +25,7 @@ void test_print_hex(int num) {
 }
 
 int main() {
-    /* print_str("Hello world\n"); */
+    test_print_str("Hello world\n");
 
     test_print_str("Hello\n");
 

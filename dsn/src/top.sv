@@ -388,5 +388,94 @@ module top_m #(
         .prf_wport_o(prf_wporti)
     );
 
+    word_t arch_regs [31:0];
+    always_comb for (int i = 0; i < 32; i++) begin 
+        if (rename.arch_rat_q[i] == PRF_SIZE) begin
+            arch_regs[i] = 32'hFFFFFFFF;
+        end
+        else begin
+            arch_regs[i] = prf.mem.mem[rename.arch_rat_q[i]];
+        end
+    end
+
+    always_comb begin : REGS
+        word_t zero, ra, sp, gp, tp, t0, t1, t2, s0, s1, a0, a1, a2, a3, a4, a5, a6, a7, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, t3, t4, t5, t6;
+
+        zero = arch_regs[0];
+        ra   = arch_regs[1];
+        sp   = arch_regs[2];
+        gp   = arch_regs[3];
+        tp   = arch_regs[4];
+        t0   = arch_regs[5];
+        t1   = arch_regs[6];
+        t2   = arch_regs[7];
+        s0   = arch_regs[8];
+        s1   = arch_regs[9];
+        a0   = arch_regs[10];
+        a1   = arch_regs[11];
+        a2   = arch_regs[12];
+        a3   = arch_regs[13];
+        a4   = arch_regs[14];
+        a5   = arch_regs[15];
+        a6   = arch_regs[16];
+        a7   = arch_regs[17];
+        s2   = arch_regs[18];
+        s3   = arch_regs[19];
+        s4   = arch_regs[20];
+        s5   = arch_regs[21];
+        s6   = arch_regs[22];
+        s7   = arch_regs[23];
+        s8   = arch_regs[24];
+        s9   = arch_regs[25];
+        s10  = arch_regs[26];
+        s11  = arch_regs[27];
+        t3   = arch_regs[28];
+        t4   = arch_regs[29];
+        t5   = arch_regs[30];
+        t6   = arch_regs[31];
+    end
+
+    prf_addr_t arch_addrs [31:0];
+    always_comb for (int i = 0; i < 32; i++) begin
+        arch_addrs[i] = rename.arch_rat_q[i];
+    end
+
+    always_comb begin : RAT
+        prf_addr_t zero, ra, sp, gp, tp, t0, t1, t2, s0, s1, a0, a1, a2, a3, a4, a5, a6, a7, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, t3, t4, t5, t6;
+
+        zero = arch_addrs[0];
+        ra   = arch_addrs[1];
+        sp   = arch_addrs[2];
+        gp   = arch_addrs[3];
+        tp   = arch_addrs[4];
+        t0   = arch_addrs[5];
+        t1   = arch_addrs[6];
+        t2   = arch_addrs[7];
+        s0   = arch_addrs[8];
+        s1   = arch_addrs[9];
+        a0   = arch_addrs[10];
+        a1   = arch_addrs[11];
+        a2   = arch_addrs[12];
+        a3   = arch_addrs[13];
+        a4   = arch_addrs[14];
+        a5   = arch_addrs[15];
+        a6   = arch_addrs[16];
+        a7   = arch_addrs[17];
+        s2   = arch_addrs[18];
+        s3   = arch_addrs[19];
+        s4   = arch_addrs[20];
+        s5   = arch_addrs[21];
+        s6   = arch_addrs[22];
+        s7   = arch_addrs[23];
+        s8   = arch_addrs[24];
+        s9   = arch_addrs[25];
+        s10  = arch_addrs[26];
+        s11  = arch_addrs[27];
+        t3   = arch_addrs[28];
+        t4   = arch_addrs[29];
+        t5   = arch_addrs[30];
+        t6   = arch_addrs[31];
+    end
+
 endmodule
 

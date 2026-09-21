@@ -101,7 +101,7 @@ objdump: $(BUILD_DIR)/$(PROG_NAME).bin
 
 .PHONY: objdump_all
 objdump_all: $(BUILD_DIR)/$(PROG_NAME).bin
-	$(OBJDUMP) -D -m riscv:rv32 $(BUILD_DIR)/$(PROG_NAME).linked.o
+	$(OBJDUMP) -s -m riscv:rv32 $(BUILD_DIR)/$(PROG_NAME).linked.o
 
 .PHONY: clean
 clean:

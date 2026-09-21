@@ -108,7 +108,7 @@ module rename_m(
 
                         if (dispatch_i[i].valid && dispatch_o[i].ready) begin
                             spec_rat_d[dispatch_i[i].isa_addr] = freelist_q[fl_head_d];
-                            fl_head_d++;
+                            fl_head_d = fl_index_t'((fl_head_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
                             fl_size_d--;
 
                             prf_rel_o[i].rel = 'b1;
@@ -135,11 +135,11 @@ module rename_m(
 
             if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
                 if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
-                    fl_tail_d++;
+                    freelist_d[fl_tail_d] = commit_i[i].prev_addr;
+
+                    fl_tail_d = fl_index_t'((fl_tail_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
                     fl_size_d++;
                     fl_head_cp_d = fl_head_d;
-
-                    freelist_d[fl_tail_d] = commit_i[i].prev_addr;
                 end
 
                 arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;

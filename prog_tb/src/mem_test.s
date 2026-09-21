@@ -2,8 +2,12 @@
 main:
     li s0, 0x10000000
 
+    li t1, 11
+    li t2, 21
+
     li t0, 10
     sw t0, (sp)
+    blt t1, t2, test
     lw t1, (sp)
     sw t1, (s0)
 
@@ -23,7 +27,8 @@ main:
     lw t5, (sp)
     sw t5, (s0)
 
-    sw t5, (sp)
+test:
+    sw t1, (sp)
     lw t6, (sp)
     sw t6, (s0)
 
