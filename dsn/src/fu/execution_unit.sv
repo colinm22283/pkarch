@@ -1,4 +1,11 @@
+`include "fu/issue_queue.svh"
 `include "fu/execution_unit.svh"
+`include "core/pc.svh"
+`include "core/rob.svh"
+`include "core/commit.svh"
+`include "core/lsq.svh"
+`include "fu/issue_queue.svh"
+`include "isa.svh"
 
 module execution_unit_m(
     input  logic clk_i,

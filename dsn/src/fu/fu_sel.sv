@@ -1,4 +1,5 @@
 `include "fu/execution_unit.svh"
+`include "isa.svh"
 
 module fu_sel_m(
     input  dec_inst_t dec_inst_i,
