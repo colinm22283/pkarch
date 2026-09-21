@@ -1,4 +1,7 @@
 `include "fu/issue_queue.svh"
+`include "core/pc.svh"
+`include "core/rob.svh"
+`include "isa.svh"
 
 module issue_queue_m(
     input  logic clk_i,

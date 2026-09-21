@@ -1,6 +1,7 @@
 `timescale 1ns/100ps
 
 `include "isa.svh"
+`include "fu/issue_queue.svh"
 `include "core/fetch.svh"
 `include "core/rob.svh"
 `include "core/rename.svh"

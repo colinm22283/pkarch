@@ -1,3 +1,11 @@
+`include "fu/issue_queue.svh"
+`include "core/pc.svh"
+`include "core/rob.svh"
+`include "core/lsq.svh"
+`include "core/commit.svh"
+`include "fu/issue_queue.svh"
+`include "isa.svh"
+
 module jmp_m(
     input  logic clk_i,
     input  logic nrst_i,
