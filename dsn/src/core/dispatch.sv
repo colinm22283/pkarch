@@ -159,6 +159,7 @@ module dispatch_m(
 
                         if (
                             entries[i].rob_id_valid &&
+                            (entries[i].lsq_valid || !DEC_INST_IS_MEM(entries[i].dec_inst)) &&
                             (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
                             (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
                             (entries[i].rd_valid  || !entries[i].dec_inst.rd_a) &&
@@ -277,6 +278,7 @@ module dispatch_m(
 
                     if (
                         entries[i].rob_id_valid &&
+                        (entries[i].lsq_valid || !DEC_INST_IS_MEM(entries[i].dec_inst)) &&
                         (entries[i].rs1_valid || !entries[i].dec_inst.rs1_a) &&
                         (entries[i].rs2_valid || !entries[i].dec_inst.rs2_a) &&
                         (entries[i].rd_valid  || !entries[i].dec_inst.rd_a)

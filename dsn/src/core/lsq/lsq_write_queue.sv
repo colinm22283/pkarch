@@ -72,6 +72,8 @@ module lsq_write_queue_m(
         addr_o = entries_q[tail_q].addr;
         value_o = entries_q[tail_q].value;
 
+        commit_o   = '0;
+
         await_head_o = entries_q[tail_q].read_idx;
 
         write_commit_o = '0;

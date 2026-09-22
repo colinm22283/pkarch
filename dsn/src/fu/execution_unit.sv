@@ -99,7 +99,7 @@ module execution_unit_m(
         for (int i = 0; i < IQ_OUT_WIDTH; i++) begin
             case (disp_type[i])
                 FU_ALU: begin
-                    if (alu_idx != ALU_COUNT) begin
+                    if (alu_idx != ALU_COUNT && dispatch_i[i].valid) begin
                         alu_dispatchi[alu_idx] = dispatch_i[i];
 
                         alu_idx++;
@@ -107,7 +107,7 @@ module execution_unit_m(
                 end
 
                 FU_JMP: begin
-                    if (jmp_idx != JMP_COUNT) begin
+                    if (jmp_idx != JMP_COUNT && dispatch_i[i].valid) begin
                         jmp_dispatchi[jmp_idx] = dispatch_i[i];
 
                         jmp_idx++;
@@ -115,7 +115,7 @@ module execution_unit_m(
                 end
 
                 FU_LSU: begin
-                    if (lsu_idx != 1) begin
+                    if (lsu_idx != LSU_COUNT && dispatch_i[i].valid) begin
                         lsu_dispatchi = dispatch_i[i];
 
                         lsu_idx++;

@@ -2,7 +2,7 @@
 `define CONFIG_SVH
 
 `define DEBUG_MODE 0
-`define SERIAL_ASCII_MODE 0
+`define SERIAL_ASCII_MODE 1
 
 parameter COMMIT_DEBUG_REGFILE = 1;
 

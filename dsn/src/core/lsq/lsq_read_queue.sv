@@ -69,6 +69,8 @@ module lsq_read_queue_m(
         prev_rd_o  = entries_q[tail_q].prev_rd;
         rob_id_o   = entries_q[tail_q].rob_id;
 
+        commit_o   = '0;
+
         if (flush_i) begin
             ready_o = 1'b0;
 

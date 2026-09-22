@@ -22,6 +22,8 @@ module lsq_dispatch_demux_m(
         write_valid_o  = '0;
         write_rob_id_o = '0;
 
+        lsq_dispatch_o = '0;
+
         for (int i = 0; i < LSQ_DISPATCH_WIDTH; i++) begin
             if (lsq_dispatch_i[i].valid) begin
                 case (lsq_dispatch_i[i].rw)

@@ -43,7 +43,7 @@ print_hex_loop:
     sw   ra, (sp)
 
     addi a0, sp, 4
-    call print_str
+    call test_print_str
 
     lw   ra, (sp)
 

@@ -8,7 +8,7 @@ void test_print_str(const char * str) {
     }
 }
 
-void test_print_hex(int num) {
+void test_print_hex(unsigned int num) {
     int size = 0;
     char buf[12];
     buf[11] = '\0';
@@ -29,12 +29,12 @@ int main() {
 
     test_print_str("Hello\n");
 
-    /* test_print_hex(1000); */
+    test_print_hex(0xAFAFAFAF);
 
     /* int a = 1, b = 1; */
     /* for (int i = 0; i < 40; i++) { */
-        /* test_print_hex(a); */
-        /* print_char('\n'); */
+        /* print_hex(a); */
+        /* test_print_str("\n"); */
 
         /* int c = a; */
         /* a = b; */
