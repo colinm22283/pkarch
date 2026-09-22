@@ -50,6 +50,9 @@ typedef struct packed {
 } lsq_commit_o_t;
 
 typedef struct packed {
+    bit valid;
+    bit complete;
+
     rob_id_t rob_id;
 
     bus_size_t size;
@@ -61,6 +64,9 @@ typedef struct packed {
 } lsq_read_entry_t;
 
 typedef struct packed {
+    bit valid;
+    bit complete;
+
     rob_id_t rob_id;
 
     bus_size_t size;

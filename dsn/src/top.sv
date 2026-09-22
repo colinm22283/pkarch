@@ -30,13 +30,13 @@ module top_m #(
     bus_miport_t mportai;
     bus_moport_t mportao;
 
-    bus_miport_t mportbi;
-    bus_moport_t mportbo;
+    bus_miport_t [LSQ_MEMORY_PORTS - 1:0] mportbi;
+    bus_moport_t [LSQ_MEMORY_PORTS - 1:0] mportbo;
 
     icache_i_t icachei;
     icache_o_t icacheo;
 
-    busarb_m #(2, MEMORY_PORTS, MEMORY_CROSSBARS) arbiter(
+    busarb_m #(LSQ_MEMORY_PORTS + 1, MEMORY_PORTS, MEMORY_CROSSBARS) arbiter(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 
@@ -106,6 +106,9 @@ module top_m #(
 
     lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_disi;
     lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_diso;
+
+    lsq_commit_i_t [LSU_COUNT - 1:0] lsq_comi;
+    lsq_commit_o_t [LSU_COUNT - 1:0] lsq_como;
 
     commit_i_t [COMMIT_COUNT - 1:0] comi, reg_comi;
     commit_o_t [COMMIT_COUNT - 1:0] como, reg_como;
@@ -309,8 +312,8 @@ module top_m #(
         .commit_i(como[FU_COUNT - 1:0]),
         .commit_o(comi[FU_COUNT - 1:0]),
 
-        .lsq_commit_i('0), // TODO
-        .lsq_commit_o()
+        .lsq_commit_i(lsq_como), // TODO
+        .lsq_commit_o(lsq_comi)
     );
 
     lsq_m lsq(
@@ -329,8 +332,8 @@ module top_m #(
         .lsq_dispatch_i(lsq_disi),
         .lsq_dispatch_o(lsq_diso),
 
-        .lsq_commit_i('0), // TODO
-        .lsq_commit_o(),
+        .lsq_commit_i(lsq_comi),
+        .lsq_commit_o(lsq_como),
 
         .commit_i(como[FU_COUNT]),
         .commit_o(comi[FU_COUNT]),

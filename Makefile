@@ -75,3 +75,7 @@ wave-%:
 .PHONY: clean-%
 clean-%:
 	cd $(TB_DIR)/$* && $(MAKE) clean
+
+.PHONY: linecount
+linecount:
+	wc -l $(shell find . -type f -name '*.sv') $(shell find . -type f -name '*.svh') $(shell find . -type f -name '*.s')

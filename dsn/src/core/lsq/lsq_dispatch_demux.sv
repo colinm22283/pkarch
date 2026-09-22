@@ -30,7 +30,7 @@ module lsq_dispatch_demux_m(
                             lsq_dispatch_o[i].ready = 'b1;
 
                             read_valid_o  = 'b1;
-                            read_rob_id_o = lsq_dispatch_o[i].rob_id;
+                            read_rob_id_o = lsq_dispatch_i[i].rob_id;
                         end
                     end
 
@@ -39,7 +39,7 @@ module lsq_dispatch_demux_m(
                             lsq_dispatch_o[i].ready = 'b1;
 
                             write_valid_o  = 'b1;
-                            write_rob_id_o = lsq_dispatch_o[i].rob_id;
+                            write_rob_id_o = lsq_dispatch_i[i].rob_id;
                         end
                     end
                 endcase

@@ -8,7 +8,12 @@ SRCS+=core/prf.sv
 SRCS+=core/prf_mem.sv
 SRCS+=core/rename.sv
 SRCS+=core/commit.sv
+
 SRCS+=core/lsq.sv
+SRCS+=core/lsq/lsq_dispatch_demux.sv
+SRCS+=core/lsq/lsq_write_queue.sv
+SRCS+=core/lsq/lsq_read_queue.sv
+SRCS+=core/lsq/lsq_store_memory_sm.sv
 
 SRCS+=fu/issue_queue.sv
 SRCS+=fu/issue_req.sv
@@ -31,8 +36,6 @@ SRCS+=bus/icache.sv
 SRCS+=bus/icache_6_4_2.sv
 
 SRCS+=test/clk_rst.v
-
-SRCS+=state_log/state_logger.sv
 
 SRCS+=pipe_reg.sv
 SRCS+=fifo.sv
