@@ -48,10 +48,22 @@ module lsq_m(
     logic write_ready, write_valid;
     rob_id_t write_rob_id;
 
+    logic has_write;
+    logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_head;
+    logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head;
+
     logic      store_ready, store_valid;
     bus_size_t store_size;
     word_t     store_addr;
     word_t     store_value;
+
+    logic      load_ready, load_valid;
+    bus_size_t load_size;
+    word_t     load_addr;
+    reg_addr_t load_isa_addr;
+    prf_addr_t load_rd;
+    prf_addr_t load_prev_rd;
+    rob_id_t   load_rob_id;
 
     generate for (genvar i = 0; i < LSQ_DISPATCH_WIDTH; i++) begin
         pipe_reg_lsq_m dispatch_pipe_reg(
@@ -100,11 +112,42 @@ module lsq_m(
         .rob_write_valid_i(rob_write_valid_i),
         .rob_write_ready_o(rob_write_ready_o),
 
+        .has_write_o(has_write),
+        .read_head_i(read_head),
+        .await_head_o(await_head),
+
         .store_valid_o(store_valid),
         .store_ready_i(store_ready),
         .size_o(store_size),
         .addr_o(store_addr),
         .value_o(store_value)
+    );
+
+    lsq_read_queue_m read_queue(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        
+        .flush_i(flush_i),
+
+        .valid_i(read_valid),
+        .ready_o(read_ready),
+        .rob_id_i(read_rob_id),
+
+        .commit_i(lsq_commit_i),
+        .commit_o(read_lsq_commito),
+
+        .has_write_i(has_write),
+        .read_head_o(read_head),
+        .await_head_i(await_head),
+
+        .load_valid_o(load_valid),
+        .load_ready_i(load_ready),
+        .size_o(load_size),
+        .addr_o(load_addr),
+        .isa_addr_o(load_isa_addr),
+        .rd_o(load_rd),
+        .prev_rd_o(load_prev_rd),
+        .rob_id_o(load_rob_id)
     );
 
     generate if (LSQ_MEMORY_PORTS == 2) begin
@@ -122,7 +165,25 @@ module lsq_m(
             .value_i(store_value)
         );
 
-        assign mports_o[0] = '0;
+        lsq_load_memory_sm_m load_memory_sm(
+            .clk_i(clk_i),
+            .nrst_i(nrst_i),
+
+            .mport_i(mports_i[0]),
+            .mport_o(mports_o[0]),
+
+            .commit_i(commit_i),
+            .commit_o(commit_o),
+
+            .valid_i(load_valid),
+            .ready_o(load_ready),
+            .size_i(load_size),
+            .addr_i(load_addr),
+            .isa_addr_i(load_isa_addr),
+            .rd_i(load_rd),
+            .prev_rd_i(load_prev_rd),
+            .rob_id_i(load_rob_id)
+        );
     end
     else if (LSQ_MEMORY_PORTS == 1) begin
         // TODO

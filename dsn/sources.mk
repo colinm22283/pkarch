@@ -14,6 +14,7 @@ SRCS+=core/lsq/lsq_dispatch_demux.sv
 SRCS+=core/lsq/lsq_write_queue.sv
 SRCS+=core/lsq/lsq_read_queue.sv
 SRCS+=core/lsq/lsq_store_memory_sm.sv
+SRCS+=core/lsq/lsq_load_memory_sm.sv
 
 SRCS+=fu/issue_queue.sv
 SRCS+=fu/issue_req.sv

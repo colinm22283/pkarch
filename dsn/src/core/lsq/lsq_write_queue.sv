@@ -22,6 +22,10 @@ module lsq_write_queue_m(
     input  logic rob_write_valid_i,
     output logic rob_write_ready_o,
 
+    output logic                               has_write_o,
+    input  [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_head_i,
+    output [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head_o,
+
     input  logic      store_ready_i,
     output logic      store_valid_o,
     output bus_size_t size_o,
@@ -62,9 +66,13 @@ module lsq_write_queue_m(
         store_valid_o     = '0;
         rob_write_ready_o = '0;
 
+        has_write_o = '0;
+
         size_o = entries_q[tail_q].size;
         addr_o = entries_q[tail_q].addr;
         value_o = entries_q[tail_q].value;
+
+        await_head_o = entries_q[tail_q].read_idx;
 
         write_commit_o = '0;
         for (int i = 0; i < LSU_COUNT; i++) write_commit_o[i].mem = 1'b1;
@@ -83,6 +91,7 @@ module lsq_write_queue_m(
                 entries_d[head_d].valid    = 1'b1;
                 entries_d[head_d].complete = 1'b0;
                 entries_d[head_d].rob_id   = rob_id_i;
+                entries_d[head_d].read_idx = read_head_i;
 
                 head_d++;
                 size_d++;
@@ -115,6 +124,8 @@ module lsq_write_queue_m(
                     size_d--;
                 end
             end
+
+            has_write_o = size_q != 0;
         end
     end
 
