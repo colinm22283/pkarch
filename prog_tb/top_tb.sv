@@ -23,7 +23,7 @@ module top_tb();
     bus_siport_t sportci;
     bus_soport_t sportco;
 
-    ram_m #(0, 1000) ram(
+    ram_m #(0, 4096) ram(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -66,14 +66,14 @@ module top_tb();
         fd = $fopen(filename, "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < 1024; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < 4096; i += 4) ram.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],
             mem[i + 0]
         };
 
-        #1000000;
+        #10000000000;
 
         $finish;
     end
