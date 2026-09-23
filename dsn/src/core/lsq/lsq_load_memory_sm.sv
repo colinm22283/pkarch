@@ -2,6 +2,8 @@ module lsq_load_memory_sm_m(
     input  logic clk_i,
     input  logic nrst_i,
 
+    input  logic flush_i,
+
     input  bus_miport_t mport_i,
     output bus_moport_t mport_o,
 
@@ -32,6 +34,7 @@ module lsq_load_memory_sm_m(
     prf_addr_t prev_rd_q, prev_rd_d;
     rob_id_t   rob_id_q, rob_id_d;
     word_t     value_q, value_d;
+    logic      flush_q, flush_d;
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
@@ -44,6 +47,8 @@ module lsq_load_memory_sm_m(
             prev_rd_q  <= '0;
             rob_id_q   <= '0;
             value_q    <= '0;
+
+            flush_q    <= '0;
         end
         else begin
             state_q    <= state_d;
@@ -55,6 +60,7 @@ module lsq_load_memory_sm_m(
             prev_rd_q  <= prev_rd_d;
             rob_id_q   <= rob_id_d;
             value_q    <= value_d;
+            flush_q    <= flush_d;
         end
     end
 
@@ -67,6 +73,7 @@ module lsq_load_memory_sm_m(
         prev_rd_d  = prev_rd_q;
         rob_id_d   = rob_id_q;
         value_d    = value_q;
+        flush_d    = flush_q;
 
         ready_o = 1'b0;
 
@@ -98,6 +105,7 @@ module lsq_load_memory_sm_m(
                     rd_d       = rd_i;
                     prev_rd_d  = prev_rd_i;
                     rob_id_d   = rob_id_i;
+                    flush_d    = 1'b0;
                 end
             end
 
@@ -113,7 +121,8 @@ module lsq_load_memory_sm_m(
                 mport_o.req = 1'b1;
 
                 if (!mport_i.ack) begin
-                    state_d = STATE_COMMIT;
+                    if (flush_d) state_d = STATE_IDLE;
+                    else state_d = STATE_COMMIT;
 
                     value_d = mport_i.data;
                 end
@@ -127,6 +136,8 @@ module lsq_load_memory_sm_m(
                 end
             end
         endcase
+
+        if (flush_i) flush_d = 1'b1;
     end
 
 endmodule

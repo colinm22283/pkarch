@@ -21,6 +21,7 @@ module serial_m #(
 
             if (`SERIAL_ASCII_MODE) begin
                 $write("%c", sport_i.data[7:0]);
+                $fflush(0);
             end
             else begin
                 `DL(log, ("SERIAL: 0x%x", sport_i.data));

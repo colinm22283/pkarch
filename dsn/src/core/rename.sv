@@ -146,6 +146,7 @@ module rename_m(
 
         if (flush_i) begin
             spec_rat_d = arch_rat_q;
+            fl_size_d = fl_size_q + (fl_head_q - fl_head_cp_q) % fl_size_t'(PRF_SIZE);
             fl_head_d = fl_head_cp_q;
         end
     end

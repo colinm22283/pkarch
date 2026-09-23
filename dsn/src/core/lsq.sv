@@ -169,6 +169,8 @@ module lsq_m(
             .clk_i(clk_i),
             .nrst_i(nrst_i),
 
+            .flush_i(flush_i),
+
             .mport_i(mports_i[0]),
             .mport_o(mports_o[0]),
 

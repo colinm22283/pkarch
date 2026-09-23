@@ -21,7 +21,7 @@ void test_print_hex(unsigned int num) {
         if (num == 0) break;
     }
 
-    test_print_str(buf + i + 1);
+    test_print_str(buf + i);
 }
 
 int main() {
@@ -29,16 +29,16 @@ int main() {
 
     test_print_str("Hello\n");
 
-    test_print_hex(0xAFAFAFAF);
+    /* test_print_hex(0x1FAFAFAF); */
 
-    /* int a = 1, b = 1; */
-    /* for (int i = 0; i < 40; i++) { */
-        /* print_hex(a); */
-        /* test_print_str("\n"); */
+    int a = 1, b = 1;
+    for (int i = 0; i < 40; i++) {
+        test_print_hex(a);
+        test_print_str("\n");
 
-        /* int c = a; */
-        /* a = b; */
-        /* b += c; */
-    /* } */
+        int c = a;
+        a = b;
+        b += c;
+    }
 }
 
