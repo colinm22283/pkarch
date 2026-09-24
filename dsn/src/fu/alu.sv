@@ -90,6 +90,10 @@ module alu_m(
         commit_o.rd       = dispatch_i.data.rd;
         commit_o.prev_rd  = dispatch_i.data.prev_rd;
         commit_o.value    = y;
+
+`ifdef COMMIT_PC_ENABLE
+        commit_o.pc       = dispatch_i.data.pc;
+`endif
     end
 
 

@@ -5,6 +5,7 @@
 `define SERIAL_ASCII_MODE 1
 
 `define ROB_COMMIT_COUNTER
+`define COMMIT_PC_ENABLE
 
 parameter COMMIT_DEBUG_REGFILE = 1;
 

@@ -2,6 +2,7 @@
 `define COMMIT_SVH
 
 `include "core/rob.svh"
+`include "config.svh"
 
 typedef struct packed {
     bit valid;
@@ -19,6 +20,10 @@ typedef struct packed {
     prf_addr_t rd;
     prf_addr_t prev_rd;
     word_t value;
+
+`ifdef COMMIT_PC_ENABLE
+    word_t pc;
+`endif
 } commit_i_t;
 
 typedef struct packed {

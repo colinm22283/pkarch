@@ -429,6 +429,28 @@ module top_m #(
         t6   = arch_regs[31];
     end
 
+`ifdef COMMIT_PC_ENABLE
+    begin : PC
+        logic match0;
+        word_t pc;
+
+        always_ff @(posedge clk_i) begin : PC
+            if (!nrst_i) begin
+                pc = 0;
+            end
+            else begin
+                for (int i = 0; i < COMMIT_COUNT; i++) begin
+                    if (commit.commit_i[i].valid && commit.commit_o[i].ready) begin
+                        if (commit.commit_i[i].pc != '0) pc <= commit.commit_i[i].pc;
+                    end
+                end
+            end
+        end
+
+        assign match0 = pc == 'h0000018c;
+    end
+`endif
+
     prf_addr_t arch_addrs [31:0];
     always_comb for (int i = 0; i < 32; i++) begin
         arch_addrs[i] = rename.arch_rat_q[i];
