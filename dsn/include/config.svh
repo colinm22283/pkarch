@@ -4,14 +4,16 @@
 `define DEBUG_MODE 0
 `define SERIAL_ASCII_MODE 1
 
+`define ROB_COMMIT_COUNTER
+
 parameter COMMIT_DEBUG_REGFILE = 1;
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH       = 1;
-parameter RENAME_WIDTH         = 2;
-parameter COMMIT_WIDTH         = 2;
+parameter RENAME_WIDTH         = 1;
+parameter COMMIT_WIDTH         = 1;
 
-parameter RENAME_CP_COUNT      = 4;
+// parameter RENAME_CP_COUNT      = 4;
 
 parameter ISSUE_QUEUE_SIZE     = 2;
 

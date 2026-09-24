@@ -42,7 +42,7 @@ unsigned int __umodsi3(unsigned int a, unsigned int b) {
 
 unsigned int __udivsi3(unsigned int dividend, unsigned int divisor) {
     if (divisor == 0) {
-        return 0; // Handle division by zero according to your system needs
+        return 0;
     }
     
     unsigned int quotient = 0;
@@ -79,11 +79,14 @@ int main() {
 
     test_print_str("Hello\n");
 
-    /* test_print_hex(0x1FAFAFAF); */
+    test_print_hex(0x1FAFAFAF);
+    test_print_str("\n");
 
     int a = 1, b = 1;
-    for (int i = 0; i < 40; i++) {
-        test_print_dec(a);
+    for (int i = 0; i < 64; i++) {
+        test_print_hex(i);
+        test_print_str(": ");
+        test_print_hex(a);
         test_print_str("\n");
 
         int c = a;

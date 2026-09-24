@@ -30,6 +30,11 @@ module rob_m(
     output logic rob_write_valid_o
 );
 
+`ifdef ROB_COMMIT_COUNTER
+    integer commit_count;
+    initial commit_count = 0;
+`endif
+
     `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);
 
     rob_id_t head, tail;
@@ -129,6 +134,10 @@ module rob_m(
 
                             size = size - 1;
                             head = $bits(rob_id_t)'(($bits(rob_id_t) + 1)'(head + 1) % ($bits(rob_id_t) + 1)'(ROB_SIZE));
+
+`ifdef ROB_COMMIT_COUNTER
+                            commit_count++;
+`endif
                         end
                     end
                 end

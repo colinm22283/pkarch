@@ -85,69 +85,72 @@ module rename_m(
             freelist_d[i] = freelist_q[i];
         end
 
-        jump_accept_o = 'b1;
-        // if (jump_i) begin
-            // cp_head
-        // end
-
-        cont = 'b1;
-        for (int i = 0; i < RENAME_WIDTH; i++) begin
-            dispatch_o[i].prev_addr = spec_rat_d[dispatch_i[i].isa_addr];
-
-            prf_rel_o[i].rel  = '0;
-
-            if (cont) begin
-                if (dispatch_i[i].write) begin
-                    dispatch_o[i].ready    = fl_size_d != '0;
-
-                    if (dispatch_i[i].isa_addr == REG_ZERO) dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
-                    else begin
-                        dispatch_o[i].prf_addr = freelist_q[fl_head_d];
-
-                        if (dispatch_i[i].valid && dispatch_o[i].ready) begin
-                            spec_rat_d[dispatch_i[i].isa_addr] = freelist_q[fl_head_d];
-                            fl_head_d = fl_index_t'((fl_head_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
-                            fl_size_d--;
-
-                            prf_rel_o[i].rel = 'b1;
-                        end
-                    end
-                end
-                else begin
-                    dispatch_o[i].ready    = 'b1;
-                    dispatch_o[i].prf_addr = spec_rat_d[dispatch_i[i].isa_addr];
-                end
-
-                if (!dispatch_o[i].ready) cont = '0;
-            end
-            else begin
-                dispatch_o[i].ready    = '0;
-                dispatch_o[i].prf_addr = '0;
-            end
-
-            prf_rel_o[i].addr = dispatch_o[i].prf_addr;
-        end
-
-        for (int i = 0; i < COMMIT_WIDTH; i++) begin
-            commit_o[i].ready = 'b1;
-
-            if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
-                if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
-                    freelist_d[fl_tail_d] = commit_i[i].prev_addr;
-
-                    fl_tail_d = fl_index_t'((fl_tail_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
-                    fl_size_d++;
-                    fl_head_cp_d = fl_head_d;
-                end
-
-                arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;
-            end
-        end
-
         if (flush_i) begin
+            cont = 'b0;
+
+            jump_accept_o = 'b1;
+            commit_o = '0;
+
             spec_rat_d = arch_rat_q;
             fl_size_d = fl_size_q + (fl_head_q - fl_head_cp_q) % fl_size_t'(PRF_SIZE);
             fl_head_d = fl_head_cp_q;
+        end
+        else begin
+            jump_accept_o = 'b1;
+
+            cont = 'b1;
+            for (int i = 0; i < RENAME_WIDTH; i++) begin
+                dispatch_o[i].prev_addr = spec_rat_d[dispatch_i[i].isa_addr];
+
+                prf_rel_o[i].rel  = '0;
+
+                if (cont) begin
+                    if (dispatch_i[i].write) begin
+                        dispatch_o[i].ready    = fl_size_d != '0;
+
+                        if (dispatch_i[i].isa_addr == REG_ZERO) dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
+                        else begin
+                            dispatch_o[i].prf_addr = freelist_q[fl_head_d];
+
+                            if (dispatch_i[i].valid && dispatch_o[i].ready) begin
+                                spec_rat_d[dispatch_i[i].isa_addr] = freelist_q[fl_head_d];
+                                fl_head_d = fl_index_t'((fl_head_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
+                                fl_size_d--;
+
+                                prf_rel_o[i].rel = 'b1;
+                            end
+                        end
+                    end
+                    else begin
+                        dispatch_o[i].ready    = 'b1;
+                        dispatch_o[i].prf_addr = spec_rat_d[dispatch_i[i].isa_addr];
+                    end
+
+                    if (!dispatch_o[i].ready) cont = '0;
+                end
+                else begin
+                    dispatch_o[i].ready    = '0;
+                    dispatch_o[i].prf_addr = '0;
+                end
+
+                prf_rel_o[i].addr = dispatch_o[i].prf_addr;
+            end
+
+            for (int i = 0; i < COMMIT_WIDTH; i++) begin
+                commit_o[i].ready = 'b1;
+
+                if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
+                    if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
+                        freelist_d[fl_tail_d] = commit_i[i].prev_addr;
+
+                        fl_tail_d = fl_index_t'((fl_tail_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
+                        fl_size_d++;
+                    end
+
+                    fl_head_cp_d = fl_index_t'((fl_head_cp_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
+                    arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;
+                end
+            end
         end
     end
 

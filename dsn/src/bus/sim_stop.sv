@@ -9,6 +9,11 @@ module sim_stop_m #(
 
     input  bus_siport_t sport_i,
     output bus_soport_t sport_o
+
+`ifdef ROB_COMMIT_COUNTER
+    ,
+    input  integer commit_count_i
+`endif
 );
 
     integer total_clocks;
@@ -37,6 +42,11 @@ module sim_stop_m #(
         end
 
         `DL(log, ("Elapsed clocks: %0d", total_clocks));
+
+`ifdef ROB_COMMIT_COUNTER
+        `DL(log, ("Commits: %0d", commit_count_i));
+        `DL(log, ("CPI: %f", $itor(total_clocks) / $itor(commit_count_i)));
+`endif
 
         $finish;
     end

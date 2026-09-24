@@ -44,7 +44,9 @@ module top_tb();
         .nrst_i(nrst),
         
         .sport_i(sportci),
-        .sport_o(sportco)
+        .sport_o(sportco),
+
+        .commit_count_i(top.rob.commit_count)
     );
 
     top_m #(3) top(
@@ -73,7 +75,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #10000000000;
+        #100000000;
 
         $finish;
     end
