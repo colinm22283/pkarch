@@ -1,8 +1,6 @@
 `ifndef ISSUE_QUEUE_SVH
 `define ISSUE_QUEUE_SVH
 
-typedef logic [$clog2(IQ_OUT_SIZE + 1) - 1:0] iq_id_t;
-
 typedef struct packed {
     pc_t pc;
 

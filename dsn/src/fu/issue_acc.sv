@@ -109,6 +109,7 @@ module issue_acc_m(
             for (int j = 0; j < IQ_ACC_SIZE; j++) begin
                 if (rports_ack_i[i].ack) begin
                     if (
+                        entries[j].valid &&
                         (rports_ack_i[i].port ? entries[j].rs2 : entries[j].rs1) &&
                         rports_ack_i[i].rob_id == entries[j].data.rob_id
                     ) begin
