@@ -86,7 +86,7 @@ module lsq_read_queue_m(
                 entries_d[head_d].complete = 1'b0;
                 entries_d[head_d].rob_id   = rob_id_i;
 
-                head_d++;
+                head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                 size_d++;
             end
 
@@ -112,7 +112,7 @@ module lsq_read_queue_m(
                     load_valid_o     = 1'b1;
 
                     if (load_ready_i) begin
-                        tail_d++;
+                        tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                         size_d--;
                     end
                 end

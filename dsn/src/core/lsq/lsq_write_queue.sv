@@ -95,7 +95,7 @@ module lsq_write_queue_m(
                 entries_d[head_d].rob_id   = rob_id_i;
                 entries_d[head_d].read_idx = read_head_i;
 
-                head_d++;
+                head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                 size_d++;
             end
 
@@ -122,7 +122,7 @@ module lsq_write_queue_m(
                 rob_write_ready_o = store_ready_i;
 
                 if (store_ready_i && rob_write_valid_i) begin
-                    tail_d++;
+                    tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                     size_d--;
                 end
             end

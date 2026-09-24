@@ -22,8 +22,8 @@ parameter IQ_OUT_SIZE          = 4;
 parameter IQ_ACC_SIZE          = 2;
 parameter IQ_COMMIT_WIDTH      = 2;
 
-parameter ROB_SIZE             = 256;
-parameter ROB_COMMIT_WIDTH     = 2;
+parameter ROB_SIZE             = 16;
+parameter ROB_COMMIT_WIDTH     = 1;
 
 parameter ALU_COUNT            = 1;
 parameter JMP_COUNT            = 1;
