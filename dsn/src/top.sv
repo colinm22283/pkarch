@@ -431,7 +431,6 @@ module top_m #(
 
 `ifdef COMMIT_PC_ENABLE
     begin : PC
-        logic match0;
         word_t pc;
 
         always_ff @(posedge clk_i) begin : PC
@@ -446,8 +445,6 @@ module top_m #(
                 end
             end
         end
-
-        assign match0 = pc == 'h0000018c;
     end
 `endif
 
