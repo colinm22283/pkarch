@@ -29,6 +29,7 @@ SRCS+=fu/lsu.sv
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
+SRCS+=bus/dummy_slave.sv
 SRCS+=bus/sim_stop.sv
 SRCS+=bus/bus_master.sv
 SRCS+=bus/mem_breakout.sv

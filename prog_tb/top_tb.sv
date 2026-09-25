@@ -5,6 +5,8 @@
 
 module top_tb();
 
+    parameter integer RAM_SIZE = 4096;
+
     string filename;
 
     wire clk, nrst;
@@ -23,7 +25,13 @@ module top_tb();
     bus_siport_t sportci;
     bus_soport_t sportco;
 
-    ram_m #(0, 4096) ram(
+    bus_siport_t sportdi;
+    bus_soport_t sportdo;
+
+    bus_siport_t sportei;
+    bus_soport_t sporteo;
+
+    ram_m #(0, RAM_SIZE) ram(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -49,12 +57,28 @@ module top_tb();
         .commit_count_i(top.rob.commit_count)
     );
 
-    top_m #(3) top(
+    dummy_slave_m #(RAM_SIZE, 32'h10000000 - RAM_SIZE) dummy1(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ sportao, sportbo, sportco }),
-        .mports_o({ sportai, sportbi, sportci })
+        .sport_i(sportdi),
+        .sport_o(sportdo)
+    );
+
+    dummy_slave_m #(32'h10000004, 32'hFFFFFFFF - 32'h10000004) dummy2(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportei),
+        .sport_o(sporteo)
+    );
+
+    top_m #(5) top(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .mports_i({ sportao, sportbo, sportco, sportdo, sporteo }),
+        .mports_o({ sportai, sportbi, sportci, sportdi, sportei })
     );
 
     initial begin

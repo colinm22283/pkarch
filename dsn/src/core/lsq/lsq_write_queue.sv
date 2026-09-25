@@ -42,6 +42,7 @@ module lsq_write_queue_m(
     logic [INDEX_WIDTH - 1:0] head_q, head_d;
     logic [INDEX_WIDTH - 1:0] tail_q, tail_d;
     logic [SIZE_WIDTH - 1:0]  size_q, size_d;
+    logic                     inflight_q, inflight_d;
     lsq_write_entry_t         entries_q [LSQ_WRITE_QUEUE_SIZE - 1:0];
     lsq_write_entry_t         entries_d [LSQ_WRITE_QUEUE_SIZE - 1:0];
 
@@ -50,21 +51,28 @@ module lsq_write_queue_m(
             head_q <= '0;
             tail_q <= '0;
             size_q <= '0;
+            inflight_q <= '0;
             for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) entries_q[i] <= '0;
         end
         else begin
             head_q <= head_d;
             tail_q <= tail_d;
             size_q <= size_d;
+            inflight_q <= inflight_d;
             for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) entries_q[i] <= entries_d[i];
         end
     end
 
     always_comb begin
-        head_d    = head_q;
-        tail_d    = tail_q;
-        size_d    = size_q;
-        entries_d = entries_q;
+        logic keep_tail;
+
+        keep_tail = 1'b0;
+
+        head_d     = head_q;
+        tail_d     = tail_q;
+        size_d     = size_q;
+        inflight_d = inflight_q;
+        entries_d  = entries_q;
 
         store_valid_o     = '0;
         rob_write_ready_o = '0;
@@ -86,10 +94,24 @@ module lsq_write_queue_m(
         if (flush_i) begin
             ready_o = 1'b0;
 
-            head_d = '0;
-            tail_d = '0;
-            size_d = '0;
-            for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) entries_d[i].valid = 1'b0;
+            keep_tail = inflight_q && !store_done_i;
+
+            for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) begin
+                if (!(keep_tail && INDEX_WIDTH'(i) == tail_q)) entries_d[i].valid = 1'b0;
+            end
+
+            if (keep_tail) begin
+                tail_d = tail_q;
+                head_d = INDEX_WIDTH'((tail_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_WRITE_QUEUE_SIZE));
+                size_d = SIZE_WIDTH'(1);
+            end
+            else begin
+                head_d = '0;
+                tail_d = '0;
+                size_d = '0;
+            end
+
+            if (store_done_i) inflight_d = 1'b0;
         end
         else begin
             ready_o = size_q != LSQ_WRITE_QUEUE_SIZE;
@@ -126,13 +148,17 @@ module lsq_write_queue_m(
                 store_valid_o     = rob_write_valid_i;
                 rob_write_ready_o = store_ready_i;
 
-                if (rob_write_valid_i && store_ready_i) entries_d[tail_q].complete = 1'b0;
+                if (rob_write_valid_i && store_ready_i) begin
+                    entries_d[tail_q].complete = 1'b0;
+                    inflight_d = 1'b1;
+                end
             end
 
-            if (store_done_i) begin
+            if (store_done_i && inflight_q) begin
                 entries_d[tail_q].valid = 1'b0;
                 tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_WRITE_QUEUE_SIZE));
                 size_d--;
+                inflight_d = 1'b0;
             end
 
             has_write_o = size_q != 0;

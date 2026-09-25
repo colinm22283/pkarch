@@ -32,7 +32,11 @@ module sim_stop_m #(
     `DL_DEFINE(error, "sim_stop_m ERROR", `DL_RED, `DL_ENABLE_SIM_STOP);
 
     initial begin
+        sport_o = 0;
+
         wait(clk_i && sport_i.req && sport_i.addr == ADDRESS && sport_i.rw == BUS_RW_WRITE);
+
+        sport_o.ack = 1;
 
         if (sport_i.data == 0) begin
             `DL(log,   ("Sim stop with code %0d", sport_i.data));
@@ -47,6 +51,13 @@ module sim_stop_m #(
         `DL(log, ("Commits: %0d", commit_count_i));
         `DL(log, ("CPI: %f", $itor(total_clocks) / $itor(commit_count_i)));
 `endif
+
+        for (int i = 0; i < 3; i++) begin
+            wait(clk_i);
+            wait(!clk_i);
+        end
+
+        sport_o.ack = 0;
 
         $finish;
     end
