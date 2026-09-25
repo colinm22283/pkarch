@@ -11,7 +11,7 @@ parameter COMMIT_DEBUG_REGFILE = 1;
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH       = 1;
-parameter RENAME_WIDTH         = 1;
+parameter RENAME_WIDTH         = 2;
 parameter COMMIT_WIDTH         = 1;
 
 // parameter RENAME_CP_COUNT      = 4;

@@ -84,6 +84,8 @@ module rename_m(
         for (int i = 0; i < PRF_SIZE; i++) begin
             freelist_d[i] = freelist_q[i];
         end
+        
+        dispatch_o = '0;
 
         if (flush_i) begin
             cont = 'b0;

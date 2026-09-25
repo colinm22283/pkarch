@@ -435,7 +435,7 @@ module top_m #(
 
         always_ff @(posedge clk_i) begin : PC
             if (!nrst_i) begin
-                pc = 0;
+                pc <= 0;
             end
             else begin
                 for (int i = 0; i < COMMIT_COUNT; i++) begin

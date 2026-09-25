@@ -75,15 +75,15 @@ void test_print_dec(unsigned int num) {
 }
 
 int main() {
-    test_print_str("Hello world\n");
+    // test_print_str("Hello world\n");
 
-    test_print_str("Hello\n");
+    // test_print_str("Hello\n");
 
     test_print_hex(0x1FAFAFAF);
     test_print_str("\n");
 
     int a = 1, b = 1;
-    for (int i = 0x11; i < 64; i++) {
+    for (int i = 0x11; i < 0x12; i++) {
         test_print_hex(i);
         test_print_str(": ");
         /* test_print_hex(a); */
