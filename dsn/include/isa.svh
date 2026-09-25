@@ -122,8 +122,8 @@ parameter FUNCT_XOR  = (`FUNCT_CONCAT(3'h4, 7'h00));
 parameter FUNCT_OR   = (`FUNCT_CONCAT(3'h6, 7'h00));
 parameter FUNCT_AND  = (`FUNCT_CONCAT(3'h7, 7'h00));
 parameter FUNCT_SLL  = (`FUNCT_CONCAT(3'h1, 7'h00));
-parameter FUNCT_SRL  = (`FUNCT_CONCAT(3'h5, 7'h20));
-parameter FUNCT_SRA  = (`FUNCT_CONCAT(3'h5, 7'h00));
+parameter FUNCT_SRL  = (`FUNCT_CONCAT(3'h5, 7'h00));
+parameter FUNCT_SRA  = (`FUNCT_CONCAT(3'h5, 7'h20));
 parameter FUNCT_SLT  = (`FUNCT_CONCAT(3'h2, 7'h00));
 parameter FUNCT_SLTU = (`FUNCT_CONCAT(3'h3, 7'h00));
 

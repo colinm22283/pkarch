@@ -75,7 +75,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #1000000;
+        #10000000;
 
         $finish;
     end

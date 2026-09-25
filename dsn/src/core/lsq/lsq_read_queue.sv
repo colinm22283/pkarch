@@ -98,7 +98,7 @@ module lsq_read_queue_m(
                 entries_d[head_d].complete = 1'b0;
                 entries_d[head_d].rob_id   = rob_id_i;
 
-                if (head_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE)) head_wrap_d = !head_wrap_d;
+                if (head_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE - 1)) head_wrap_d = !head_wrap_d;
                 head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                 size_d++;
             end
@@ -127,7 +127,7 @@ module lsq_read_queue_m(
                     if (load_ready_i) begin
                         entries_d[tail_q].valid = 1'b0;
 
-                        if (tail_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE)) tail_wrap_d = !tail_wrap_d;
+                        if (tail_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE - 1)) tail_wrap_d = !tail_wrap_d;
                         tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                         size_d--;
                     end
@@ -135,7 +135,8 @@ module lsq_read_queue_m(
             end
         end
 
-        read_head_o = head_q;
+        read_head_o      = head_q;
+        read_head_wrap_o = head_wrap_q;
     end
 
 endmodule

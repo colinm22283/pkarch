@@ -19,6 +19,7 @@ module alu_m(
 
     sword_t a, b;
     word_t  a_u, b_u;
+    logic [4:0] shamt;
     sword_t y;
 
     always_comb begin
@@ -41,6 +42,9 @@ module alu_m(
         a_u = a;
         b_u = b;
 
+        // RV32I shifts only use the low 5 bits of rs2 / the immediate.
+        shamt = b_u[4:0];
+
         case (dispatch_i.data.dec_inst.opcode)
             OPCODE_REGALU, OPCODE_IMMALU: begin
                 case (dispatch_i.data.dec_inst.funct)
@@ -54,11 +58,11 @@ module alu_m(
 
                     FUNCT_AND: y = a & b;
 
-                    FUNCT_SLL: y = a << b;
+                    FUNCT_SLL: y = a << shamt;
 
-                    FUNCT_SRL: y = a >> b;
+                    FUNCT_SRL: y = a_u >> shamt;
 
-                    FUNCT_SRA: y = a >>> b;
+                    FUNCT_SRA: y = a >>> shamt;
 
                     FUNCT_SLT: y = a < b ? WORD_WIDTH'(1'b1) : WORD_WIDTH'(1'b0);
 

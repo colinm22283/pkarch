@@ -83,10 +83,10 @@ int main() {
     test_print_str("\n");
 
     int a = 1, b = 1;
-    for (int i = 0x11; i < 0x12; i++) {
+    for (int i = 0; i < 1000; i++) {
         test_print_hex(i);
         test_print_str(": ");
-        /* test_print_hex(a); */
+        test_print_hex(a);
         test_print_str("\n");
 
         int c = a;

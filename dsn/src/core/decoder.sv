@@ -139,7 +139,13 @@ module decoder_m(
 
         case (inst_type)
             TYPE_R: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.r.funct3, inst_i.t.r.funct7);
-            TYPE_I: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.i.funct3, 7'h00);
+            TYPE_I: decoded_o.funct = `FUNCT_CONCAT(
+                inst_i.t.i.funct3,
+                (inst_i.opcode == OPCODE_IMMALU &&
+                 (inst_i.t.i.funct3 == 3'h1 || inst_i.t.i.funct3 == 3'h5))
+                    ? inst_i.t.i.imm0[11:5]
+                    : 7'h00
+            );
             TYPE_S: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.s.funct3, 7'h00);
             TYPE_B: decoded_o.funct = `FUNCT_CONCAT(inst_i.t.b.funct3, 7'h00);
             TYPE_U: decoded_o.funct = `FUNCT_CONCAT(3'h0, 7'h00);
