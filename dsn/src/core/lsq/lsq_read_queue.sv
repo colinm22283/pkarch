@@ -16,9 +16,11 @@ module lsq_read_queue_m(
     input  lsq_commit_i_t [LSU_COUNT - 1:0] commit_i,
     output lsq_commit_o_t [LSU_COUNT - 1:0] commit_o,
 
-    input  logic                               has_write_i,
-    output [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_head_o,
-    input  [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head_i,
+    input  logic                                     has_write_i,
+    output logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_head_o,
+    output logic                                     read_head_wrap_o,
+    input  logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head_i,
+    input  logic                                     await_head_wrap_i,
 
     input  logic      load_ready_i,
     output logic      load_valid_o,
@@ -34,33 +36,41 @@ module lsq_read_queue_m(
     localparam SIZE_WIDTH = $clog2(LSQ_READ_QUEUE_SIZE + 1);
 
     logic [INDEX_WIDTH - 1:0] head_q, head_d;
+    logic                     head_wrap_q, head_wrap_d;
     logic [INDEX_WIDTH - 1:0] tail_q, tail_d;
+    logic                     tail_wrap_q, tail_wrap_d;
     logic [SIZE_WIDTH - 1:0]  size_q, size_d;
     lsq_read_entry_t          entries_q [LSQ_READ_QUEUE_SIZE - 1:0];
     lsq_read_entry_t          entries_d [LSQ_READ_QUEUE_SIZE - 1:0];
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
-            head_q <= '0;
-            tail_q <= '0;
-            size_q <= '0;
+            head_q      <= '0;
+            head_wrap_q <= '0;
+            tail_q      <= '0;
+            tail_wrap_q <= '0;
+            size_q      <= '0;
             for (int i = 0; i < LSQ_READ_QUEUE_SIZE; i++) entries_q[i] <= '0;
         end
         else begin
-            head_q <= head_d;
-            tail_q <= tail_d;
-            size_q <= size_d;
+            head_q      <= head_d;
+            head_wrap_q <= head_wrap_d;
+            tail_q      <= tail_d;
+            tail_wrap_q <= tail_wrap_d;
+            size_q      <= size_d;
             for (int i = 0; i < LSQ_READ_QUEUE_SIZE; i++) entries_q[i] <= entries_d[i];
         end
     end
 
     always_comb begin
-        head_d    = head_q;
-        tail_d    = tail_q;
-        size_d    = size_q;
-        entries_d = entries_q;
+        head_d      = head_q;
+        head_wrap_d = head_wrap_q;
+        tail_d      = tail_q;
+        tail_wrap_d = tail_wrap_q;
+        size_d      = size_q;
+        entries_d   = entries_q;
 
-        load_valid_o     = '0;
+        load_valid_o = '0;
 
         size_o     = entries_q[tail_q].size;
         addr_o     = entries_q[tail_q].addr;
@@ -74,9 +84,11 @@ module lsq_read_queue_m(
         if (flush_i) begin
             ready_o = 1'b0;
 
-            head_d = '0;
-            tail_d = '0;
-            size_d = '0;
+            head_d      = '0;
+            head_wrap_d = '0;
+            tail_d      = '0;
+            tail_wrap_d = '0;
+            size_d      = '0;
             for (int i = 0; i < LSQ_READ_QUEUE_SIZE; i++) entries_d[i].valid = 1'b0;
         end
         else begin
@@ -86,6 +98,7 @@ module lsq_read_queue_m(
                 entries_d[head_d].complete = 1'b0;
                 entries_d[head_d].rob_id   = rob_id_i;
 
+                if (head_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE)) head_wrap_d = !head_wrap_d;
                 head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                 size_d++;
             end
@@ -108,11 +121,13 @@ module lsq_read_queue_m(
             end
 
             if (size_q != '0 && entries_q[tail_q].valid && entries_q[tail_q].complete) begin
-                if (!(has_write_i && await_head_i == tail_q)) begin
+                if (!(has_write_i && await_head_i == tail_q && await_head_wrap_i == tail_wrap_q)) begin
                     load_valid_o     = 1'b1;
 
                     if (load_ready_i) begin
                         entries_d[tail_q].valid = 1'b0;
+
+                        if (tail_d == INDEX_WIDTH'(LSQ_READ_QUEUE_SIZE)) tail_wrap_d = !tail_wrap_d;
                         tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                         size_d--;
                     end

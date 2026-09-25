@@ -68,6 +68,7 @@ typedef struct packed {
     bit complete;
 
     logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_idx;
+    logic                                     read_wrap;
 
     rob_id_t rob_id;
 
