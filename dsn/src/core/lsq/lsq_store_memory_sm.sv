@@ -7,6 +7,7 @@ module lsq_store_memory_sm_m(
 
     input  logic valid_i,
     output logic ready_o,
+    output logic done_o,
     input  bus_size_t size_i,
     input  word_t     addr_i,
     input  word_t     value_i
@@ -46,6 +47,7 @@ module lsq_store_memory_sm_m(
         value_d = value_q;
 
         ready_o = 1'b0;
+        done_o  = 1'b0;
 
         mport_o = '0;
 
@@ -79,6 +81,8 @@ module lsq_store_memory_sm_m(
                 mport_o.req = 1'b1;
 
                 if (!mport_i.ack) begin
+                    done_o = 1'b1;
+
                     state_d = STATE_IDLE;
                 end
             end

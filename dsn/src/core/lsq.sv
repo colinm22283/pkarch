@@ -52,7 +52,7 @@ module lsq_m(
     logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] read_head;
     logic [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head;
 
-    logic      store_ready, store_valid;
+    logic      store_ready, store_valid, store_done;
     bus_size_t store_size;
     word_t     store_addr;
     word_t     store_value;
@@ -118,6 +118,7 @@ module lsq_m(
 
         .store_valid_o(store_valid),
         .store_ready_i(store_ready),
+        .store_done_i(store_done),
         .size_o(store_size),
         .addr_o(store_addr),
         .value_o(store_value)
@@ -160,6 +161,7 @@ module lsq_m(
 
             .valid_i(store_valid),
             .ready_o(store_ready),
+            .done_o(store_done),
             .size_i(store_size),
             .addr_i(store_addr),
             .value_i(store_value)

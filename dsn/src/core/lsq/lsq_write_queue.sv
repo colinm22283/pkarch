@@ -27,6 +27,7 @@ module lsq_write_queue_m(
     output [$clog2(LSQ_READ_QUEUE_SIZE) - 1:0] await_head_o,
 
     input  logic      store_ready_i,
+    input  logic      store_done_i,
     output logic      store_valid_o,
     output bus_size_t size_o,
     output word_t     addr_o,
@@ -95,7 +96,7 @@ module lsq_write_queue_m(
                 entries_d[head_d].rob_id   = rob_id_i;
                 entries_d[head_d].read_idx = read_head_i;
 
-                head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
+                head_d = INDEX_WIDTH'((head_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_WRITE_QUEUE_SIZE));
                 size_d++;
             end
 
@@ -121,11 +122,13 @@ module lsq_write_queue_m(
                 store_valid_o     = rob_write_valid_i;
                 rob_write_ready_o = store_ready_i;
 
-                if (store_ready_i && rob_write_valid_i) begin
-                    entries_d[tail_q].valid = 1'b0;
-                    tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
-                    size_d--;
-                end
+                if (rob_write_valid_i && store_ready_i) entries_d[tail_q].complete = 1'b0;
+            end
+
+            if (store_done_i) begin
+                entries_d[tail_q].valid = 1'b0;
+                tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_WRITE_QUEUE_SIZE));
+                size_d--;
             end
 
             has_write_o = size_q != 0;
