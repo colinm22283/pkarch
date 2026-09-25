@@ -12,7 +12,7 @@ ABI=ilp32
 
 COMFLAGS=-c -march=$(ARCH) -mabi=$(ABI)
 ASFLAGS=$(COMFLAGS)
-CFLAGS=-O0 $(COMFLAGS) -nostdlib -ffreestanding -I$(LIB_INCLUDEDIR)
+CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding -I$(LIB_INCLUDEDIR)
 
 TOP_LEVEL=top_tb
 TB_SRCS=$(TOP_LEVEL).sv
