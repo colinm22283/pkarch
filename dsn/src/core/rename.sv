@@ -23,6 +23,8 @@ module rename_m(
     output prf_rel_i_t [PRF_RELPORTS - 1:0] prf_rel_o
 );
 
+    initial assert ((PRF_SIZE & (PRF_SIZE - 1)) == 0) else $fatal(1, "PRF_SIZE must be a power of 2");
+
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
@@ -86,11 +88,13 @@ module rename_m(
         end
         
         dispatch_o = '0;
+        commit_o   = '0;
+        prf_rel_o  = '0;
 
         if (flush_i) begin
             cont = 'b0;
 
-            jump_accept_o = 'b1;
+            jump_accept_o = 'b0;
             commit_o = '0;
 
             spec_rat_d = arch_rat_q;
@@ -108,10 +112,13 @@ module rename_m(
 
                 if (cont) begin
                     if (dispatch_i[i].write) begin
-                        dispatch_o[i].ready    = fl_size_d != '0;
-
-                        if (dispatch_i[i].isa_addr == REG_ZERO) dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
+                        if (dispatch_i[i].isa_addr == REG_ZERO) begin
+                            dispatch_o[i].ready    = 1'b1;
+                            dispatch_o[i].prf_addr = PRF_ZERO_ADDR;
+                        end
                         else begin
+                            dispatch_o[i].ready    = fl_size_d != '0;
+
                             dispatch_o[i].prf_addr = freelist_q[fl_head_d];
 
                             if (dispatch_i[i].valid && dispatch_o[i].ready) begin
@@ -130,28 +137,24 @@ module rename_m(
 
                     if (!dispatch_o[i].ready) cont = '0;
                 end
-                else begin
-                    dispatch_o[i].ready    = '0;
-                    dispatch_o[i].prf_addr = '0;
-                end
 
                 prf_rel_o[i].addr = dispatch_o[i].prf_addr;
             end
+        end
 
-            for (int i = 0; i < COMMIT_WIDTH; i++) begin
-                commit_o[i].ready = 'b1;
+        for (int i = 0; i < COMMIT_WIDTH; i++) begin
+            commit_o[i].ready = 'b1;
 
-                if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
-                    if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
-                        freelist_d[fl_tail_d] = commit_i[i].prev_addr;
+            if (commit_i[i].valid && commit_i[i].isa_addr != REG_ZERO) begin
+                if (commit_i[i].prev_addr != PRF_ZERO_ADDR) begin
+                    freelist_d[fl_tail_d] = commit_i[i].prev_addr;
 
-                        fl_tail_d = fl_index_t'((fl_tail_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
-                        fl_size_d++;
-                    end
-
-                    fl_head_cp_d = fl_index_t'((fl_head_cp_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
-                    arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;
+                    fl_tail_d = fl_index_t'((fl_tail_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
+                    fl_size_d++;
                 end
+
+                fl_head_cp_d = fl_index_t'((fl_head_cp_d + fl_index_t'(1)) % fl_size_t'(PRF_SIZE));
+                arch_rat_d[commit_i[i].isa_addr] = commit_i[i].prf_addr;
             end
         end
     end

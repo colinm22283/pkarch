@@ -112,6 +112,7 @@ module lsq_read_queue_m(
                     load_valid_o     = 1'b1;
 
                     if (load_ready_i) begin
+                        entries_d[tail_q].valid = 1'b0;
                         tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                         size_d--;
                     end

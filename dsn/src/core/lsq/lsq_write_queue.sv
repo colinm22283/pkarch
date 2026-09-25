@@ -122,6 +122,7 @@ module lsq_write_queue_m(
                 rob_write_ready_o = store_ready_i;
 
                 if (store_ready_i && rob_write_valid_i) begin
+                    entries_d[tail_q].valid = 1'b0;
                     tail_d = INDEX_WIDTH'((tail_d + INDEX_WIDTH'(1)) % SIZE_WIDTH'(LSQ_READ_QUEUE_SIZE));
                     size_d--;
                 end
