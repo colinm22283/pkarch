@@ -275,7 +275,9 @@ module top_m #(
         .rports_req_i(prf_rport_reqo),
         .rports_req_o(prf_rport_reqi),
         .rports_ack_i(prf_rport_acko),
-        .rports_ack_o(prf_rport_acki)
+        .rports_ack_o(prf_rport_acki),
+
+        .prf_wport_i(prf_wporti)
     );
 
     generate

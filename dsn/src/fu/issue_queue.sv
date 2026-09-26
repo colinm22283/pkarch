@@ -18,7 +18,9 @@ module issue_queue_m(
     input  prf_rport_req_o_t [PRF_RPORTS - 1:0] rports_req_i,
     output prf_rport_req_i_t [PRF_RPORTS - 1:0] rports_req_o,
     input  prf_rport_ack_o_t [PRF_MEM_RPORTS - 1:0] rports_ack_i,
-    output prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] rports_ack_o
+    output prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] rports_ack_o,
+
+    input  prf_wport_i_t [PRF_WPORTS - 1:0] prf_wport_i
 );
 
     generate
@@ -59,7 +61,9 @@ module issue_queue_m(
                 .commit_o(dispatchi[1]),
 
                 .rports_req_i(rports_req_i[i * 2+:2]),
-                .rports_req_o(rports_req_o[i * 2+:2])
+                .rports_req_o(rports_req_o[i * 2+:2]),
+
+                .prf_wport_i(prf_wport_i)
             );
 
             fifo_m #(
