@@ -81,7 +81,7 @@ module issue_req_m(
         else begin
             if (dispatch_i.valid) begin
                 for (int i = 0; i < PRF_WPORTS; i++) begin
-                    if (prf_wport_i[i].we) begin
+                    if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
                         if (
                             !rs1_valid_d &&
                             prf_wport_i[i].addr == dispatch_i.data.rs1 &&
