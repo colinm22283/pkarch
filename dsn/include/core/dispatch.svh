@@ -24,20 +24,18 @@ typedef struct packed {
 
     dec_inst_t dec_inst;
 
-    bit jump_valid;
-
-    bit rob_id_valid;
+    bit rob_id_waiting;
     rob_id_t rob_id;
 
-    bit lsq_valid;
+    bit lsq_waiting;
 
-    bit rs1_valid;
+    bit rs1_waiting;
     prf_addr_t rs1;
 
-    bit rs2_valid;
+    bit rs2_waiting;
     prf_addr_t rs2;
 
-    bit rd_valid;
+    bit rd_waiting;
     prf_addr_t rd;
     prf_addr_t prev_rd;
 } dispatch_entry_t;
