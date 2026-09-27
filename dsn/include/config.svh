@@ -11,22 +11,22 @@ parameter COMMIT_DEBUG_REGFILE = 1;
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH       = 1;
-parameter RENAME_WIDTH         = 2;
-parameter COMMIT_WIDTH         = 1;
+parameter RENAME_WIDTH         = 3;
+parameter COMMIT_WIDTH         = 2;
 
 // parameter RENAME_CP_COUNT      = 4;
 
-parameter ISSUE_QUEUE_SIZE     = 2;
+parameter ISSUE_QUEUE_SIZE     = 4;
 
 parameter IQ_IN_SIZE           = 4;
 parameter IQ_OUT_SIZE          = 4;
-parameter IQ_ACC_SIZE          = 2;
+parameter IQ_ACC_SIZE          = 2; // causes errors when changed
 parameter IQ_COMMIT_WIDTH      = 2;
 
-parameter ROB_SIZE             = 16;
+parameter ROB_SIZE             = 64;
 parameter ROB_COMMIT_WIDTH     = 1;
 
-parameter ALU_COUNT            = 1;
+parameter ALU_COUNT            = 2;
 parameter JMP_COUNT            = 1;
 parameter LSU_COUNT            = 1;
 
