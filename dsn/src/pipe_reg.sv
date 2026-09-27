@@ -23,16 +23,16 @@ module pipe_reg_lsq_m(
         end
         else begin
             if (flush_i) begin
-                valid = 0;
+                valid <= 0;
             end
             else begin
                 if (m_o.valid && m_i.ready) begin
-                    valid = 0;
+                    valid <= 0;
                 end
 
                 if (s_i.valid && s_o.ready) begin
-                    valid = 1;
-                    mem   = s_i;
+                    valid <= 1;
+                    mem   <= s_i;
                 end
             end
         end
