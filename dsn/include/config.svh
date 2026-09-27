@@ -2,7 +2,7 @@
 `define CONFIG_SVH
 
 `define DEBUG_MODE 0
-`define SERIAL_ASCII_MODE 1
+`define SERIAL_ASCII_MODE 0
 
 `define ROB_COMMIT_COUNTER
 `define COMMIT_PC_ENABLE

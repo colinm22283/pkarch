@@ -53,20 +53,26 @@ module issue_acc_m(
             if (dispatch_o.ready) begin
                 entries[accept_addr].valid <= 1;
 
-                entries[accept_addr].rs1 = dispatch_i.data.dec_inst.rs1_a;
-                entries[accept_addr].rs2 = dispatch_i.data.dec_inst.rs2_a;
-                entries[accept_addr].data = dispatch_i.data;
+                entries[accept_addr].rs1   <= dispatch_i.data.dec_inst.rs1_a && !dispatch_i.rs1_f;
+                entries[accept_addr].rs1_v <= dispatch_i.rs1;
+                entries[accept_addr].rs2   <= dispatch_i.data.dec_inst.rs2_a && !dispatch_i.rs2_f;
+                entries[accept_addr].rs2_v <= dispatch_i.rs2;
+                entries[accept_addr].data  <= dispatch_i.data;
             end
 
             for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
                 if (rports_ack_o[i].ready) begin
                     if (rports_ack_i[i].port == 1'b0) begin
-                        entries[rport_addr[i]].rs1_v <= rports_ack_i[i].data;
-                        entries[rport_addr[i]].rs1   <= 0;
+                        if (entries[rport_addr[i]].rs1) begin
+                            entries[rport_addr[i]].rs1_v <= rports_ack_i[i].data;
+                            entries[rport_addr[i]].rs1   <= 0;
+                        end
                     end
                     else begin
-                        entries[rport_addr[i]].rs2_v <= rports_ack_i[i].data;
-                        entries[rport_addr[i]].rs2   <= 0;
+                        if (entries[rport_addr[i]].rs2) begin
+                            entries[rport_addr[i]].rs2_v <= rports_ack_i[i].data;
+                            entries[rport_addr[i]].rs2   <= 0;
+                        end
                     end
                 end
             end

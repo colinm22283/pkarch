@@ -5,8 +5,8 @@ main:
     li t0, 2
     li t1, 3
 
-    add t2, t0, t0
     add t3, t0, t1
+    add t2, t0, t0
 
     add t3, t3, t1
     add t4, t0, t1

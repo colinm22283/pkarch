@@ -67,7 +67,7 @@ module issue_queue_m(
             );
 
             fifo_m #(
-                .WIDTH($bits(iq_in_data_t)),
+                .WIDTH($bits(iq_in_data_t) + 2 + 2 * $bits(word_t)),
                 .DEPTH(IQ_OUT_SIZE)
             ) out_fifo(
                 .clk_i(clk_i),
@@ -77,11 +77,23 @@ module issue_queue_m(
 
                 .in_ready_o(dispatcho[1].ready),
                 .in_valid_i(dispatchi[1].valid),
-                .in_data_i(dispatchi[1].data),
+                .in_data_i({
+                    dispatchi[1].data,
+                    dispatchi[1].rs1_f,
+                    dispatchi[1].rs2_f,
+                    dispatchi[1].rs1,
+                    dispatchi[1].rs2
+                }),
 
                 .out_ready_i(dispatcho[2].ready),
                 .out_valid_o(dispatchi[2].valid),
-                .out_data_o(dispatchi[2].data)
+                .out_data_o({
+                    dispatchi[2].data,
+                    dispatchi[2].rs1_f,
+                    dispatchi[2].rs2_f,
+                    dispatchi[2].rs1,
+                    dispatchi[2].rs2
+                })
             );
 
             issue_acc_m issue_acc(
