@@ -12,9 +12,6 @@ parameter COMMIT_DEBUG_REGFILE = 1;
 // CONFIGURABLE
 parameter DISPATCH_WIDTH       = 1;
 parameter RENAME_WIDTH         = 3;
-parameter COMMIT_WIDTH         = 2;
-
-// parameter RENAME_CP_COUNT      = 4;
 
 parameter ISSUE_QUEUE_SIZE     = 4;
 
@@ -40,6 +37,8 @@ parameter LSQ_READ_QUEUE_SIZE  = 4;
 parameter LSQ_WRITE_QUEUE_SIZE = 4;
 parameter LSQ_MEMORY_PORTS     = 2;
 // CONFIGURABLE
+
+parameter COMMIT_WIDTH       = DISPATCH_WIDTH;
 
 parameter ROB_DISPATCH_WIDTH = DISPATCH_WIDTH;
 

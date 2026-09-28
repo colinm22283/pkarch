@@ -54,7 +54,7 @@ module top_tb();
         .sport_i(sportci),
         .sport_o(sportco),
 
-        .commit_count_i(top.rob.commit_count)
+        .commit_count_i(top.rob.commit_count_q)
     );
 
     dummy_slave_m #(RAM_SIZE, 32'h10000000 - RAM_SIZE) dummy1(
