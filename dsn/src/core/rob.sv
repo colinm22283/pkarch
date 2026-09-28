@@ -81,10 +81,16 @@ module rob_m(
 
     always_comb begin
         logic cont;
+        logic any_dispatch;
         logic [COMMIT_WIDTH - 1:0] allow_commit;
 
         cont         = 1'b1;
         allow_commit = '0;
+
+        any_dispatch = 1'b0;
+        for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
+            any_dispatch |= dispatch_i[i].valid;
+        end
 
 `ifdef ROB_COMMIT_COUNTER
         commit_count_d = commit_count_q;
@@ -113,14 +119,16 @@ module rob_m(
             tail_wrap_d = '0;
         end
         else begin
-            if (!full) begin
+            for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
+                dispatch_o[i].ready = !full;
+                dispatch_o[i].id    = rob_id_t'(head_q * ROB_DISPATCH_WIDTH + i);
+            end
+
+            if (!full && any_dispatch) begin
                 for (int i = 0; i < ROB_DISPATCH_WIDTH; i++) begin
                     entries_d[head_q][i].valid  = dispatch_i[i].valid;
                     entries_d[head_q][i].busy   = 1'b1;
                     entries_d[head_q][i].except = 1'b0;
-
-                    dispatch_o[i].ready = 1'b1;
-                    dispatch_o[i].id    = rob_id_t'(head_q * ROB_DISPATCH_WIDTH + i);
                 end
 
                 if (head_q == INDEX_WIDTH'(ROB_SIZE - 1)) head_wrap_d = !head_wrap_q;

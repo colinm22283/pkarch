@@ -66,21 +66,27 @@ module fifo_m #(
             tail_wrap_d = '0;
         end
         else begin
-            out_data_o  = data_q[tail_q];
-
-            if (!empty) out_valid_o = 1'b1;
-            if (!full)  in_ready_o  = 1'b1;
-
-            if (out_ready_i && !empty) begin
-                if (tail_q == INDEX_WIDTH'(DEPTH - 1)) tail_wrap_d = !tail_wrap_q;
-                tail_d = INDEX_WIDTH'((tail_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+            if (empty && in_valid_i && out_ready_i) begin
+                out_valid_o = 1'b1;
+                out_data_o = in_data_i;
             end
+            else begin
+                out_data_o  = data_q[tail_q];
 
-            if (in_valid_i && !full) begin
-                data_d[head_q] = in_data_i;
+                if (!empty) out_valid_o = 1'b1;
+                if (!full)  in_ready_o  = 1'b1;
 
-                if (head_q == INDEX_WIDTH'(DEPTH - 1)) head_wrap_d = !head_wrap_q;
-                head_d = INDEX_WIDTH'((head_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+                if (out_ready_i && !empty) begin
+                    if (tail_q == INDEX_WIDTH'(DEPTH - 1)) tail_wrap_d = !tail_wrap_q;
+                    tail_d = INDEX_WIDTH'((tail_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+                end
+
+                if (in_valid_i && !full) begin
+                    data_d[head_q] = in_data_i;
+
+                    if (head_q == INDEX_WIDTH'(DEPTH - 1)) head_wrap_d = !head_wrap_q;
+                    head_d = INDEX_WIDTH'((head_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+                end
             end
         end
     end
