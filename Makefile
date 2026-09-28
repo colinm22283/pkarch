@@ -16,7 +16,7 @@ export VFLAGS+=--timing
 export VFLAGS+=--trace-max-array 1000
 export VFLAGS+=--trace-max-width 0
 export VFLAGS+=--report-unoptflat
-export VFLAGS+=-Wno-UNOPTFLAT
+# export VFLAGS+=-Wno-UNOPTFLAT
 
 include dsn/sources.mk
 

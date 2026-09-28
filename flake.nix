@@ -21,6 +21,7 @@
             pkgs.gtkwave
             pkgs.surfer
             pkgs.zlib
+            pkgs.graphviz
 
             riscvPkgs.buildPackages.binutils
             riscvPkgs.buildPackages.gcc
