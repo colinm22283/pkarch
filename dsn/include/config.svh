@@ -23,12 +23,12 @@ parameter IQ_COMMIT_WIDTH      = 2;
 parameter ROB_SIZE             = 64;
 parameter ROB_COMMIT_WIDTH     = 1;
 
-parameter ALU_COUNT            = 2;
+parameter ALU_COUNT            = 1;
 parameter JMP_COUNT            = 1;
 parameter LSU_COUNT            = 1;
 
 parameter PRF_SIZE             = 64;
-parameter PRF_MEM_RPORTS       = DISPATCH_WIDTH;
+parameter PRF_MEM_RPORTS       = 1; // DISPATCH_WIDTH
 
 parameter MEMORY_PORTS         = 2;
 

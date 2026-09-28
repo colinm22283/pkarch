@@ -41,12 +41,12 @@ module issue_acc_m(
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                entries[i].valid = 0;
+                entries[i].valid <= 0;
             end
         end
         else if (flush_i) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                entries[i].valid = 0;
+                entries[i].valid <= 0;
             end
         end
         else begin
@@ -93,11 +93,12 @@ module issue_acc_m(
 
         accept_addr = '0;
 
+        dispatch_o.ready = 1'b0;
+        for (int i = 0; i < IQ_ACC_SIZE; i++) if (!entries[i].valid) dispatch_o.ready = 1'b1;
+
         if (dispatch_i.valid) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
                 if (cont && !entries[i].valid) begin
-                    dispatch_o.ready = 1;
-
                     accept_addr = $clog2(IQ_ACC_SIZE)'(i);
 
                     cont = 0;
