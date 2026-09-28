@@ -104,12 +104,26 @@ module issue_req_m(
                     end
                 end
 
+                if (!rs1_valid_d && dispatch_i.data.dec_inst.rs1_a && dispatch_i.data.rs1 == PRF_ZERO_ADDR) begin
+                    rs1_valid_d = 1'b1;
+                    rs1_fwd_d   = 1'b1;
+                    rs1_d       = '0;
+                end
+
+                if (!rs2_valid_d && dispatch_i.data.dec_inst.rs2_a && dispatch_i.data.rs2 == PRF_ZERO_ADDR) begin
+                    rs2_valid_d = 1'b1;
+                    rs2_fwd_d   = 1'b1;
+                    rs2_d       = '0;
+                end
+
                 rports_req_o[0].req =
+                    dispatch_i.data.rs1 != PRF_ZERO_ADDR &&
                     !rs1_valid_d &&
                     dispatch_i.data.dec_inst.rs1_a &&
                     (!rs2_valid_d && dispatch_i.data.dec_inst.rs2_a ? rports_req_i[1].ready : 'b1);
 
                 rports_req_o[1].req =
+                    dispatch_i.data.rs2 != PRF_ZERO_ADDR &&
                     !rs2_valid_d &&
                     dispatch_i.data.dec_inst.rs2_a &&
                     (!rs1_valid_d && dispatch_i.data.dec_inst.rs1_a ? rports_req_i[0].ready : 'b1);

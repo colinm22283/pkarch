@@ -16,8 +16,10 @@ module dispatch_m(
     output logic rename_jump_o, // TODO: not implemented
     input  logic rename_jump_accept_i,
 
+    /* verilator lint_on UNOPTFLAT */
     input  dispatch_i_t [DISPATCH_WIDTH - 1:0] dispatch_i,
     output dispatch_o_t [DISPATCH_WIDTH - 1:0] dispatch_o,
+    /* verilator lint_off UNOPTFLAT */
 
     input  lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatch_i,
     output lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatch_o,

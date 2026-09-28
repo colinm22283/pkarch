@@ -53,8 +53,8 @@ module fifo_m #(
         tail_d      = tail_q;
         tail_wrap_d = tail_wrap_q;
 
-        empty = head_d == tail_d && head_wrap_d == tail_wrap_d;
-        full  = head_d == tail_d && head_wrap_d != tail_wrap_d;
+        empty = head_q == tail_q && head_wrap_q == tail_wrap_q;
+        full  = head_q == tail_q && head_wrap_q != tail_wrap_q;
 
         out_valid_o = 1'b0;
         in_ready_o  = 1'b0;
@@ -68,27 +68,33 @@ module fifo_m #(
         end
         else begin
             if (FORWARDING) begin
-                in_ready_o = !full;
+                in_ready_o  = !full || out_ready_i;
+                out_valid_o = !empty || in_valid_i;
 
-                if (empty) begin
-                    out_valid_o = in_valid_i;
+                if (empty && in_valid_i) begin
                     out_data_o  = in_data_i;
+
+                    if (!out_ready_i) begin
+                        data_d[head_q] = in_data_i;
+
+                        if (head_q == INDEX_WIDTH'(DEPTH - 1)) head_wrap_d = !head_wrap_q;
+                        head_d = INDEX_WIDTH'((head_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+                    end
                 end
                 else begin
-                    out_valid_o = 1'b1;
                     out_data_o  = data_q[tail_q];
+
+                    if (in_valid_i && (!full || out_ready_i)) begin
+                        data_d[head_q] = in_data_i;
+
+                        if (head_q == INDEX_WIDTH'(DEPTH - 1)) head_wrap_d = !head_wrap_q;
+                        head_d = INDEX_WIDTH'((head_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
+                    end
                 end
 
                 if (out_ready_i && !empty) begin
                     if (tail_q == INDEX_WIDTH'(DEPTH - 1)) tail_wrap_d = !tail_wrap_q;
                     tail_d = INDEX_WIDTH'((tail_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
-                end
-
-                if (in_valid_i && !full && !(empty && out_ready_i)) begin
-                    data_d[head_q] = in_data_i;
-
-                    if (head_q == INDEX_WIDTH'(DEPTH - 1)) head_wrap_d = !head_wrap_q;
-                    head_d = INDEX_WIDTH'((head_q + INDEX_WIDTH'(1)) % SIZE_WIDTH'(DEPTH));
                 end
             end
             else begin

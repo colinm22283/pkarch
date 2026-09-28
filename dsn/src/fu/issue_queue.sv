@@ -32,7 +32,8 @@ module issue_queue_m(
 
             fifo_m #(
                 .WIDTH($bits(iq_in_data_t)),
-                .DEPTH(IQ_IN_SIZE)
+                .DEPTH(IQ_IN_SIZE),
+                .FORWARDING(1)
             ) in_fifo(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
@@ -68,7 +69,8 @@ module issue_queue_m(
 
             fifo_m #(
                 .WIDTH($bits(iq_in_data_t) + 2 + 2 * $bits(word_t)),
-                .DEPTH(IQ_OUT_SIZE)
+                .DEPTH(IQ_OUT_SIZE),
+                .FORWARDING(1)
             ) out_fifo(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
