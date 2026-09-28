@@ -175,6 +175,7 @@ module rob_m(
                             rename_commit_o[i].isa_addr  = entries_q[tail_q][i].isa_rd;
                             rename_commit_o[i].prev_addr = entries_q[tail_q][i].prev_rd;
                             rename_commit_o[i].prf_addr  = entries_q[tail_q][i].rd;
+
                             jump_o.target = entries_q[tail_q][i].jmp_target;
 
                             if (entries_q[tail_q][i].rd_a) begin
@@ -213,6 +214,8 @@ module rob_m(
                                 if (entries_q[tail_q][i].jmp) begin
                                     rename_jump_commit_o = 1'b1;
                                 end
+
+                                entries_d[tail_q][i].valid = 1'b0;
                             end
                         end
                     end
