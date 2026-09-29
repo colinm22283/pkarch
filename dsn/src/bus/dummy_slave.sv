@@ -1,3 +1,7 @@
+`timescale 1ns/100ps
+
+`include "bus/bus.svh"
+
 module dummy_slave_m #(
     parameter ADDRESS = 0,
     parameter SIZE    = 1
