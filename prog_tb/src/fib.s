@@ -1,8 +1,8 @@
 .global main
 main:
     li a0, 0x10000000
-    addi s3, zero, 0
-    li   s3, 102334155
+    li t0, 0x00000000
+    li t1, 0x00000100
 
     addi s0, zero, 1
     addi s1, zero, 1
@@ -14,7 +14,9 @@ main:
         add  s1, s0, s1
         addi s0, s2, 0
 
-        blt s0, s3, .loop
+        addi t0, t0, 1
+
+        blt t0, t1, .loop
     
     li   a0, 0x10000004
     sw   zero, 0(a0)

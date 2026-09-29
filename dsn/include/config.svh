@@ -2,7 +2,7 @@
 `define CONFIG_SVH
 
 `define DEBUG_MODE 0
-`define SERIAL_ASCII_MODE 1
+`define SERIAL_ASCII_MODE 0
 
 `define ROB_COMMIT_COUNTER
 `define COMMIT_PC_ENABLE
@@ -17,7 +17,7 @@ parameter ISSUE_QUEUE_SIZE     = 4;
 
 parameter IQ_IN_SIZE           = 4;
 parameter IQ_OUT_SIZE          = 4;
-parameter IQ_ACC_SIZE          = 1; // causes errors when changed
+parameter IQ_ACC_SIZE          = 2; // TODO: CAUSES ERROR WHEN NOT 1
 
 parameter ROB_SIZE             = 64;
 parameter ROB_COMMIT_WIDTH     = 1;
@@ -27,7 +27,7 @@ parameter JMP_COUNT            = 1;
 parameter LSU_COUNT            = 1;
 
 parameter PRF_SIZE             = 64;
-parameter PRF_MEM_RPORTS       = 1; // DISPATCH_WIDTH
+parameter PRF_MEM_RPORTS       = 2; // DISPATCH_WIDTH
 
 parameter MEMORY_PORTS         = 2;
 
