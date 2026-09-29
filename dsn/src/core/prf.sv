@@ -57,9 +57,8 @@ module prf_m(
 
     logic      rports_flushed;
     always_comb begin
-        rports_flushed = 1'b0;
-        for (int i = 0; i < PRF_RPORTS; i++) rports_flushed |= rport_valid[i];
-        rports_flushed = !rports_flushed;
+        rports_flushed = 1'b1;
+        for (int i = 0; i < PRF_RPORTS; i++) rports_flushed &= !rport_valid[i] || rport_accept[i];
     end
 
     always_ff @(posedge clk_i) begin
@@ -113,7 +112,7 @@ module prf_m(
 
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            prf_rport_req_o[i].ready = (!rport_valid[i] || rport_accept[i]) && rports_flushed;
+            prf_rport_req_o[i].ready = rports_flushed;
         end
     end
 
