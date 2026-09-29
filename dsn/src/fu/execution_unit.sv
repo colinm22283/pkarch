@@ -115,7 +115,7 @@ module execution_unit_m(
                 end
 
                 FU_LSU: begin
-                    if (lsu_idx != LSU_COUNT && dispatch_i[i].valid) begin
+                    if (lsu_idx != 1 && dispatch_i[i].valid) begin
                         lsu_dispatchi = dispatch_i[i];
 
                         lsu_idx++;
@@ -138,7 +138,7 @@ module execution_unit_m(
         for (int i = 0; i < IQ_OUT_WIDTH; i++) begin
             case (disp_type[i])
                 FU_ALU: begin
-                    if (alu_idx != ALU_COUNT) begin
+                    if (alu_idx != ALU_COUNT && dispatch_i[i].valid) begin
                         dispatch_o[i]          = alu_dispatcho[alu_idx];
 
                         alu_idx++;
@@ -146,7 +146,7 @@ module execution_unit_m(
                 end
 
                 FU_JMP: begin
-                    if (jmp_idx != JMP_COUNT) begin
+                    if (jmp_idx != JMP_COUNT && dispatch_i[i].valid) begin
                         dispatch_o[i]          = jmp_dispatcho[jmp_idx];
 
                         jmp_idx++;
@@ -154,7 +154,7 @@ module execution_unit_m(
                 end
 
                 FU_LSU: begin
-                    if (lsu_idx != 1) begin
+                    if (lsu_idx != 1 && dispatch_i[i].valid) begin
                         dispatch_o[i] = lsu_dispatcho;
 
                         lsu_idx++;
