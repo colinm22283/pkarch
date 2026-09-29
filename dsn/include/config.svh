@@ -17,8 +17,7 @@ parameter ISSUE_QUEUE_SIZE     = 4;
 
 parameter IQ_IN_SIZE           = 4;
 parameter IQ_OUT_SIZE          = 4;
-parameter IQ_ACC_SIZE          = 2; // causes errors when changed
-parameter IQ_COMMIT_WIDTH      = 2;
+parameter IQ_ACC_SIZE          = 1; // causes errors when changed
 
 parameter ROB_SIZE             = 64;
 parameter ROB_COMMIT_WIDTH     = 1;
@@ -47,6 +46,7 @@ parameter PRF_WPORTS         = ROB_COMMIT_WIDTH;
 parameter PRF_RELPORTS       = RENAME_WIDTH;
 
 parameter IQ_OUT_WIDTH       = IQ_COMMIT_WIDTH * DISPATCH_WIDTH;
+parameter IQ_COMMIT_WIDTH    = IQ_ACC_SIZE;
 
 parameter FU_COUNT           = ALU_COUNT + JMP_COUNT;
 

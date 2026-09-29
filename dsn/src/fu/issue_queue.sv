@@ -67,36 +67,39 @@ module issue_queue_m(
                 .prf_wport_i(prf_wport_i)
             );
 
-            fifo_m #(
-                .WIDTH($bits(iq_in_data_t) + 2 + 2 * $bits(word_t)),
-                .DEPTH(IQ_OUT_SIZE),
-                .FORWARDING(1)
-            ) out_fifo(
-                .clk_i(clk_i),
-                .nrst_i(nrst_i),
+            // fifo_m #(
+                // .WIDTH($bits(iq_in_data_t) + 2 + 2 * $bits(word_t)),
+                // .DEPTH(IQ_OUT_SIZE),
+                // .FORWARDING(0)
+            // ) out_fifo(
+                // .clk_i(clk_i),
+                // .nrst_i(nrst_i),
 
-                .flush_i(flush_i),
+                // .flush_i(flush_i),
 
-                .in_ready_o(dispatcho[1].ready),
-                .in_valid_i(dispatchi[1].valid),
-                .in_data_i({
-                    dispatchi[1].data,
-                    dispatchi[1].rs1_f,
-                    dispatchi[1].rs2_f,
-                    dispatchi[1].rs1,
-                    dispatchi[1].rs2
-                }),
+                // .in_ready_o(dispatcho[1].ready),
+                // .in_valid_i(dispatchi[1].valid),
+                // .in_data_i({
+                    // dispatchi[1].data,
+                    // dispatchi[1].rs1_f,
+                    // dispatchi[1].rs2_f,
+                    // dispatchi[1].rs1,
+                    // dispatchi[1].rs2
+                // }),
 
-                .out_ready_i(dispatcho[2].ready),
-                .out_valid_o(dispatchi[2].valid),
-                .out_data_o({
-                    dispatchi[2].data,
-                    dispatchi[2].rs1_f,
-                    dispatchi[2].rs2_f,
-                    dispatchi[2].rs1,
-                    dispatchi[2].rs2
-                })
-            );
+                // .out_ready_i(dispatcho[2].ready),
+                // .out_valid_o(dispatchi[2].valid),
+                // .out_data_o({
+                    // dispatchi[2].data,
+                    // dispatchi[2].rs1_f,
+                    // dispatchi[2].rs2_f,
+                    // dispatchi[2].rs1,
+                    // dispatchi[2].rs2
+                // })
+            // );
+
+            assign dispatchi[2] = dispatchi[1];
+            assign dispatcho[1] = dispatcho[2];
 
             issue_acc_m issue_acc(
                 .clk_i(clk_i),

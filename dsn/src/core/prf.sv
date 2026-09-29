@@ -55,6 +55,13 @@ module prf_m(
 
     logic rport_accept [PRF_RPORTS - 1:0];
 
+    logic      rports_flushed;
+    always_comb begin
+        rports_flushed = 1'b0;
+        for (int i = 0; i < PRF_RPORTS; i++) rports_flushed |= rport_valid[i];
+        rports_flushed = !rports_flushed;
+    end
+
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             for (int i = 0; i < PRF_RPORTS; i++) begin
@@ -106,7 +113,7 @@ module prf_m(
 
     always_comb begin
         for (int i = 0; i < PRF_RPORTS; i++) begin
-            prf_rport_req_o[i].ready = !rport_valid[i] || rport_accept[i];
+            prf_rport_req_o[i].ready = (!rport_valid[i] || rport_accept[i]) && rports_flushed;
         end
     end
 

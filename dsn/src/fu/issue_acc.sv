@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 `include "fu/issue_queue.svh"
 `include "core/pc.svh"
 `include "core/rob.svh"
@@ -30,136 +32,94 @@ module issue_acc_m(
         iq_in_data_t data;
     } entry_t;
 
-    entry_t entries     [IQ_ACC_SIZE - 1:0];
-    logic   entry_ready [IQ_ACC_SIZE - 1:0];
-
-    logic [$clog2(IQ_ACC_SIZE) - 1:0] accept_addr;
-    logic [$clog2(IQ_ACC_SIZE) - 1:0] rport_addr [PRF_MEM_RPORTS - 1:0];
-
-    logic [IQ_ACC_SIZE - 1:0] commit_entry;
+    entry_t entries_q [IQ_ACC_SIZE - 1:0];
+    entry_t entries_d [IQ_ACC_SIZE - 1:0];
 
     always_ff @(posedge clk_i) begin
         if (!nrst_i) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                entries[i].valid <= 0;
-            end
-        end
-        else if (flush_i) begin
-            for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                entries[i].valid <= 0;
+                entries_q[i].valid <= '0;
             end
         end
         else begin
-            if (dispatch_o.ready) begin
-                entries[accept_addr].valid <= 1;
-
-                entries[accept_addr].rs1   <= dispatch_i.data.dec_inst.rs1_a && !dispatch_i.rs1_f;
-                entries[accept_addr].rs1_v <= dispatch_i.rs1;
-                entries[accept_addr].rs2   <= dispatch_i.data.dec_inst.rs2_a && !dispatch_i.rs2_f;
-                entries[accept_addr].rs2_v <= dispatch_i.rs2;
-                entries[accept_addr].data  <= dispatch_i.data;
-            end
-
-            for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-                if (rports_ack_o[i].ready) begin
-                    if (rports_ack_i[i].port == 1'b0) begin
-                        if (entries[rport_addr[i]].rs1) begin
-                            entries[rport_addr[i]].rs1_v <= rports_ack_i[i].data;
-                            entries[rport_addr[i]].rs1   <= 0;
-                        end
-                    end
-                    else begin
-                        if (entries[rport_addr[i]].rs2) begin
-                            entries[rport_addr[i]].rs2_v <= rports_ack_i[i].data;
-                            entries[rport_addr[i]].rs2   <= 0;
-                        end
-                    end
-                end
-            end
-
-            for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                if (commit_entry[i]) begin
-                    entries[i].valid <= 1'b0;
-                end
-            end
+            entries_q <= entries_d;
         end
     end
 
-    always_comb begin
+always_comb begin
         logic cont;
-        cont = 1;
 
-        dispatch_o.ready = 1'b0;
+        cont = 1'b0;
 
-        accept_addr = '0;
+        entries_d = entries_q;
 
-        dispatch_o.ready = 1'b0;
-        for (int i = 0; i < IQ_ACC_SIZE; i++) if (!entries[i].valid) dispatch_o.ready = 1'b1;
+        dispatch_o   = '0;
+        commit_o     = '0;
+        rports_ack_o = '0;
 
-        if (dispatch_i.valid) begin
+        if (flush_i) begin
             for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                if (cont && !entries[i].valid) begin
-                    accept_addr = $clog2(IQ_ACC_SIZE)'(i);
-
-                    cont = 0;
-                end
+                entries_d[i].valid = '0;
             end
         end
+        else begin
+            for (int i = 0; i < IQ_ACC_SIZE; i++) begin
+                if (entries_d[i].valid) begin
+                    for (int j = 0; j < PRF_MEM_RPORTS; j++) begin
+                        if (
+                            rports_ack_i[j].ack &&
+                            (rports_ack_i[j].port ? entries_d[i].rs2 : entries_d[i].rs1) &&
+                            rports_ack_i[j].rob_id == entries_d[i].data.rob_id
+                        ) begin
+                            rports_ack_o[j].ready = 1'b1;
 
-        for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-            rport_addr[i] = '0;
-        end
+                            if (rports_ack_i[j].port == 1'b0) begin
+                                entries_d[i].rs1_v = rports_ack_i[j].data;
+                                entries_d[i].rs1   = 1'b0;
+                            end
+                            else begin
+                                entries_d[i].rs2_v = rports_ack_i[j].data;
+                                entries_d[i].rs2   = 1'b0;
+                            end
+                        end
+                    end
 
-        for (int i = 0; i < PRF_MEM_RPORTS; i++) begin
-            rports_ack_o[i].ready = 1'b0;
+                    commit_o[i].data.pc       = entries_d[i].data.pc;
+                    commit_o[i].data.dec_inst = entries_d[i].data.dec_inst;
+                    commit_o[i].data.rob_id   = entries_d[i].data.rob_id;
+                    commit_o[i].data.rd       = entries_d[i].data.rd;
+                    commit_o[i].data.prev_rd  = entries_d[i].data.prev_rd;
+                    commit_o[i].data.isa_addr = entries_d[i].data.isa_addr;
+                    commit_o[i].data.rs1_v    = entries_d[i].rs1_v;
+                    commit_o[i].data.rs2_v    = entries_d[i].rs2_v;
 
-            for (int j = 0; j < IQ_ACC_SIZE; j++) begin
-                if (rports_ack_i[i].ack) begin
-                    if (
-                        entries[j].valid &&
-                        (rports_ack_i[i].port ? entries[j].rs2 : entries[j].rs1) &&
-                        rports_ack_i[i].rob_id == entries[j].data.rob_id
-                    ) begin
-                        rports_ack_o[i].ready = 1'b1;
-                        rport_addr[i]         = $clog2(IQ_ACC_SIZE)'(j);
+                    if (!entries_d[i].rs1 && !entries_d[i].rs2) begin
+                        commit_o[i].valid         = 1'b1;
+
+                        if (commit_i[i].ready) begin
+                            entries_d[i].valid = 1'b0;
+                        end
                     end
                 end
             end
-        end
 
-        for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-            entry_ready[i] =
-                entries[i].valid &&
-                !entries[i].rs1 &&
-                !entries[i].rs2;
-        end
+            dispatch_o.ready = 1'b0;
+            for (int i = 0; i < IQ_ACC_SIZE; i++) dispatch_o.ready |= !entries_d[i].valid;
+            if (dispatch_i.valid) begin
+                cont = 1'b1;
 
-        begin
-            logic [$clog2(IQ_COMMIT_WIDTH + 1) - 1:0] commit_port;
-            commit_port = 0;
+                for (int i = 0; i < IQ_ACC_SIZE; i++) begin
+                    if (cont && !entries_d[i].valid) begin
+                        entries_d[i].valid = 1'b1;
 
-            for (int i = 0; i < IQ_COMMIT_WIDTH; i++) begin
-                commit_o[i] = '0;
-            end
+                        entries_d[i].rs1   = dispatch_i.data.dec_inst.rs1_a && !dispatch_i.rs1_f;
+                        entries_d[i].rs1_v = dispatch_i.rs1;
+                        entries_d[i].rs2   = dispatch_i.data.dec_inst.rs2_a && !dispatch_i.rs2_f;
+                        entries_d[i].rs2_v = dispatch_i.rs2;
+                        entries_d[i].data  = dispatch_i.data;
 
-            for (int i = 0; i < IQ_ACC_SIZE; i++) begin
-                if (commit_port != IQ_COMMIT_WIDTH && entry_ready[i]) begin
-                    commit_entry[i] = commit_i[commit_port].ready;
-
-                    commit_o[commit_port].valid = 1'b1;
-                    commit_o[commit_port].data.pc = entries[i].data.pc;
-                    commit_o[commit_port].data.dec_inst = entries[i].data.dec_inst;
-                    commit_o[commit_port].data.rob_id = entries[i].data.rob_id;
-                    commit_o[commit_port].data.rd = entries[i].data.rd;
-                    commit_o[commit_port].data.prev_rd = entries[i].data.prev_rd;
-                    commit_o[commit_port].data.isa_addr = entries[i].data.isa_addr;
-                    commit_o[commit_port].data.rs1_v = entries[i].rs1_v;
-                    commit_o[commit_port].data.rs2_v = entries[i].rs2_v;
-
-                    commit_port++;
-                end
-                else begin
-                    commit_entry[i] = 1'b0;
+                        cont = 1'b0;
+                    end
                 end
             end
         end
