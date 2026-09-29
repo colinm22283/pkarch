@@ -82,25 +82,25 @@ module issue_req_m(
             if (dispatch_i.valid) begin
                 for (int i = 0; i < PRF_WPORTS; i++) begin
                     if (prf_wport_i[i].we && prf_wport_i[i].addr != PRF_ZERO_ADDR) begin
-                        // if (
-                            // !rs1_valid_d &&
-                            // prf_wport_i[i].addr == dispatch_i.data.rs1 &&
-                            // dispatch_i.data.dec_inst.rs1_a
-                        // ) begin
-                            // rs1_valid_d = 1'b1;
-                            // rs1_fwd_d   = 1'b1;
-                            // rs1_d       = prf_wport_i[i].data;
-                        // end
+                        if (
+                            !rs1_valid_d &&
+                            prf_wport_i[i].addr == dispatch_i.data.rs1 &&
+                            dispatch_i.data.dec_inst.rs1_a
+                        ) begin
+                            rs1_valid_d = 1'b1;
+                            rs1_fwd_d   = 1'b1;
+                            rs1_d       = prf_wport_i[i].data;
+                        end
 
-                        // if (
-                            // !rs2_valid_d &&
-                            // prf_wport_i[i].addr == dispatch_i.data.rs2 &&
-                            // dispatch_i.data.dec_inst.rs2_a
-                        // ) begin
-                            // rs2_valid_d = 1'b1;
-                            // rs2_fwd_d   = 1'b1;
-                            // rs2_d       = prf_wport_i[i].data;
-                        // end
+                        if (
+                            !rs2_valid_d &&
+                            prf_wport_i[i].addr == dispatch_i.data.rs2 &&
+                            dispatch_i.data.dec_inst.rs2_a
+                        ) begin
+                            rs2_valid_d = 1'b1;
+                            rs2_fwd_d   = 1'b1;
+                            rs2_d       = prf_wport_i[i].data;
+                        end
                     end
                 end
 
