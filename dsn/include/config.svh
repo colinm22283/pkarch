@@ -21,7 +21,7 @@ parameter IQ_IN_SIZE           = 4;
 parameter IQ_OUT_SIZE          = 4;
 parameter IQ_ACC_SIZE          = 2;
 
-parameter ROB_SIZE             = 64;
+parameter ROB_SIZE             = 16;
 parameter ROB_COMMIT_WIDTH     = 1;
 
 parameter ALU_COUNT            = 1;
