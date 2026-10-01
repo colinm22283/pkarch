@@ -8,6 +8,11 @@
 `include "test/logger.svh"
 
 module dispatch_m(
+`ifdef USE_POWER_PINS
+    inout wire vccd1,
+    inout wire vssd1,
+`endif
+
     input wire clk_i,
     input wire nrst_i,
 
