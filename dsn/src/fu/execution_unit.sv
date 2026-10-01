@@ -1,3 +1,4 @@
+`include "config.svh"
 `include "fu/issue_queue.svh"
 `include "fu/execution_unit.svh"
 `include "core/pc.svh"
@@ -169,6 +170,8 @@ module execution_unit_m(
     always_comb begin
         int i;
         i = 0;
+
+        commit_o = '0;
 
         for (int j = 0; j < ALU_COUNT; j++) begin
             alu_commiti[j] = commit_i[i];

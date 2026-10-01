@@ -2,6 +2,7 @@
 `include "core/pc.svh"
 `include "core/rob.svh"
 `include "isa.svh"
+`include "config.svh"
 
 module issue_queue_m(
     input  logic clk_i,
@@ -33,7 +34,7 @@ module issue_queue_m(
             fifo_m #(
                 .WIDTH($bits(iq_in_data_t)),
                 .DEPTH(IQ_IN_SIZE),
-                .FORWARDING(1)
+                .FORWARDING(0)
             ) in_fifo(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
@@ -48,6 +49,11 @@ module issue_queue_m(
                 .out_valid_o(dispatchi[0].valid),
                 .out_data_o(dispatchi[0].data)
             );
+
+            assign dispatchi[i].rs1_f = '0;
+            assign dispatchi[i].rs2_f = '0;
+            assign dispatchi[i].rs1   = '0;
+            assign dispatchi[i].rs2   = '0;
 
             issue_req_m issue_req(
                 .clk_i(clk_i),

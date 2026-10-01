@@ -385,6 +385,7 @@ module top_m #(
         .prf_wport_o(prf_wporti)
     );
 
+`ifdef COMMIT_REGS_ENABLE
     word_t arch_regs [31:0];
     always_comb for (int i = 0; i < 32; i++) begin 
         if (rename.arch_rat_q[i] == PRF_SIZE) begin
@@ -431,6 +432,7 @@ module top_m #(
         t5   = arch_regs[30];
         t6   = arch_regs[31];
     end
+`endif
 
 `ifdef COMMIT_PC_ENABLE
     begin : PC

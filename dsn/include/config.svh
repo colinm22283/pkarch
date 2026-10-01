@@ -6,10 +6,11 @@
 
 `ifndef SYNTH
     `define ROB_COMMIT_COUNTER
+    `define COMMIT_REGS_ENABLE
     `define COMMIT_PC_ENABLE
 `endif
 
-parameter COMMIT_DEBUG_REGFILE = 1;
+parameter COMMIT_DEBUG_REGFILE = 0;
 
 // CONFIGURABLE
 parameter DISPATCH_WIDTH       = 1;
