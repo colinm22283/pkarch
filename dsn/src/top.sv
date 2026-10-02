@@ -48,7 +48,7 @@ module top_m #(
         .sports_o(mports_o)
     );
 
-    icache_6_4_2_m icache(
+    icache_4_2_2_m icache(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 

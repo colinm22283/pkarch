@@ -36,6 +36,7 @@ SRCS+=bus/mem_breakout.sv
 
 SRCS+=bus/icache.sv
 SRCS+=bus/icache_6_4_2.sv
+SRCS+=bus/icache_4_2_2.sv
 
 SRCS+=test/clk_rst.v
 

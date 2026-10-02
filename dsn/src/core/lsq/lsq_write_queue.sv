@@ -58,7 +58,9 @@ module lsq_write_queue_m(
             tail_q <= '0;
             size_q <= '0;
             inflight_q <= '0;
-            for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) entries_q[i] <= '0;
+            for (int i = 0; i < LSQ_WRITE_QUEUE_SIZE; i++) begin
+                entries_q[i].valid <= '0;
+            end
         end
         else begin
             head_q <= head_d;

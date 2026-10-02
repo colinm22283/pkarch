@@ -55,12 +55,6 @@ module rob_m(
             commit_count_q <= 0;
 `endif
 
-            for (int i = 0; i < ROB_SIZE; i++) begin
-                for (int j = 0; j < ROB_DISPATCH_WIDTH; j++) begin
-                    entries_q[i][j] <= '0;
-                end
-            end
-
             head_q      <= '0;
             head_wrap_q <= '0;
             tail_q      <= '0;
