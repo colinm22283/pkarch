@@ -124,7 +124,7 @@ module icache_m #(
 
                         FSTATE_ACK: begin
                             if (!mport_i.ack) begin
-                                if (fetch_offset == BLOCK_SIZE - 1) begin
+                                if (fetch_offset == offset_t'(BLOCK_SIZE - 1)) begin
                                     sets[fetch_index][0].valid <= 1;
 
                                     state <= STATE_READY;
@@ -157,7 +157,7 @@ module icache_m #(
         case (state)
             STATE_READY: begin
                 icache_o.ack  = test_found;
-                icache_o.data = sets[test_addr.parts.index][test_way].mem[test_addr.parts.offset / 4];
+                icache_o.data = sets[test_addr.parts.index][test_way].mem[test_addr.parts.offset / offset_t'(4)];
             end
 
             default: begin
