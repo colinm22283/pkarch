@@ -14,8 +14,8 @@ module inst_queue_m(
     output dispatch_i_t [DISPATCH_WIDTH - 1:0] mdispatch_o
 );
 
-    localparam SIZE_WIDTH = $clog2(ISSUE_QUEUE_SIZE + 1);
-    localparam INDEX_WIDTH = $clog2(ISSUE_QUEUE_SIZE);
+    localparam SIZE_WIDTH = $clog2(INST_QUEUE_SIZE + 1);
+    localparam INDEX_WIDTH = $clog2(INST_QUEUE_SIZE);
 
     typedef struct packed {
         bit valid;
@@ -26,13 +26,13 @@ module inst_queue_m(
     logic push, pop;
 
     logic [SIZE_WIDTH - 1:0] size;
-    entry_t entries [ISSUE_QUEUE_SIZE - 1:0];
+    entry_t entries [INST_QUEUE_SIZE - 1:0];
 
     always_comb begin
         push = 0;
         for (int i = 0; i < DISPATCH_WIDTH; i++) push |= sdispatch_i[i].valid;
 
-        push &= size != ISSUE_QUEUE_SIZE;
+        push &= size != INST_QUEUE_SIZE;
     end
 
     always_comb begin
@@ -54,7 +54,7 @@ module inst_queue_m(
             end
             else begin
                 logic [SIZE_WIDTH - 1:0] t_size;
-                entry_t t_entries [ISSUE_QUEUE_SIZE - 1:0];
+                entry_t t_entries [INST_QUEUE_SIZE - 1:0];
 
                 t_size = size;
                 t_entries = entries;
@@ -70,7 +70,7 @@ module inst_queue_m(
                 end
                 
                 if (pop) begin
-                    for (int i = 0; i < ISSUE_QUEUE_SIZE - 1; i++) begin
+                    for (int i = 0; i < INST_QUEUE_SIZE - 1; i++) begin
                         t_entries[i] = t_entries[i + 1];
                     end
 

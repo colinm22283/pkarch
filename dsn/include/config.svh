@@ -16,7 +16,7 @@ parameter COMMIT_DEBUG_REGFILE = 0;
 parameter DISPATCH_WIDTH       = 1;
 parameter RENAME_WIDTH         = 3;
 
-parameter ISSUE_QUEUE_SIZE     = 4;
+parameter INST_QUEUE_SIZE      = 4;
 
 parameter IQ_IN_SIZE           = 4;
 parameter IQ_OUT_SIZE          = 4;
@@ -25,6 +25,7 @@ parameter IQ_ACC_SIZE          = 2;
 parameter ROB_SIZE             = 16;
 parameter ROB_COMMIT_WIDTH     = 1;
 
+parameter ISSUE_QUEUE_SIZE     = 4;
 parameter ALU_COUNT            = 1;
 parameter JMP_COUNT            = 1;
 parameter LSU_COUNT            = 1;
