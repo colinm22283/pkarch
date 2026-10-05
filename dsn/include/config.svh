@@ -10,35 +10,37 @@
     `define COMMIT_PC_ENABLE
 `endif
 
-parameter COMMIT_DEBUG_REGFILE = 0;
+parameter COMMIT_DEBUG_REGFILE         = 0;
 
 // CONFIGURABLE
-parameter DISPATCH_WIDTH       = 1;
-parameter RENAME_WIDTH         = 3;
+parameter DISPATCH_WIDTH               = 1;
+parameter RENAME_WIDTH                 = 3;
 
-parameter INST_QUEUE_SIZE      = 4;
+parameter INST_QUEUE_SIZE              = 4;
 
-parameter IQ_IN_SIZE           = 4;
-parameter IQ_OUT_SIZE          = 4;
-parameter IQ_ACC_SIZE          = 2;
+parameter IQ_IN_SIZE                   = 4;
+parameter IQ_OUT_SIZE                  = 4;
+parameter IQ_ACC_SIZE                  = 2;
 
-parameter ROB_SIZE             = 16;
-parameter ROB_COMMIT_WIDTH     = 1;
+parameter ROB_SIZE                     = 16;
+parameter ROB_COMMIT_WIDTH             = 1;
 
-parameter ISSUE_QUEUE_SIZE     = 4;
-parameter ALU_COUNT            = 1;
-parameter JMP_COUNT            = 1;
-parameter LSU_COUNT            = 1;
+parameter ISSUE_QUEUE_SIZE             = 4;
+parameter ALU_COUNT                    = 1;
+parameter JMP_COUNT                    = 1;
+parameter LSU_COUNT                    = 1;
 
-parameter PRF_SIZE             = 64;
-parameter PRF_MEM_RPORTS       = 2;
+parameter PRF_SIZE                     = 64;
+parameter PRF_MEM_RPORTS               = 2;
 
-parameter MEMORY_PORTS         = 2;
+parameter MEMORY_PORTS                 = 2;
 
-parameter LSQ_DISPATCH_WIDTH   = 1;
-parameter LSQ_READ_QUEUE_SIZE  = 4;
-parameter LSQ_WRITE_QUEUE_SIZE = 4;
-parameter LSQ_MEMORY_PORTS     = 2;
+parameter LSQ_DISPATCH_WIDTH           = 1;
+parameter LSQ_READ_QUEUE_SIZE          = 4;
+parameter LSQ_WRITE_QUEUE_SIZE         = 4;
+parameter LSQ_MEMORY_PORTS             = 2;
+
+parameter LSQ_DISPATCH_PIPELINE_LENGTH = 3;
 // CONFIGURABLE
 
 parameter COMMIT_WIDTH       = DISPATCH_WIDTH;

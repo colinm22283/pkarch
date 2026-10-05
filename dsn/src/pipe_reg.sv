@@ -1,7 +1,7 @@
 `include "core/lsq.svh"
 `include "core/commit.svh"
 
-module pipe_reg_lsq_m(
+module pipe_reg_lsq_dis_m(
     input wire clk_i,
     input wire nrst_i,
 

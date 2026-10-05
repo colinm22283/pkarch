@@ -41,6 +41,7 @@ SRCS+=bus/icache_4_2_2.sv
 SRCS+=test/clk_rst.v
 
 SRCS+=pipe_reg.sv
+SRCS+=pipeline.sv
 SRCS+=fifo.sv
 
 SRCS+=top.sv

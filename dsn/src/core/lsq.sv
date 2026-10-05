@@ -41,9 +41,6 @@ module lsq_m(
 
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
-    lsq_dispatch_i_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatchi;
-    lsq_dispatch_o_t [LSQ_DISPATCH_WIDTH - 1:0] lsq_dispatcho;
-
     lsq_commit_o_t [LSU_COUNT - 1:0] write_lsq_commito;
     lsq_commit_o_t [LSU_COUNT - 1:0] read_lsq_commito;
 
@@ -72,24 +69,9 @@ module lsq_m(
     prf_addr_t load_prev_rd;
     rob_id_t   load_rob_id;
 
-    generate for (genvar i = 0; i < LSQ_DISPATCH_WIDTH; i++) begin
-        pipe_reg_lsq_m dispatch_pipe_reg(
-            .clk_i(clk_i),
-            .nrst_i(nrst_i),
-
-            .flush_i(flush_i),
-
-            .s_i(lsq_dispatch_i[i]),
-            .s_o(lsq_dispatch_o[i]),
-
-            .m_i(lsq_dispatcho[i]),
-            .m_o(lsq_dispatchi[i])
-        );
-    end endgenerate
-
     lsq_dispatch_demux_m dispatch_demux(
-        .lsq_dispatch_i(lsq_dispatchi),
-        .lsq_dispatch_o(lsq_dispatcho),
+        .lsq_dispatch_i(lsq_dispatch_i),
+        .lsq_dispatch_o(lsq_dispatch_o),
 
         .read_ready_i(read_ready),
         .read_valid_o(read_valid),
