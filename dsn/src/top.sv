@@ -142,9 +142,6 @@ module top_m #(
         .mdispatch_i(expanded_dispatcho),
         .mdispatch_o(expanded_dispatchi)
     );
-
-    // assign expanded_dispatchi = dispatchi;
-    // assign dispatcho = expanded_dispatcho;
     
     inst_queue_m inst_queue(
         .clk_i(clk_i),

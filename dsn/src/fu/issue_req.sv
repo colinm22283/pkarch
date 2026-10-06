@@ -154,47 +154,5 @@ module issue_req_m(
         end
     end
 
-
-
-
-
-
-
-    // logic rports_ready;
-
-    // always_comb begin
-        // rports_ready = 'b1;
-        // if (dispatch_i.data.dec_inst.rs1_a) rports_ready &= rports_req_i[0].ready;
-        // if (dispatch_i.data.dec_inst.rs2_a) rports_ready &= rports_req_i[1].ready;
-    // end
-
-    // assign rports_req_o[0].req =
-            // dispatch_i.data.dec_inst.rs1_a &&
-            // dispatch_i.valid &&
-            // commit_i.ready &&
-            // (dispatch_i.data.dec_inst.rs2_a ? rports_req_i[1].ready : 'b1);
-
-    // assign rports_req_o[1].req =
-            // dispatch_i.data.dec_inst.rs2_a &&
-            // dispatch_i.valid &&
-            // commit_i.ready &&
-            // (dispatch_i.data.dec_inst.rs1_a ? rports_req_i[0].ready : 'b1);
-
-    // always_comb begin
-        // rports_req_o[0].port = 1'b0;
-        // rports_req_o[1].port = 1'b1;
-
-        // rports_req_o[0].rob_id = dispatch_i.data.rob_id;
-        // rports_req_o[1].rob_id = dispatch_i.data.rob_id;
-
-        // rports_req_o[0].addr = dispatch_i.data.rs1;
-        // rports_req_o[1].addr = dispatch_i.data.rs2;
-
-        // commit_o.valid = rports_ready && dispatch_i.valid;
-        // commit_o.data  = dispatch_i.data;
-
-        // dispatch_o.ready = rports_ready;
-    // end
-
 endmodule
 
