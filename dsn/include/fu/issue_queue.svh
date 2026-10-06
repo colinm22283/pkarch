@@ -29,17 +29,27 @@ typedef struct packed {
     bit valid;
 
     iq_in_data_t data;
-
-    bit rs1_f;
-    bit rs2_f;
-
-    word_t rs1;
-    word_t rs2;
 } iq_dispatch_i_t;
 
 typedef struct packed {
     bit ready;
 } iq_dispatch_o_t;
+
+typedef struct packed {
+
+    bit valid;
+
+    iq_in_data_t data;
+    bit rs1_f;
+    bit rs2_f;
+
+    word_t rs1;
+    word_t rs2;
+} iq_acc_dispatch_i_t;
+
+typedef struct packed {
+    bit ready;
+} iq_acc_dispatch_o_t;
 
 typedef struct packed {
     bit ready;

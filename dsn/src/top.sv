@@ -130,21 +130,21 @@ module top_m #(
         .dispatch_o(dispatchi)
     );
 
-    // fetch_expander_m fetch_expander(
-        // .clk_i(clk_i),
-        // .nrst_i(nrst_i),
+    fetch_expander_m fetch_expander(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
 
-        // .flush_i(flush),
+        .flush_i(flush),
 
-        // .sdispatch_i(dispatchi),
-        // .sdispatch_o(dispatcho),
+        .sdispatch_i(dispatchi),
+        .sdispatch_o(dispatcho),
 
-        // .mdispatch_i(expanded_dispatcho),
-        // .mdispatch_o(expanded_dispatchi)
-    // );
+        .mdispatch_i(expanded_dispatcho),
+        .mdispatch_o(expanded_dispatchi)
+    );
 
-    assign expanded_dispatchi = dispatchi;
-    assign dispatcho = expanded_dispatcho;
+    // assign expanded_dispatchi = dispatchi;
+    // assign dispatcho = expanded_dispatcho;
     
     inst_queue_m inst_queue(
         .clk_i(clk_i),

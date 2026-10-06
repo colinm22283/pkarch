@@ -28,8 +28,11 @@ module issue_queue_m(
         prf_rport_ack_i_t [PRF_MEM_RPORTS - 1:0] rports_acko [DISPATCH_WIDTH - 1:0];
 
         for (genvar i = 0; i < DISPATCH_WIDTH; i++) begin
-            iq_dispatch_i_t dispatchi [2:0];
-            iq_dispatch_o_t dispatcho [2:0];
+            iq_dispatch_i_t dispatchi0;
+            iq_dispatch_o_t dispatcho0;
+            iq_acc_dispatch_i_t dispatchi1;
+            iq_acc_dispatch_o_t dispatcho1;
+
 
             fifo_m #(
                 .WIDTH($bits(iq_in_data_t)),
@@ -45,15 +48,10 @@ module issue_queue_m(
                 .in_valid_i(dispatch_i[i].valid),
                 .in_data_i(dispatch_i[i].data),
 
-                .out_ready_i(dispatcho[0].ready),
-                .out_valid_o(dispatchi[0].valid),
-                .out_data_o(dispatchi[0].data)
+                .out_ready_i(dispatcho0.ready),
+                .out_valid_o(dispatchi0.valid),
+                .out_data_o(dispatchi0.data)
             );
-
-            assign dispatchi[i].rs1_f = '0;
-            assign dispatchi[i].rs2_f = '0;
-            assign dispatchi[i].rs1   = '0;
-            assign dispatchi[i].rs2   = '0;
 
             issue_req_m issue_req(
                 .clk_i(clk_i),
@@ -61,11 +59,11 @@ module issue_queue_m(
 
                 .flush_i(flush_i),
 
-                .dispatch_i(dispatchi[0]),
-                .dispatch_o(dispatcho[0]),
+                .dispatch_i(dispatchi0),
+                .dispatch_o(dispatcho0),
 
-                .commit_i(dispatcho[1]),
-                .commit_o(dispatchi[1]),
+                .commit_i(dispatcho1),
+                .commit_o(dispatchi1),
 
                 .rports_req_i(rports_req_i[i * 2+:2]),
                 .rports_req_o(rports_req_o[i * 2+:2]),
@@ -73,48 +71,14 @@ module issue_queue_m(
                 .prf_wport_i(prf_wport_i)
             );
 
-            // fifo_m #(
-                // .WIDTH($bits(iq_in_data_t) + 2 + 2 * $bits(word_t)),
-                // .DEPTH(IQ_OUT_SIZE),
-                // .FORWARDING(0)
-            // ) out_fifo(
-                // .clk_i(clk_i),
-                // .nrst_i(nrst_i),
-
-                // .flush_i(flush_i),
-
-                // .in_ready_o(dispatcho[1].ready),
-                // .in_valid_i(dispatchi[1].valid),
-                // .in_data_i({
-                    // dispatchi[1].data,
-                    // dispatchi[1].rs1_f,
-                    // dispatchi[1].rs2_f,
-                    // dispatchi[1].rs1,
-                    // dispatchi[1].rs2
-                // }),
-
-                // .out_ready_i(dispatcho[2].ready),
-                // .out_valid_o(dispatchi[2].valid),
-                // .out_data_o({
-                    // dispatchi[2].data,
-                    // dispatchi[2].rs1_f,
-                    // dispatchi[2].rs2_f,
-                    // dispatchi[2].rs1,
-                    // dispatchi[2].rs2
-                // })
-            // );
-
-            assign dispatchi[2] = dispatchi[1];
-            assign dispatcho[1] = dispatcho[2];
-
             issue_acc_m issue_acc(
                 .clk_i(clk_i),
                 .nrst_i(nrst_i),
 
                 .flush_i(flush_i),
 
-                .dispatch_i(dispatchi[2]),
-                .dispatch_o(dispatcho[2]),
+                .dispatch_i(dispatchi1),
+                .dispatch_o(dispatcho1),
 
                 .commit_i(commit_i[i * IQ_COMMIT_WIDTH+:IQ_COMMIT_WIDTH]),
                 .commit_o(commit_o[i * IQ_COMMIT_WIDTH+:IQ_COMMIT_WIDTH]),

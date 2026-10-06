@@ -13,8 +13,8 @@ module issue_acc_m(
 
     input  logic flush_i,
 
-    input  iq_dispatch_i_t dispatch_i,
-    output iq_dispatch_o_t dispatch_o,
+    input  iq_acc_dispatch_i_t dispatch_i,
+    output iq_acc_dispatch_o_t dispatch_o,
 
     input  iq_commit_i_t [IQ_COMMIT_WIDTH - 1:0] commit_i,
     output iq_commit_o_t [IQ_COMMIT_WIDTH - 1:0] commit_o,

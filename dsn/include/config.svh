@@ -13,8 +13,8 @@
 parameter COMMIT_DEBUG_REGFILE         = 0;
 
 // CONFIGURABLE
-parameter DISPATCH_WIDTH               = 1;
-parameter RENAME_WIDTH                 = 3;
+parameter DISPATCH_WIDTH               = 2;
+parameter RENAME_WIDTH                 = 6;
 
 parameter INST_QUEUE_SIZE              = 4;
 
