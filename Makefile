@@ -44,6 +44,10 @@ clean: $(foreach t, $(TBS), clean-$t)
 prog-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) run
 
+.PHONY: prog_diff-%
+prog_diff-%:
+	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) diff
+
 .PHONY: prog_wave-%
 prog_wave-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) wave

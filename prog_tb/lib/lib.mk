@@ -6,6 +6,8 @@ LIB_INCLUDEDIR=include
 _LIB_OBJS+=startup.o
 _LIB_OBJS+=print.o
 
+CFLAGS+=-I$(LIB_INCLUDEDIR)
+
 LIB_OBJS=$(foreach o, $(_LIB_OBJS), $(LIB_OBJDIR)/$o)
 LIB_HEADERS=$(shell find $(LIB_INCLUDEDIR) -name "*.h" -type f)
 

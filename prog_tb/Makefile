@@ -7,17 +7,22 @@ OBJCOPY=riscv32-none-elf-objcopy
 OBJDUMP=riscv32-none-elf-objdump
 LD=riscv32-none-elf-ld
 
+NATIVE_CC=cc
+DIFF=vimdiff
+
 ARCH=rv32i
 ABI=ilp32
 
 COMFLAGS=-c -march=$(ARCH) -mabi=$(ABI)
 ASFLAGS=$(COMFLAGS)
-CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding -I$(LIB_INCLUDEDIR)
+CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding
+NATIVE_CFLAGS=-O3
 
 TOP_LEVEL=top_tb
 TB_SRCS=$(TOP_LEVEL).sv
 
 include lib/lib.mk
+include native_lib/lib.mk
 
 $(BUILD_DIR)/sim.cpp:
 	mkdir -p $(@D)
@@ -80,12 +85,20 @@ $(BUILD_DIR)/$(PROG_NAME).bin: $(BUILD_DIR)/$(PROG_NAME).linked.o
 	mkdir -p $(@D)
 	$(OBJCOPY) -O binary $< $@
 
+$(BUILD_DIR)/$(PROG_NAME).native: $(PROG_SRC_DIR)/$(PROG_NAME).c $(NATIVE_LIB_OBJS)
+	$(NATIVE_CC) $(NATIVE_CFLAGS) $(PROG_SRC_DIR)/$(PROG_NAME).c $(NATIVE_LIB_OBJS) -o $@
+
 .PHONY: build
-build: $(BUILD_DIR)/out $(BUILD_DIR)/$(PROG_NAME).bin
+build: $(BUILD_DIR)/out $(BUILD_DIR)/$(PROG_NAME).bin $(BUILD_DIR)/$(PROG_NAME).native
 
 .PHONY: run
 run: build
-	./$(BUILD_DIR)/out +ROM=$(BUILD_DIR)/$(PROG_NAME).bin
+	./$(BUILD_DIR)/out +ROM=$(BUILD_DIR)/$(PROG_NAME).bin | tee $(BUILD_DIR)/output.txt
+
+.PHONY: diff
+diff: run
+	./$(BUILD_DIR)/$(PROG_NAME).native > $(BUILD_DIR)/native.txt
+	$(DIFF) $(BUILD_DIR)/output.txt $(BUILD_DIR)/native.txt
 
 .PHONY: wave
 wave: run

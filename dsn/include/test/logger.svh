@@ -35,7 +35,7 @@
 `define DL(name, msg) \
     begin \
         if (name``_enabled) begin \
-            $display("%s[ %s ] %s\033[0m", name``_color, name``_label, $sformatf msg); \
+            $fdisplay(32'h8000_0002, "%s[ %s ] %s\033[0m", name``_color, name``_label, $sformatf msg); \
         end \
     end
 `else
