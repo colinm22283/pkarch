@@ -22,7 +22,7 @@ parameter IQ_IN_SIZE                   = 4;
 parameter IQ_OUT_SIZE                  = 4;
 parameter IQ_ACC_SIZE                  = 4;
 
-parameter ROB_SIZE                     = 64;
+parameter ROB_SIZE                     = 16;
 parameter ROB_COMMIT_WIDTH             = 2;
 
 parameter ISSUE_QUEUE_SIZE             = 4;
