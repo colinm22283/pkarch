@@ -24,6 +24,13 @@ module fetch_m(
 
     `DL_DEFINE(log, "fetch_m", `DL_CYAN, `DL_ENABLE_FETCH);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     pc_t pc;
     pc_t predicted_pc;
 
@@ -36,7 +43,7 @@ module fetch_m(
     } state;
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             state <= STATE_RUN;
 
             pc <= 0;

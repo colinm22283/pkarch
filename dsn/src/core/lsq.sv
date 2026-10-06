@@ -41,6 +41,13 @@ module lsq_m(
 
     `DL_DEFINE(log, "lsq_m", `DL_YELLOW, `DL_ENABLE_LSQ);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     lsq_commit_o_t [LSU_COUNT - 1:0] write_lsq_commito;
     lsq_commit_o_t [LSU_COUNT - 1:0] read_lsq_commito;
 
@@ -84,7 +91,7 @@ module lsq_m(
 
     lsq_write_queue_m write_queue(
         .clk_i(clk_i),
-        .nrst_i(nrst_i),
+        .nrst_i(nrst),
         
         .flush_i(flush_i),
 
@@ -117,7 +124,7 @@ module lsq_m(
 
     lsq_read_queue_m read_queue(
         .clk_i(clk_i),
-        .nrst_i(nrst_i),
+        .nrst_i(nrst),
         
         .flush_i(flush_i),
 
@@ -147,7 +154,7 @@ module lsq_m(
     generate if (LSQ_MEMORY_PORTS == 2) begin
         lsq_store_memory_sm_m store_memory_sm(
             .clk_i(clk_i),
-            .nrst_i(nrst_i),
+            .nrst_i(nrst),
 
             .mport_i(mports_i[1]),
             .mport_o(mports_o[1]),
@@ -162,7 +169,7 @@ module lsq_m(
 
         lsq_load_memory_sm_m load_memory_sm(
             .clk_i(clk_i),
-            .nrst_i(nrst_i),
+            .nrst_i(nrst),
 
             .flush_i(flush_i),
 

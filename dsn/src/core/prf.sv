@@ -31,6 +31,13 @@ module prf_m(
 
     `DL_DEFINE(log, "prf_m", `DL_MAGENTA, `DL_ENABLE_PRF);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     localparam INDEX_WIDTH = $clog2(PRF_SIZE);
 
     prf_mem_rport_req_i_t [PRF_MEM_RPORTS - 1:0] mem_reqi;
@@ -40,7 +47,7 @@ module prf_m(
 
     prf_mem_m mem(
         .clk_i(clk_i),
-        .nrst_i(nrst_i),
+        .nrst_i(nrst),
 
         .flush_i(flush_i),
 
@@ -67,7 +74,7 @@ module prf_m(
     end
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             for (int i = 0; i < PRF_RPORTS; i++) begin
                 rport_valid[i] <= 0;
             end

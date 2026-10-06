@@ -36,6 +36,13 @@ module rob_m(
 
     `DL_DEFINE(log, "rob_m", `DL_YELLOW, `DL_ENABLE_ROB);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     localparam INDEX_WIDTH = $clog2(ROB_SIZE);
     localparam SIZE_WIDTH = $clog2(ROB_SIZE + 1);
 
@@ -50,7 +57,7 @@ module rob_m(
     logic    empty, full;
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
 `ifdef ROB_COMMIT_COUNTER
             commit_count_q <= 0;
 `endif

@@ -43,6 +43,7 @@ SRCS+=test/clk_rst.v
 SRCS+=pipe_reg.sv
 SRCS+=pipeline.sv
 SRCS+=fifo.sv
+SRCS+=reset_buf.sv
 
 SRCS+=top.sv
 

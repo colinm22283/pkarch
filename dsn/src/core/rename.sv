@@ -33,6 +33,13 @@ module rename_m(
     `DL_DEFINE(log, "rename_m", `DL_CYAN, `DL_ENABLE_RENAME);
     `DL_DEFINE(error, "rename_m ERROR", `DL_RED, 1);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     typedef logic [$clog2(PRF_SIZE) - 1:0] fl_index_t;
     typedef logic [$clog2(PRF_SIZE + 1) - 1:0] fl_size_t;
 
@@ -46,7 +53,7 @@ module rename_m(
     rename_freelist_t freelist_q, freelist_d;
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             for (int i = 0; i < REG_COUNT; i++) begin
                 spec_rat_q[i] <= PRF_ZERO_ADDR;
                 arch_rat_q[i] <= PRF_ZERO_ADDR;

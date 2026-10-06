@@ -16,6 +16,13 @@ module commit_m(
     output prf_wport_i_t [ROB_COMMIT_WIDTH - 1:0] prf_wport_o
 );
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     generate if (COMMIT_DEBUG_REGFILE) begin
         word_t regfile [31:0];
 
@@ -53,7 +60,7 @@ module commit_m(
         wire word_t dbg_t6   = regfile[REG_T6];
 
         always_ff @(posedge clk_i) begin
-            if (!nrst_i) begin
+            if (!nrst) begin
                 for (int i = 0; i < 32; i++) regfile[i] = '0;
             end
             else begin

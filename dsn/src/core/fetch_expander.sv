@@ -15,6 +15,13 @@ module fetch_expander_m(
     output dispatch_i_t [DISPATCH_WIDTH - 1:0] mdispatch_o
 );
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     typedef struct packed {
         pc_t pc;
         dec_inst_t dec_inst;
@@ -31,7 +38,7 @@ module fetch_expander_m(
     end
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             size <= 0;
         end
         else begin

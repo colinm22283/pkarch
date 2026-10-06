@@ -14,6 +14,13 @@ module inst_queue_m(
     output dispatch_i_t [DISPATCH_WIDTH - 1:0] mdispatch_o
 );
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     localparam SIZE_WIDTH = $clog2(INST_QUEUE_SIZE + 1);
     localparam INDEX_WIDTH = $clog2(INST_QUEUE_SIZE);
 
@@ -45,7 +52,7 @@ module inst_queue_m(
     end
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             size <= 0;
         end
         else begin

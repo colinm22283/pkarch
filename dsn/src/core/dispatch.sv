@@ -41,12 +41,19 @@ module dispatch_m(
 
     `DL_DEFINE(log, "dispatch_m", `DL_BLUE, `DL_ENABLE_DISPATCH);
 
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
+
     logic entries_complete;
     dispatch_entry_t entries_q [DISPATCH_WIDTH - 1:0];
     dispatch_entry_t entries_d [DISPATCH_WIDTH - 1:0];
 
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             for (int i = 0; i < DISPATCH_WIDTH; i++) entries_q[i] <= '0;
         end
         else begin
