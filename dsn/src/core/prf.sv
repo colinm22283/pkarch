@@ -110,6 +110,13 @@ module prf_m(
 
                     mem_rport_index++;
                 end
+
+                // if (
+                    // mem_rport_index != PRF_MEM_RPORTS &&
+                    // !mem_reqo[mem_rport_index].ready
+                // ) begin
+                    // mem_rport_index++;
+                // end
             end
         end
     end
