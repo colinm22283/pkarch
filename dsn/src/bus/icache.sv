@@ -3,6 +3,8 @@
 `include "bus/icache.svh"
 `include "test/logger.svh"
 
+`include "config.svh"
+
 module icache_m #(
     parameter INDEX_BITS = 10,
     parameter OFFSET_BITS = 5,
@@ -20,6 +22,13 @@ module icache_m #(
 );
 
     `DL_DEFINE(log, "icache_m", `DL_GREEN, `DL_ENABLE_ICACHE);
+
+    logic nrst;
+    reset_buf_m reset_buf(
+        .clk_i(clk_i),
+        .nrst_i(nrst_i),
+        .nrst_o(nrst)
+    );
 
     localparam BLOCK_SIZE = (2 ** OFFSET_BITS) / 4;
     localparam SIZE = BLOCK_SIZE * (2 ** INDEX_BITS);
@@ -43,160 +52,61 @@ module icache_m #(
     typedef struct packed {
         bit valid;
         tag_t tag;
-        word_t [BLOCK_SIZE - 1:0] mem;
+        inst_t [BLOCK_SIZE - 1:0] [DISPATCH_WIDTH - 1:0] mem;
     } way_t;
 
     typedef way_t set_t [WAYS - 1:0];
 
-    set_t sets [SET_COUNT - 1:0];
-
-    enum logic [0:0] {
-        STATE_READY,
-        STATE_FETCH
-    } state;
+    set_t sets_q [SET_COUNT - 1:0];
+    set_t sets_d [SET_COUNT - 1:0];
 
     enum logic [1:0] {
-        FSTATE_REQ,
-        FSTATE_ACK,
-        FSTATE_DONE
-    } fstate;
+        STATE_READY,
+        STATE_REQ,
+        STATE_ACK,
+        STATE_DONE
+    } state_q, state_d;
 
-    offset_t fetch_offset;
-    index_t  fetch_index;
-    bus_addr_t fetch_addr;
+    logic [$clog2(DISPATCH_WIDTH) - 1:0] fetch_inst_q, fetch_inst_d;
+    offset_t                             fetch_offset_d, fetch_offset_d;
+    index_t                              fetch_index_q, fetch_index_d;
+    bus_addr_t                           fetch_addr_q, fetch_addr_d;
 
     addr_t test_addr;
     logic test_found;
     way_index_t test_way;
 
-    logic [$clog2(TIMEOUT + 1) - 1:0] timeout;
-
     always_ff @(posedge clk_i) begin
-        if (!nrst_i) begin
+        if (!nrst) begin
             for (int i = 0; i < SET_COUNT; i++) begin
                 for (int j = 0; j < WAYS; j++) begin
-                    sets[i][j].valid <= 0;
+                    sets_q[i][j].valid = 1'b0;
                 end
             end
 
-            state <= STATE_READY;
+            state_q <= STATE_READY;
         end
         else begin
-            case (state)
-                STATE_READY: begin
-                    if (icache_i.req) begin
-                        if (!test_found) begin
-                            state  <= STATE_FETCH;
-                            fstate <= FSTATE_REQ;
+            sets_q <= sets_d;
 
-                            timeout <= 0;
+            state_q <= state_d;
 
-                            fetch_offset <= 0;
-                            fetch_index  <= test_addr.parts.index;
-                            fetch_addr   <= icache_i.addr & ~(BUS_ADDR_WIDTH'({OFFSET_BITS{1'b1}}));
-
-                            for (int i = WAYS - 1; i > 0; i--) begin
-                                sets[test_addr.parts.index][i] <= sets[test_addr.parts.index][i - 1];
-                            end
-
-                            sets[test_addr.parts.index][0].valid <= 0;
-                            sets[test_addr.parts.index][0].tag <= test_addr.parts.tag;
-
-                            `DL(log, ("Address 0x%h not found", test_addr.addr));
-                        end
-                    end
-                end
-
-                STATE_FETCH: begin
-                    case (fstate)
-                        FSTATE_REQ: begin
-                            if (mport_i.ack) begin
-                                fstate <= FSTATE_ACK;
-                            end
-
-                            if (timeout == TIMEOUT) begin
-                                sets[fetch_index][0].valid <= 1;
-
-                                state <= STATE_READY;
-                            end
-                            else timeout <= timeout + 1;
-                        end
-
-                        FSTATE_ACK: begin
-                            if (!mport_i.ack) begin
-                                if (fetch_offset == offset_t'(BLOCK_SIZE - 1)) begin
-                                    sets[fetch_index][0].valid <= 1;
-
-                                    state <= STATE_READY;
-                                end
-                                else fstate <= FSTATE_DONE;
-
-                                sets[fetch_index][0].mem[fetch_offset] <= mport_i.data;
-
-                                `DL(log, ("Load 0x%x into 0x%x from 0x%x, 0x%x", mport_i.data, fetch_index, mport_o.addr, fetch_offset));
-                            end
-                        end
-
-                        FSTATE_DONE: begin
-                            fstate <= FSTATE_REQ;
-
-                            timeout <= 0;
-
-                            fetch_addr <= fetch_addr + 4;
-                            fetch_offset <= fetch_offset + 1;
-                        end
-
-                        default: ;
-                    endcase
-                end
-            endcase
+            fetch_inst_q   <= fetch_inst_d;
+            fetch_offset_q <= fetch_offset_d;
+            fetch_index_q  <= fetch_index_d;
+            fetch_addr_q   <= fetch_addr_d;
         end
     end
 
     always_comb begin
-        case (state)
-            STATE_READY: begin
-                icache_o.ack  = test_found;
-                icache_o.data = sets[test_addr.parts.index][test_way].mem[test_addr.parts.offset / offset_t'(4)];
-            end
+        sets_d = sets_q;
 
-            default: begin
-                icache_o.ack  = 0;
-                icache_o.data = 0;
-            end
-        endcase
+        state_d = state_q;
 
-        mport_o      = 0;
-        mport_o.rw   = BUS_RW_READ;
-        mport_o.size = BUS_SIZE_WORD;
-        mport_o.addr = fetch_addr;
-
-        if (state == STATE_FETCH) begin
-            case (fstate)
-                FSTATE_REQ, FSTATE_ACK: begin
-                    mport_o.req  = 1;
-                end
-
-                default: ;
-            endcase
-        end
-    end
-
-    always_comb begin
-        test_addr.addr = icache_i.addr;
-
-        test_found = 0;
-        test_way = 0;
-
-        for (int i = 0; i < WAYS; i++) begin
-            if (
-                sets[test_addr.parts.index][i].valid &&
-                sets[test_addr.parts.index][i].tag == test_addr.parts.tag
-            ) begin
-                test_found = 1;
-                test_way = $bits(way_index_t)'(i);
-            end
-        end
+        fetch_inst_d   = fetch_inst_d;
+        fetch_offset_d = fetch_offset_q;
+        fetch_index_d  = fetch_index_q;
+        fetch_addr_d   = fetch_addr_q;
     end
 
 endmodule
