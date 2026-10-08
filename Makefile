@@ -31,6 +31,7 @@ TBS+=rename
 TBS+=commit
 TBS+=fu
 TBS+=no_fetch
+TBS+=bw_mult
 TBS+=top
 
 .PHONY: all

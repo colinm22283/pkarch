@@ -26,6 +26,10 @@ SRCS+=fu/alu.sv
 SRCS+=fu/jmp.sv
 SRCS+=fu/lsu.sv
 
+SRCS+=bw_mult/bw_mult.sv
+
+SRCS+=misc/full_adder.sv
+
 SRCS+=bus/busarb.sv
 SRCS+=bus/ram.sv
 SRCS+=bus/serial.sv
