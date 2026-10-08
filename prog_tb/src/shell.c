@@ -44,30 +44,27 @@ int strcmp(const char * a, const char * b) {
     }
 }
 
+int strlen(const char * str) {
+    int i;
+    for (i = 0; str[i] != '\0'; i++);
+    return i;
+}
+
 int stoi(const char * str) {
-    char *endptr;
-    errno = 0;
-    
-    long val = strtol(str, &endptr, 10);
+    int  len = strlen(str);
+    long mul = 1;
+    long acc = 0;
 
-    // Check for errors (no digits found or out of range)
-    if ((errno == ERANGE && (val == LONG_MAX || val == LONG_MIN)) || (errno != 0 && val == 0)) {
-        perror("stoi overflow/underflow");
-        exit(EXIT_FAILURE);
+    for (int i = len - 1; i >= 0; i--) {
+        if (str[i] < '0' || str[i] > '9') return 0;
+
+        int num = (int) str[i] - (int) '0';
+        acc += num * mul;
+
+        mul *= 10;
     }
 
-    if (endptr == str) {
-        fprintf(stderr, "No digits found in string.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Check if value fits in a standard integer
-    if (val > INT_MAX || val < INT_MIN) {
-        fprintf(stderr, "Value out of int range.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    return (int)val;
+    return acc;
 }
 
 int main() {
@@ -80,6 +77,15 @@ int main() {
                 print_str(argv[i]);
                 print_str("\n");
             }
+        }
+        else if (strcmp(argv[0], "add") == 0) {
+            if (argc != 3) {
+                print_str("Invalid arguments\nUsage: add <a> <b>\n");
+                continue;
+            }
+
+            print_dec(stoi(argv[1]) + stoi(argv[2]));
+            print_str("\n");
         }
         else if (strcmp(argv[0], "exit") == 0) {
             print_str("Bye!\n");
