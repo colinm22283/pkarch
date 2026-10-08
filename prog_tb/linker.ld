@@ -12,6 +12,7 @@ SECTIONS {
         *(.text*);
         *(.data*);
         *(.bss*);
+        *(.sbss*);
         *(.rodata*)
     } > ram
 

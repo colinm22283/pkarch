@@ -3,7 +3,11 @@
 `include "isa.svh"
 `include "bus/icache.svh"
 
-module top_tb();
+module top_tb(
+    input  logic        in_valid,
+    output logic        in_ready,
+    input  logic [7:0]  in_data
+);
 
     parameter integer RAM_SIZE = 4096;
 
@@ -44,7 +48,11 @@ module top_tb();
         .nrst_i(nrst),
 
         .sport_i(sportbi),
-        .sport_o(sportbo)
+        .sport_o(sportbo),
+
+        .in_valid_i(in_valid),
+        .in_ready_o(in_ready),
+        .in_data_i(in_data)
     );
 
     sim_stop_m #(32'h10000004) sim_stop(
@@ -99,7 +107,7 @@ module top_tb();
             mem[i + 0]
         };
 
-        #10000000;
+        #100000000000;
 
         $finish;
     end

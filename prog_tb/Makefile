@@ -30,6 +30,8 @@ $(BUILD_DIR)/sim.cpp:
 	echo '#include "V$(TOP_LEVEL).h"' > $@
 	echo '#include "verilated.h"' >> $@
 	echo '#include "verilated_fst_c.h"' >> $@
+	echo '#include <fcntl.h>' >> $@
+	echo '#include <unistd.h>' >> $@
 	echo 'int main(int argc, char** argv) {' >> $@
 	echo '  VerilatedContext* contextp = new VerilatedContext;' >> $@
 	echo '  VerilatedFstC* tfp = nullptr;' >> $@
@@ -39,7 +41,14 @@ $(BUILD_DIR)/sim.cpp:
 	echo '  V$(TOP_LEVEL)* top = new V$(TOP_LEVEL){contextp};' >> $@
 	echo '  top->trace(tfp, 99);' >> $@
 	echo '  tfp->open("$(BUILD_DIR)/out.fst");' >> $@
+	echo '  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);' >> $@
+	echo "  char ch = '\\0';" >> $@
 	echo '  while (!contextp->gotFinish()) {' >> $@
+	echo '    if (top->in_ready) ch = '\0';' >> $@
+	echo '    if (ch == '\0' && !top->in_ready && read(STDIN_FILENO, &ch, 1) > 0) {' >> $@
+	echo '        top->in_data = ch;' >> $@
+	echo '    }' >> $@
+	echo "    top->in_valid = ch != '\\0';" >> $@
 	echo '    top->eval();' >> $@
 	echo '    tfp->dump(contextp->time());' >> $@
 	echo '    contextp->timeInc(1);' >> $@

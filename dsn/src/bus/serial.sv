@@ -8,34 +8,59 @@ module serial_m #(
     input wire nrst_i,
     
     input  bus_siport_t sport_i,
-    output bus_soport_t sport_o
+    output bus_soport_t sport_o,
+
+    input  logic        in_valid_i,
+    output logic        in_ready_o,
+    input  logic [7:0]  in_data_i
 );
 
     `DL_DEFINE(log, "serial_m", `DL_GREEN, `DL_ENABLE_SERIAL);
 
-    initial forever begin
-        wait(sport_i.req);
+    initial begin
+        sport_o    = '0;
+        in_ready_o = '0;
 
-        if (sport_i.addr == ADDRESS) begin
-            sport_o.ack = 1;
+        forever begin
+            wait(sport_i.req);
 
-            if (`SERIAL_ASCII_MODE) begin
-                $write("%c", sport_i.data[7:0]);
-                $fflush(32'h8000_0001);
+            if (sport_i.addr == ADDRESS) begin
+                sport_o.ack = 1;
+
+                if (sport_i.rw == BUS_RW_WRITE) begin
+                    if (`SERIAL_ASCII_MODE) begin
+                        $write("%c", sport_i.data[7:0]);
+                        $fflush(32'h8000_0001);
+                    end
+                    else begin
+                        `DL(log, ("SERIAL: 0x%x", sport_i.data));
+                    end
+
+                    for (int i = 0; i < 3; i++) begin
+                        wait(clk_i);
+                        wait(!clk_i);
+                    end
+                end
+                else begin
+                    wait(in_valid_i);
+
+                    sport_o.data = bus_data_t'(in_data_i);
+
+                    in_ready_o = 1;
+                    #1;
+                    in_ready_o = 0;
+
+                    for (int i = 0; i < 3; i++) begin
+                        wait(clk_i);
+                        wait(!clk_i);
+                    end
+                end
+
+                sport_o.ack = 0;
             end
-            else begin
-                `DL(log, ("SERIAL: 0x%x", sport_i.data));
-            end
 
-            for (int i = 0; i < 3; i++) begin
-                wait(clk_i);
-                wait(!clk_i);
-            end
-
-            sport_o.ack = 0;
+            wait(!sport_i.req);
         end
-
-        wait(!sport_i.req);
     end
 
 endmodule

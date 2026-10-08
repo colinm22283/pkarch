@@ -5,6 +5,7 @@ LIB_INCLUDEDIR=include
 
 _LIB_OBJS+=startup.o
 _LIB_OBJS+=print.o
+_LIB_OBJS+=exit.o
 
 CFLAGS+=-I$(LIB_INCLUDEDIR)
 
