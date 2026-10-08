@@ -87,6 +87,15 @@ int main() {
             print_dec(stoi(argv[1]) + stoi(argv[2]));
             print_str("\n");
         }
+        else if (strcmp(argv[0], "mul") == 0) {
+            if (argc != 3) {
+                print_str("Invalid arguments\nUsage: mul <a> <b>\n");
+                continue;
+            }
+
+            print_dec(stoi(argv[1]) * stoi(argv[2]));
+            print_str("\n");
+        }
         else if (strcmp(argv[0], "exit") == 0) {
             print_str("Bye!\n");
 
