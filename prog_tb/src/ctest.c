@@ -5,7 +5,7 @@ int main() {
     print_str("\n");
 
     int a = 1, b = 1;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 40; i++) {
         print_dec(i);
         print_str(": ");
         print_dec(a);

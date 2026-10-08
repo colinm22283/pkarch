@@ -98,14 +98,14 @@ $(BUILD_DIR)/$(PROG_NAME).native: $(PROG_SRC_DIR)/$(PROG_NAME).c $(NATIVE_LIB_OB
 	$(NATIVE_CC) $(NATIVE_CFLAGS) $(PROG_SRC_DIR)/$(PROG_NAME).c $(NATIVE_LIB_OBJS) -o $@
 
 .PHONY: build
-build: $(BUILD_DIR)/out $(BUILD_DIR)/$(PROG_NAME).bin $(BUILD_DIR)/$(PROG_NAME).native
+build: $(BUILD_DIR)/out $(BUILD_DIR)/$(PROG_NAME).bin
 
 .PHONY: run
 run: build
 	./$(BUILD_DIR)/out +ROM=$(BUILD_DIR)/$(PROG_NAME).bin | tee $(BUILD_DIR)/output.txt
 
 .PHONY: diff
-diff: run
+diff: run $(BUILD_DIR)/$(PROG_NAME).native
 	./$(BUILD_DIR)/$(PROG_NAME).native > $(BUILD_DIR)/native.txt
 	$(DIFF) $(BUILD_DIR)/output.txt $(BUILD_DIR)/native.txt
 
