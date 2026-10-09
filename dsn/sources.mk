@@ -27,6 +27,7 @@ SRCS+=fu/jmp.sv
 SRCS+=fu/lsu.sv
 
 SRCS+=bw_mult/bw_mult.sv
+SRCS+=bw_mult/mult.sv
 
 SRCS+=misc/full_adder.sv
 

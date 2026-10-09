@@ -1,6 +1,6 @@
 module bw_mult_tb();
 
-    parameter integer WIDTH = 4;
+    parameter integer WIDTH = 8;
     parameter integer ITERS = 1000;
 
     logic clk, nrst;
@@ -17,21 +17,21 @@ module bw_mult_tb();
     logic out_valid, out_ready;
     logic signed [2 * WIDTH - 1:0] out_data;
 
-    bw_mult_m #(
+    mult_m #(
         .WIDTH(WIDTH),
         .STAGES('0)
     ) dut(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .in_valid_i(in_valid),
-        .in_ready_o(in_ready),
-        .in_data0_i(in_data0),
-        .in_data1_i(in_data1),
+        .valid_i(in_valid),
+        .ready_o(in_ready),
+        .a_i(in_data0),
+        .b_i(in_data1),
 
-        .out_valid_o(out_valid),
-        .out_ready_i(out_ready),
-        .out_data_o(out_data)
+        .valid_o(out_valid),
+        .ready_i(out_ready),
+        .y_o(out_data)
     );
 
     initial begin
@@ -46,8 +46,8 @@ module bw_mult_tb();
             // data[i][0] = WIDTH'($random);
             // data[i][1] = WIDTH'($random);
 
-            data[i][0] = -4'sd1;
-            data[i][1] = 4'd2;
+            data[i][0] = 8'sd10;
+            data[i][1] = 8'd2;
         end
 
         clk_rst.RESET();
