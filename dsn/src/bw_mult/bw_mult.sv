@@ -7,6 +7,8 @@ module bw_mult_m #(
 
     input  logic               valid_i,
     output logic               ready_o,
+    input  logic               a_unsigned_i,
+    input  logic               b_unsigned_i,
     input  logic [WIDTH - 1:0] a_i,
     input  logic [WIDTH - 1:0] b_i,
 
@@ -15,12 +17,14 @@ module bw_mult_m #(
     output logic [2 * WIDTH - 1:0] y_o
 );
 
-    logic [WIDTH - 1:0] ands_q       [WIDTH - 1:0];
-    logic [WIDTH - 1:0] ands_d       [WIDTH - 1:0];
-    logic [WIDTH - 1:0] sums_q       [WIDTH - 1:0];
-    logic [WIDTH - 1:0] sums_d       [WIDTH - 1:0];
-    logic [WIDTH - 2:0] carries_q [WIDTH - 1:0];
-    logic [WIDTH - 2:0] carries_d [WIDTH - 1:0];
+    logic [WIDTH - 1:0] ands_q     [WIDTH - 1:0];
+    logic [WIDTH - 1:0] ands_d     [WIDTH - 1:0];
+    logic [WIDTH - 1:0] sums_q     [WIDTH - 1:0];
+    logic [WIDTH - 1:0] sums_d     [WIDTH - 1:0];
+    logic [WIDTH - 2:0] carries_q  [WIDTH - 1:0];
+    logic [WIDTH - 2:0] carries_d  [WIDTH - 1:0];
+    logic [1:0]         unsigned_q [WIDTH - 1:0];
+    logic [1:0]         unsigned_d [WIDTH - 1:0];
 
     logic               valid                [WIDTH:0];
     logic               ready                [WIDTH:0];
@@ -32,6 +36,13 @@ module bw_mult_m #(
 
     assign valid_o      = valid[WIDTH];
     assign valid[0]     = valid_i;
+
+    assign unsigned_d[0] = { b_unsigned_i, a_unsigned_i };
+    generate
+        for (genvar i = 0; i < WIDTH - 1; i++) begin
+            assign unsigned_d[i + 1] = unsigned_q[i];
+        end
+    endgenerate
 
     assign y_o[WIDTH - 1:0] = OUTPUT_GEN[WIDTH - 1].y_q;
 
@@ -125,16 +136,18 @@ module bw_mult_m #(
             if (STAGES[i]) begin
                 always_ff @(posedge clk_i) begin
                     if (ready[i] && valid[i]) begin
-                        ands_q[i]    <= ands_d[i];
-                        sums_q[i]    <= sums_d[i];
-                        carries_q[i] <= carries_d[i];
+                        ands_q[i]     <= ands_d[i];
+                        sums_q[i]     <= sums_d[i];
+                        carries_q[i]  <= carries_d[i];
+                        unsigned_q[i] <= unsigned_d[i];
                     end
                 end
             end
             else begin
-                assign ands_q[i]    = ands_d[i];
-                assign sums_q[i]    = sums_d[i];
-                assign carries_q[i] = carries_d[i];
+                assign ands_q[i]     = ands_d[i];
+                assign sums_q[i]     = sums_d[i];
+                assign carries_q[i]  = carries_d[i];
+                assign unsigned_q[i] = unsigned_d[i];
             end
         end
     endgenerate
@@ -151,18 +164,28 @@ module bw_mult_m #(
 
                 if (i == WIDTH - 1) begin
                     if (j == WIDTH - 1) begin
-                        ands_d[i][j] = a & b;
+                        if (unsigned_d[i][1]) begin
+                            if (unsigned_d[i][0]) ands_d[i][j] = a & b;
+                            else                  ands_d[i][j] = ~(a & b);
+                        end
+                        else begin
+                            if (unsigned_d[i][0]) ands_d[i][j] = ~(a & b);
+                            else                  ands_d[i][j] = a & b;
+                        end
                     end
                     else begin
-                        ands_d[i][j] = ~(a & b);
+                        if (unsigned_d[i][0]) ands_d[i][j] = a & b;
+                        else                  ands_d[i][j] = ~(a & b);
                     end
                 end
                 else begin
                     if (j == WIDTH - 1) begin
-                        ands_d[i][j] = ~(a & b);
+                        if (unsigned_d[i][0]) ands_d[i][j] = a & b;
+                        else               ands_d[i][j] = ~(a & b);
                     end
                     else begin
-                        ands_d[i][j] = a & b;
+                        if (unsigned_d[i][0]) ands_d[i][j] = ~(a & b);
+                        else               ands_d[i][j] = a & b;
                     end
                 end
             end

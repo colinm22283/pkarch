@@ -27,6 +27,8 @@ module bw_mult_tb();
 
         .valid_i(in_valid),
         .ready_o(in_ready),
+        .a_unsigned_i(1'b0),
+        .b_unsigned_i(1'b0),
         .a_i(in_data0),
         .b_i(in_data1),
 
