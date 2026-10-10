@@ -9,7 +9,7 @@ module top_tb(
     input  logic [7:0]  in_data
 );
 
-    parameter integer RAM_SIZE = 4096;
+    parameter integer RAM_SIZE = 4096 * 4;
 
     string filename;
 
@@ -91,7 +91,7 @@ module top_tb(
 
     initial begin
         int fd;
-        reg [7:0] mem [4095:0];
+        reg [7:0] mem [RAM_SIZE - 1:0];
 
         clk_rst.RESET();
 
@@ -100,7 +100,7 @@ module top_tb(
         fd = $fopen(filename, "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < 4096; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < RAM_SIZE; i += 4) ram.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],

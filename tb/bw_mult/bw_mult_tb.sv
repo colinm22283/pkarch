@@ -19,11 +19,14 @@ module bw_mult_tb();
 
     bw_mult_m #(
         .WIDTH(WIDTH),
-        .STAGES({ WIDTH + 1 { 1'b1 } })
-        // .STAGES('0)
+        .STAGES({ WIDTH { 1'b1 } }),
+        // .STAGES('0),
+        .EXTRA_SIZE(1)
     ) dut(
         .clk_i(clk),
         .nrst_i(nrst),
+
+        .flush_i(1'b0),
 
         .valid_i(in_valid),
         .ready_o(in_ready),
@@ -31,10 +34,12 @@ module bw_mult_tb();
         .b_unsigned_i(1'b0),
         .a_i(in_data0),
         .b_i(in_data1),
+        .extra_i('0),
 
         .valid_o(out_valid),
         .ready_i(out_ready),
-        .y_o(out_data)
+        .y_o(out_data),
+        .extra_o()
     );
 
     initial begin

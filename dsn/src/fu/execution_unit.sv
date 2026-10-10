@@ -40,6 +40,11 @@ module execution_unit_m(
     commit_o_t    alu_commiti   [ALU_COUNT - 1:0];
     commit_i_t    alu_commito   [ALU_COUNT - 1:0];
 
+    iq_commit_o_t intmul_dispatchi [INTMUL_COUNT - 1:0];
+    iq_commit_i_t intmul_dispatcho [INTMUL_COUNT - 1:0];
+    commit_o_t    intmul_commiti   [INTMUL_COUNT - 1:0];
+    commit_i_t    intmul_commito   [INTMUL_COUNT - 1:0];
+
     iq_commit_o_t jmp_dispatchi [JMP_COUNT - 1:0];
     iq_commit_i_t jmp_dispatcho [JMP_COUNT - 1:0];
     commit_o_t    jmp_commiti   [JMP_COUNT - 1:0];
@@ -59,6 +64,21 @@ module execution_unit_m(
 
                 .commit_i(alu_commiti[i]),
                 .commit_o(alu_commito[i])
+            );
+        end
+
+        for (genvar i = 0; i < INTMUL_COUNT; i++) begin
+            intmul_m intmul(
+                .clk_i(clk_i),
+                .nrst_i(nrst_i),
+
+                .flush_i(flush_i),
+
+                .dispatch_i(intmul_dispatchi[i]),
+                .dispatch_o(intmul_dispatcho[i]),
+
+                .commit_i(intmul_commiti[i]),
+                .commit_o(intmul_commito[i])
             );
         end
 
@@ -88,12 +108,14 @@ module execution_unit_m(
     );
 
     always_comb begin
-        int alu_idx, jmp_idx, lsu_idx;
-        alu_idx = 0;
-        jmp_idx = 0;
-        lsu_idx = 0;
+        int alu_idx, intmul_idx, jmp_idx, lsu_idx;
+        alu_idx    = 0;
+        intmul_idx = 0;
+        jmp_idx    = 0;
+        lsu_idx    = 0;
 
         for (int i = 0; i < ALU_COUNT; i++) alu_dispatchi[i] = '0;
+        for (int i = 0; i < INTMUL_COUNT; i++) intmul_dispatchi[i] = '0;
         for (int i = 0; i < JMP_COUNT; i++) jmp_dispatchi[i] = '0;
         lsu_dispatchi = '0;
 
@@ -104,6 +126,14 @@ module execution_unit_m(
                         alu_dispatchi[alu_idx] = dispatch_i[i];
 
                         alu_idx++;
+                    end
+                end
+
+                FU_INTMUL: begin
+                    if (intmul_idx != INTMUL_COUNT && dispatch_i[i].valid) begin
+                        intmul_dispatchi[intmul_idx] = dispatch_i[i];
+
+                        intmul_idx++;
                     end
                 end
 
@@ -129,10 +159,11 @@ module execution_unit_m(
     end
 
     always_comb begin
-        int alu_idx, jmp_idx, lsu_idx;
-        alu_idx = 0;
-        jmp_idx = 0;
-        lsu_idx = 0;
+        int alu_idx, intmul_idx, jmp_idx, lsu_idx;
+        alu_idx    = 0;
+        intmul_idx = 0;
+        jmp_idx    = 0;
+        lsu_idx    = 0;
 
         for (int i = 0; i < IQ_OUT_WIDTH; i++) dispatch_o[i] = '0;
 
@@ -143,6 +174,14 @@ module execution_unit_m(
                         dispatch_o[i]          = alu_dispatcho[alu_idx];
 
                         alu_idx++;
+                    end
+                end
+
+                FU_INTMUL: begin
+                    if (intmul_idx != INTMUL_COUNT && dispatch_i[i].valid) begin
+                        dispatch_o[i]          = intmul_dispatcho[intmul_idx];
+
+                        intmul_idx++;
                     end
                 end
 
@@ -176,6 +215,13 @@ module execution_unit_m(
         for (int j = 0; j < ALU_COUNT; j++) begin
             alu_commiti[j] = commit_i[i];
             commit_o[i]    = alu_commito[j];
+
+            i++;
+        end
+
+        for (int j = 0; j < INTMUL_COUNT; j++) begin
+            intmul_commiti[j] = commit_i[i];
+            commit_o[i]    = intmul_commito[j];
 
             i++;
         end

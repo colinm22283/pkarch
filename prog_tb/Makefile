@@ -10,10 +10,10 @@ LD=riscv32-none-elf-ld
 NATIVE_CC=cc
 DIFF=vimdiff
 
-ARCH=rv32i
+ARCH=rv32izmmul
 ABI=ilp32
 
-COMFLAGS=-c -march=$(ARCH) -mabi=$(ABI)
+COMFLAGS=-c -mabi=$(ABI) -march=$(ARCH)
 ASFLAGS=$(COMFLAGS)
 CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding
 NATIVE_CFLAGS=-O3

@@ -27,6 +27,7 @@ parameter ROB_COMMIT_WIDTH             = 2;
 
 parameter ISSUE_QUEUE_SIZE             = 4;
 parameter ALU_COUNT                    = 2;
+parameter INTMUL_COUNT                 = 1;
 parameter JMP_COUNT                    = 1;
 parameter LSU_COUNT                    = 1;
 
@@ -54,7 +55,7 @@ parameter PRF_RELPORTS       = RENAME_WIDTH;
 parameter IQ_OUT_WIDTH       = IQ_COMMIT_WIDTH * DISPATCH_WIDTH;
 parameter IQ_COMMIT_WIDTH    = IQ_ACC_SIZE;
 
-parameter FU_COUNT           = ALU_COUNT + JMP_COUNT;
+parameter FU_COUNT           = ALU_COUNT + INTMUL_COUNT + JMP_COUNT;
 
 parameter COMMIT_COUNT       = FU_COUNT + 2;
 

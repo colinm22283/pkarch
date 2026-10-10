@@ -1,9 +1,12 @@
 module bw_mult_m #(
     parameter integer WIDTH = 32,
-    parameter logic [WIDTH:0] STAGES = '0
+    parameter logic [WIDTH - 1:0] STAGES = '0,
+    parameter integer EXTRA_SIZE = 0
 ) (
     input  logic clk_i,
     input  logic nrst_i,
+
+    input  logic flush_i,
 
     input  logic               valid_i,
     output logic               ready_o,
@@ -11,10 +14,12 @@ module bw_mult_m #(
     input  logic               b_unsigned_i,
     input  logic [WIDTH - 1:0] a_i,
     input  logic [WIDTH - 1:0] b_i,
+    input  logic [EXTRA_SIZE - 1:0] extra_i,
 
     output logic                   valid_o,
     input  logic                   ready_i,
-    output logic [2 * WIDTH - 1:0] y_o
+    output logic [2 * WIDTH - 1:0] y_o,
+    output logic [EXTRA_SIZE - 1:0] extra_o
 );
 
     logic [WIDTH - 1:0] ands_q     [WIDTH - 1:0];
@@ -25,6 +30,9 @@ module bw_mult_m #(
     logic [WIDTH - 2:0] carries_d  [WIDTH - 1:0];
     logic [1:0]         unsigned_q [WIDTH - 1:0];
     logic [1:0]         unsigned_d [WIDTH - 1:0];
+
+    logic [EXTRA_SIZE - 1:0] extra_q [WIDTH - 1:0];
+    logic [EXTRA_SIZE - 1:0] extra_d [WIDTH - 1:0];
 
     logic               valid                [WIDTH:0];
     logic               ready                [WIDTH:0];
@@ -44,6 +52,14 @@ module bw_mult_m #(
         end
     endgenerate
 
+    assign extra_d[0] = extra_i;
+    generate
+        for (genvar i = 0; i < WIDTH - 1; i++) begin
+            assign extra_d[i + 1] = extra_q[i];
+        end
+    endgenerate
+    assign extra_o = extra_q[WIDTH - 1];
+
     assign y_o[WIDTH - 1:0] = OUTPUT_GEN[WIDTH - 1].y_q;
 
     generate
@@ -52,7 +68,6 @@ module bw_mult_m #(
 
             if (STAGES[i]) begin
                 assign ready[i]     = ready[i + 1] || !valid_q;
-                // assign ready[i]     = ready[i + 1] || !valid_q;
                 assign valid[i + 1] = valid_q;
 
                 always_comb begin
@@ -66,7 +81,7 @@ module bw_mult_m #(
                 end
 
                 always_ff @(posedge clk_i) begin
-                    if (!nrst_i) begin
+                    if (!nrst_i || flush_i) begin
                         valid_q <= '0;
                     end
                     else begin
@@ -140,6 +155,8 @@ module bw_mult_m #(
                         sums_q[i]     <= sums_d[i];
                         carries_q[i]  <= carries_d[i];
                         unsigned_q[i] <= unsigned_d[i];
+
+                        extra_q[i] <= extra_d[i];
                     end
                 end
             end
@@ -148,6 +165,8 @@ module bw_mult_m #(
                 assign sums_q[i]     = sums_d[i];
                 assign carries_q[i]  = carries_d[i];
                 assign unsigned_q[i] = unsigned_d[i];
+
+                assign extra_q[i] = extra_d[i];
             end
         end
     endgenerate
@@ -163,7 +182,9 @@ module bw_mult_m #(
                 assign a = INPUT_GEN[i].a_d[j];
 
                 if (i == WIDTH - 1) begin
+                    // last b
                     if (j == WIDTH - 1) begin
+                        // last a
                         if (unsigned_d[i][1]) begin
                             if (unsigned_d[i][0]) ands_d[i][j] = a & b;
                             else                  ands_d[i][j] = ~(a & b);
@@ -174,18 +195,22 @@ module bw_mult_m #(
                         end
                     end
                     else begin
-                        if (unsigned_d[i][0]) ands_d[i][j] = a & b;
-                        else                  ands_d[i][j] = ~(a & b);
+                        if (unsigned_d[i][1]) begin
+                            ands_d[i][j] = a & b;
+                        end
+                        else begin
+                            ands_d[i][j] = ~(a & b);
+                        end
                     end
                 end
                 else begin
                     if (j == WIDTH - 1) begin
+                        // last a
                         if (unsigned_d[i][0]) ands_d[i][j] = a & b;
-                        else               ands_d[i][j] = ~(a & b);
+                        else                  ands_d[i][j] = ~(a & b);
                     end
                     else begin
-                        if (unsigned_d[i][0]) ands_d[i][j] = ~(a & b);
-                        else               ands_d[i][j] = a & b;
+                        ands_d[i][j] = a & b;
                     end
                 end
             end
@@ -203,7 +228,9 @@ module bw_mult_m #(
                     full_adder_m fa(
                         .a_i(sums_q[i - 1][j + 1]),
                         .b_i(carries_q[i - 1][j]),
-                        .c_i(ands_d[i][j]),
+                        .c_i(
+                            i == WIDTH - 1 && j == 0 && (^unsigned_d[i]) ? 1'b1 : ands_d[i][j]
+                        ),
                         .y_o(sums_d[i][j]),
                         .c_o(carries_d[i][j])
                     );
@@ -229,8 +256,8 @@ module bw_mult_m #(
             );
         end
 
-        assign final_carries[0] = 1'b1;
-        assign y_o[2 * WIDTH - 1] = ~final_carries[WIDTH - 1];
+        assign final_carries[0] = (&unsigned_q[WIDTH - 1]) ? 1'b0 : 1'b1;
+        assign y_o[2 * WIDTH - 1] = (&unsigned_q[WIDTH - 1]) ? final_carries[WIDTH - 1] : ~final_carries[WIDTH - 1];
     endgenerate
 
 endmodule

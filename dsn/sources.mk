@@ -23,6 +23,7 @@ SRCS+=fu/execution_unit.sv
 SRCS+=fu/fu_sel.sv
 
 SRCS+=fu/alu.sv
+SRCS+=fu/intmul.sv
 SRCS+=fu/jmp.sv
 SRCS+=fu/lsu.sv
 

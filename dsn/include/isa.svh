@@ -127,6 +127,11 @@ parameter FUNCT_SRA  = (`FUNCT_CONCAT(3'h5, 7'h20));
 parameter FUNCT_SLT  = (`FUNCT_CONCAT(3'h2, 7'h00));
 parameter FUNCT_SLTU = (`FUNCT_CONCAT(3'h3, 7'h00));
 
+parameter FUNCT_MUL   = (`FUNCT_CONCAT(3'h0, 7'h01));
+parameter FUNCT_MULH  = (`FUNCT_CONCAT(3'h1, 7'h01));
+parameter FUNCT_MULSU = (`FUNCT_CONCAT(3'h2, 7'h01));
+parameter FUNCT_MULHU = (`FUNCT_CONCAT(3'h3, 7'h01));
+
 parameter FUNCT3_LB  = 3'h0;
 parameter FUNCT3_LH  = 3'h1;
 parameter FUNCT3_LW  = 3'h2;

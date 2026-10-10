@@ -1,11 +1,13 @@
 #include <print.h>
 
-#define N (5)
-#define M (5)
+#define N (10)
+#define M (10)
 
 int mat1[N][M];
 int mat2[M][N];
 int mat3[M][N];
+
+int multiply(int, int);
 
 int main() {
     for (int j = 0; j < N; j++) {
@@ -20,7 +22,13 @@ int main() {
             int total = 0;
 
             for (int k = 0; k < M; k++) {
-                total += mat1[i][k] * mat1[k][j];
+                /* total += mat1[i][k] * mat2[k][j]; */
+                asm volatile (
+                    "mul %0, %1, %2" :
+                    "=r" (total) :
+                    "r" (mat1[i][k]),
+                    "r" (mat2[k][j])
+                );
             }
 
             mat3[j][i] = total;

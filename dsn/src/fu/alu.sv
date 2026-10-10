@@ -42,7 +42,6 @@ module alu_m(
         a_u = a;
         b_u = b;
 
-        // RV32I shifts only use the low 5 bits of rs2 / the immediate.
         shamt = b_u[4:0];
 
         case (dispatch_i.data.dec_inst.opcode)
