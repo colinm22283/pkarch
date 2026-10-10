@@ -1,6 +1,6 @@
 module bw_mult_tb();
 
-    parameter integer WIDTH = 8;
+    parameter integer WIDTH = 32;
     parameter integer ITERS = 1000;
 
     logic clk, nrst;
@@ -17,9 +17,10 @@ module bw_mult_tb();
     logic out_valid, out_ready;
     logic signed [2 * WIDTH - 1:0] out_data;
 
-    mult_m #(
+    bw_mult_m #(
         .WIDTH(WIDTH),
-        .STAGES('0)
+        .STAGES({ WIDTH + 1 { 1'b1 } })
+        // .STAGES('0)
     ) dut(
         .clk_i(clk),
         .nrst_i(nrst),
@@ -43,11 +44,8 @@ module bw_mult_tb();
         out_ready = '0;
 
         for (int i = 0; i < ITERS; i++) begin
-            // data[i][0] = WIDTH'($random);
-            // data[i][1] = WIDTH'($random);
-
-            data[i][0] = 8'sd10;
-            data[i][1] = 8'd2;
+            data[i][0] = WIDTH'($random);
+            data[i][1] = WIDTH'($random);
         end
 
         clk_rst.RESET();
@@ -65,8 +63,27 @@ module bw_mult_tb();
                     #1;
 
                     while (1) begin
-                        @(posedge clk) if (in_ready) break;
+                        wait(!clk);
+                        if (in_ready) begin
+                            wait(clk);
+
+                            #1;
+
+                            break;
+                        end
+
+                        wait(clk);
                         #1;
+                    end
+
+                    if ($random % 2 == 0) begin
+                        in_valid = 1'b0;
+
+                        wait(!clk);
+                        wait(clk);
+                        #1;
+
+                        in_valid = 1'b1;
                     end
                 end
 
@@ -80,13 +97,28 @@ module bw_mult_tb();
                     $display("Receiving %0d", i);
 
                     while (1) begin
-                        @(posedge clk) if (out_valid) break;
+                        wait(!clk);
                         #1;
+
+                        if (out_valid) break;
                     end
 
                     if (data[i][0] * data[i][1] != out_data) begin
                         $display("Got %0d for %0d * %0d", out_data, data[i][0], data[i][1]);
                         $finish;
+                    end
+
+                    wait(clk);
+                    #1;
+
+                    if ($random %2 == 0) begin
+                        out_ready = 1'b0;
+
+                        wait(!clk);
+                        wait(clk);
+                        #1;
+
+                        out_ready = 1'b1;
                     end
                 end
 
@@ -98,7 +130,7 @@ module bw_mult_tb();
     end
 
     initial begin
-        #10000;
+        #10000000;
         $finish;
     end
 

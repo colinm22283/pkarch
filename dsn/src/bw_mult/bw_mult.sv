@@ -5,117 +5,210 @@ module bw_mult_m #(
     input  logic clk_i,
     input  logic nrst_i,
 
-    input  logic               in_valid_i,
-    output logic               in_ready_o,
-    input  logic [WIDTH - 1:0] in_data0_i,
-    input  logic [WIDTH - 1:0] in_data1_i,
+    input  logic               valid_i,
+    output logic               ready_o,
+    input  logic [WIDTH - 1:0] a_i,
+    input  logic [WIDTH - 1:0] b_i,
 
-    output logic                   out_valid_o,
-    input  logic                   out_ready_i,
-    output logic [2 * WIDTH - 1:0] out_data_o
+    output logic                   valid_o,
+    input  logic                   ready_i,
+    output logic [2 * WIDTH - 1:0] y_o
 );
 
-    logic [WIDTH - 1:0] ands    [WIDTH - 1:0];
-    logic [WIDTH - 1:0] sums    [WIDTH - 2:0];
-    logic [WIDTH - 2:0] carries [WIDTH - 2:0];
-    logic [WIDTH - 1:0] out_sums;
-    logic [WIDTH - 1:0] out_carries;
-    logic [WIDTH:0]     final_carries;
+    logic [WIDTH - 1:0] ands_q       [WIDTH - 1:0];
+    logic [WIDTH - 1:0] ands_d       [WIDTH - 1:0];
+    logic [WIDTH - 1:0] sums_q       [WIDTH - 1:0];
+    logic [WIDTH - 1:0] sums_d       [WIDTH - 1:0];
+    logic [WIDTH - 2:0] carries_q [WIDTH - 1:0];
+    logic [WIDTH - 2:0] carries_d [WIDTH - 1:0];
+
+    logic               valid                [WIDTH:0];
+    logic               ready                [WIDTH:0];
+
+    logic [WIDTH - 1:0] final_carries;
+
+    assign ready_o      = ready[0];
+    assign ready[WIDTH] = ready_i;
+
+    assign valid_o      = valid[WIDTH];
+    assign valid[0]     = valid_i;
+
+    assign y_o[WIDTH - 1:0] = OUTPUT_GEN[WIDTH - 1].y_q;
 
     generate
-        for (genvar i = 0; i < WIDTH - 1; i++) begin
-            logic b;
+        for (genvar i = 0; i < WIDTH; i++) begin
+            logic valid_q, valid_d;
 
-            assign b = in_data1_i[i];
-            always_comb for (int j = 0; j < WIDTH; j++) begin
-                if (j == WIDTH - 1) begin
-                    ands[i][j] = in_data0_i[j] & ~b;
+            if (STAGES[i]) begin
+                assign ready[i]     = ready[i + 1] || !valid_q;
+                // assign ready[i]     = ready[i + 1] || !valid_q;
+                assign valid[i + 1] = valid_q;
+
+                always_comb begin
+                    valid_d = valid_q;
+
+                    if (ready[i + 1]) valid_d = 1'b0;
+
+                    if (!valid_d && valid[i] && ready[i]) begin
+                        valid_d = 1'b1;
+                    end
                 end
-                else begin
-                    ands[i][j] = in_data0_i[j] & b;
+
+                always_ff @(posedge clk_i) begin
+                    if (!nrst_i) begin
+                        valid_q <= '0;
+                    end
+                    else begin
+                        valid_q <= valid_d;
+                    end
                 end
             end
+            else begin
+                assign ready[i]     = ready[i + 1];
+                assign valid[i + 1] = valid[i];
+            end
+        end
+    endgenerate
 
+    generate
+        for (genvar i = 0; i < WIDTH; i++) begin : INPUT_GEN
+            logic [WIDTH - 1:0]     a_q, a_d;
+            logic [WIDTH - i - 1:0] b_q, b_d;
+
+            if (i == 0) begin
+                assign a_d = a_i;
+                assign b_d = b_i;
+            end
+            else begin
+                assign a_d = INPUT_GEN[i - 1].a_q;
+                assign b_d = INPUT_GEN[i - 1].b_q[WIDTH - i:1];
+            end
+
+            if (STAGES[i]) begin
+                always_ff @(posedge clk_i) begin
+                    if (ready[i] && valid[i]) begin
+                        a_q <= a_d;
+                        b_q <= b_d;
+                    end
+                end
+            end
+            else begin
+                assign a_q = a_d;
+                assign b_q = b_d;
+            end
+        end
+    endgenerate
+
+    generate
+        for (genvar i = 0; i < WIDTH; i++) begin : OUTPUT_GEN
+            logic [i:0]             y_q, y_d;
+
+            if (i != 0) begin
+                assign y_d[i - 1:0] = OUTPUT_GEN[i - 1].y_q;
+            end
+
+            if (STAGES[i]) begin
+                always_ff @(posedge clk_i) begin
+                    if (ready[i] && valid[i]) begin
+                        y_q <= y_d;
+                    end
+                end
+            end
+            else begin
+                assign y_q = y_d;
+            end
+        end
+    endgenerate
+
+    generate
+        for (genvar i = 0; i < WIDTH; i++) begin
+            if (STAGES[i]) begin
+                always_ff @(posedge clk_i) begin
+                    if (ready[i] && valid[i]) begin
+                        ands_q[i]    <= ands_d[i];
+                        sums_q[i]    <= sums_d[i];
+                        carries_q[i] <= carries_d[i];
+                    end
+                end
+            end
+            else begin
+                assign ands_q[i]    = ands_d[i];
+                assign sums_q[i]    = sums_d[i];
+                assign carries_q[i] = carries_d[i];
+            end
+        end
+    endgenerate
+
+    generate
+        for (genvar i = 0; i < WIDTH; i++) begin
+            logic b;
+
+            assign b = INPUT_GEN[i].b_d[0];
+            always_comb for (int j = 0; j < WIDTH; j++) begin
+                logic a;
+
+                assign a = INPUT_GEN[i].a_d[j];
+
+                if (i == WIDTH - 1) begin
+                    if (j == WIDTH - 1) begin
+                        ands_d[i][j] = a & b;
+                    end
+                    else begin
+                        ands_d[i][j] = ~(a & b);
+                    end
+                end
+                else begin
+                    if (j == WIDTH - 1) begin
+                        ands_d[i][j] = ~(a & b);
+                    end
+                    else begin
+                        ands_d[i][j] = a & b;
+                    end
+                end
+            end
+        end
+    endgenerate
+
+    generate
+        for (genvar i = 0; i < WIDTH; i++) begin
             for (genvar j = 0; j < WIDTH - 1; j++) begin
                 if (i == 0) begin
-                    assign sums[i][j]    = ands[i][j];
-                    assign carries[i][j] = '0;
+                    assign sums_d[i][j]    = ands_d[i][j];
+                    assign carries_d[i][j] = '0;
                 end
                 else begin
                     full_adder_m fa(
-                        .a_i(sums[i - 1][j + 1]),
-                        .b_i(carries[i - 1][j]),
-                        .c_i(ands[i][j]),
-                        .y_o(sums[i][j]),
-                        .c_o(carries[i][j])
+                        .a_i(sums_q[i - 1][j + 1]),
+                        .b_i(carries_q[i - 1][j]),
+                        .c_i(ands_d[i][j]),
+                        .y_o(sums_d[i][j]),
+                        .c_o(carries_d[i][j])
                     );
                 end
             end
 
-            assign sums[i][WIDTH - 1] = ands[i][WIDTH - 1];
+            assign sums_d[i][WIDTH - 1] = ands_d[i][WIDTH - 1];
         end
 
+        for (genvar i = 0; i < WIDTH; i++) begin
+            assign OUTPUT_GEN[i].y_d[i] = sums_d[i][0];
+        end
+    endgenerate
+
+    generate
         for (genvar i = 0; i < WIDTH - 1; i++) begin
-            assign out_data_o[i] = sums[i][0];
-        end
-    endgenerate
-
-    generate
-        for (genvar i = 0; i < WIDTH; i++) begin
-            logic b;
-
-            assign b = in_data1_i[WIDTH - 1];
-
-            if (i == WIDTH - 1) begin
-                assign ands[WIDTH - 1][i] = in_data0_i[i] & b;
-            end
-            else begin
-                assign ands[WIDTH - 1][i] = in_data0_i[i] & ~b;
-            end
-
-            if (i == WIDTH - 1) begin
-                full_adder_m fa(
-                    .a_i(~in_data0_i[WIDTH - 1]),
-                    .b_i(~b),
-                    .c_i(ands[WIDTH - 1][i]),
-                    .y_o(out_sums[i]),
-                    .c_o(out_carries[i])
-                );
-            end
-            else begin
-                full_adder_m fa(
-                    .a_i(sums[WIDTH - 2][i + 1]),
-                    .b_i(carries[WIDTH - 2][i]),
-                    .c_i(ands[WIDTH - 1][i]),
-                    .y_o(out_sums[i]),
-                    .c_o(out_carries[i])
-                );
-            end
-        end
-    endgenerate
-
-    generate
-        full_adder_m fa(
-            .a_i(out_sums[0]),
-            .b_i(in_data0_i[WIDTH - 1]),
-            .c_i(in_data1_i[WIDTH - 1]),
-            .y_o(out_data_o[WIDTH - 1]),
-            .c_o(final_carries[0])
-        );
-
-        for (genvar i = 0; i < WIDTH; i++) begin
             full_adder_m fa(
-                .a_i(i == WIDTH - 1 ? 1'b1 : out_sums[i + 1]),
-                .b_i(out_carries[i]),
+                .a_i(sums_q[WIDTH - 1][i + 1]),
+                .b_i(carries_q[WIDTH - 1][i]),
                 .c_i(final_carries[i]),
-                .y_o(out_data_o[WIDTH + i]),
+                .y_o(y_o[WIDTH + i]),
                 .c_o(final_carries[i + 1])
             );
         end
-    endgenerate
 
-    assign out_valid_o = in_valid_i;
-    assign in_ready_o  = out_ready_i;
+        assign final_carries[0] = 1'b1;
+        assign y_o[2 * WIDTH - 1] = ~final_carries[WIDTH - 1];
+    endgenerate
 
 endmodule
 
