@@ -17,10 +17,13 @@ int main() {
         }
     }
 
+    #pragma GCC unroll 0
     for (int i = 0; i < N; i++) {
+        #pragma GCC unroll 0
         for (int j = 0; j < M; j++) {
             int total = 0;
 
+            #pragma GCC unroll 2
             for (int k = 0; k < M; k++) {
                 /* total += mat1[i][k] * mat2[k][j]; */
                 asm volatile (

@@ -15,7 +15,7 @@ ABI=ilp32
 
 COMFLAGS=-c -mabi=$(ABI) -march=$(ARCH)
 ASFLAGS=$(COMFLAGS)
-CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding
+CFLAGS=-O3 $(COMFLAGS) -nostdlib -ffreestanding -msmall-data-limit=0 -fno-unroll-loops
 NATIVE_CFLAGS=-O3
 
 TOP_LEVEL=top_tb

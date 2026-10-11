@@ -96,6 +96,25 @@ int main() {
             print_dec(stoi(argv[1]) * stoi(argv[2]));
             print_str("\n");
         }
+        else if (strcmp(argv[0], "fib") == 0) {
+            if (argc != 2) {
+                print_str("Invalid arguments\nUsage: fib <iterations>\n");
+                continue;
+            }
+
+            int iters = stoi(argv[1]);
+
+            int a = 1, b = 1;
+
+            for (int i = 0; i < iters; i++) {
+                print_dec(a);
+                print_str("\n");
+
+                int c = a + b;
+                a = b;
+                b = c;
+            }
+        }
         else if (strcmp(argv[0], "exit") == 0) {
             print_str("Bye!\n");
 
