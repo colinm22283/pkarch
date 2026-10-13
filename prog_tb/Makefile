@@ -30,6 +30,10 @@ $(BUILD_DIR)/sim.cpp:
 	echo '#include "V$(TOP_LEVEL).h"' > $@
 	echo '#include "verilated.h"' >> $@
 	echo '#include "verilated_fst_c.h"' >> $@
+	echo '#define RGFW_IMPLEMENTATION' >> $@
+	echo '#define RGFW_DEBUG' >> $@
+	echo '#define RGFW_NO_X11_CURSOR' >> $@
+	echo '#include "../RGFW.h"' >> $@
 	echo '#include <fcntl.h>' >> $@
 	echo '#include <unistd.h>' >> $@
 	echo 'int main(int argc, char** argv) {' >> $@
@@ -42,6 +46,11 @@ $(BUILD_DIR)/sim.cpp:
 	echo '  top->trace(tfp, 99);' >> $@
 	echo '  tfp->open("$(BUILD_DIR)/out.fst");' >> $@
 	echo '  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);' >> $@
+	echo '  RGFW_init("PKArch", 0);' >> $@
+	echo '  RGFW_window * win = RGFW_createWindow("PKArch", 0, 0, 640, 640, RGFW_windowCenter | RGFW_windowNoResize);' >> $@
+	echo '  u32 * pixels = (u32 *) RGFW_ALLOC(640 * 640 * 4);' >> $@
+	echo '  RGFW_surface* surf = RGFW_createSurface((u8 *) pixels, 640, 640, RGFW_formatRGBA8);' >> $@
+	echo '  u32 prev_present = 0xff;' >> $@
 	echo "  char ch = '\\0';" >> $@
 	echo '  while (!contextp->gotFinish()) {' >> $@
 	echo '    if (top->in_ready) ch = '\0';' >> $@
@@ -49,6 +58,14 @@ $(BUILD_DIR)/sim.cpp:
 	echo '        top->in_data = ch;' >> $@
 	echo '    }' >> $@
 	echo "    top->in_valid = ch != '\\0';" >> $@
+	echo '    if (top->vram_mem[32 * 32 / 4] != prev_present) {' >> $@
+	echo '      prev_present = top->vram_mem[32 * 32 / 4];' >> $@
+	echo '      for (int x = 0; x < 640; x++) for (int y = 0; y < 640; y++) {' >> $@
+	echo '        u8 p = top->vram_mem[y / 20 * 32 / 4 + x / 20 / 4] >> (((x / 20) % 4) * 8);' >> $@
+	echo '        pixels[y * 640 + x] = p | p << 8 | p << 16 | p << 24;' >> $@
+	echo '      }' >> $@
+	echo '      RGFW_window_blitSurface(win, surf);' >> $@
+	echo '    }' >> $@
 	echo '    top->eval();' >> $@
 	echo '    tfp->dump(contextp->time());' >> $@
 	echo '    contextp->timeInc(1);' >> $@
@@ -71,6 +88,7 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 		-I$(INCLUDE_DIR) \
 		--Mdir $(BUILD_DIR) \
 		-o out \
+		-LDFLAGS "-lX11 -lGL -lm -lXrandr" \
 		$(BUILD_DIR)/sim.cpp \
 		$(DSN_SRCS) \
 		$(TB_SRCS)

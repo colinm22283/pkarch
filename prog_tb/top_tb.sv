@@ -6,12 +6,14 @@
 module top_tb(
     input  logic        in_valid,
     output logic        in_ready,
-    input  logic [7:0]  in_data
+    input  logic [7:0]  in_data,
+
+    output logic [31:0] vram_mem [32 * 32 / 4:0] /* verilator public */
 );
 
     parameter integer ROM_SIZE = 4096 * 4;
     parameter integer RAM_SIZE = 32'h20000;
-    parameter integer VRAM_SIZE = 32 * 32;
+    parameter integer VRAM_SIZE = 32 * 32 + 4;
 
     string filename;
 
@@ -134,6 +136,8 @@ module top_tb(
         .mports_i({ sportao, sportbo, sportco, sportdo, sporteo, sportfo, sportgo, sportho, sportio }),
         .mports_o({ sportai, sportbi, sportci, sportdi, sportei, sportfi, sportgi, sporthi, sportii })
     );
+
+    assign vram_mem = vram.mem;
 
     initial begin
         int fd;
