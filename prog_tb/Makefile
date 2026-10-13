@@ -75,8 +75,25 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 		$(DSN_SRCS) \
 		$(TB_SRCS)
 
-ifeq ($(wildcard $(PROG_SRC_DIR)/$(PROG_NAME).s),)
-$(BUILD_DIR)/$(PROG_NAME).o: $(PROG_SRC_DIR)/$(PROG_NAME).c $(HEADERS)
+ifneq ($(wildcard $(PROG_SRC_DIR)/$(PROG_NAME)),)
+
+ifneq ($(wildcard $(PROG_SRC_DIR)/$(PROG_NAME)/proj.mk),)
+include $(PROG_SRC_DIR)/$(PROG_NAME)/proj.mk
+endif
+
+FULL_PROJ_OBJS=$(foreach o, $(PROJ_OBJS), $(BUILD_DIR)/$(PROG_NAME)/$o)
+PROJ_HEADERS=$(shell find $(PROG_SRC_DIR)/$(PROG_NAME)/$(PROJ_INCLUDE) -name "*.h")
+
+$(BUILD_DIR)/$(PROG_NAME)/%.o: $(PROG_SRC_DIR)/$(PROG_NAME)/%.c $(LIB_HEADERS) $(PROJ_HEADERS)
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) $< -o $@
+
+$(BUILD_DIR)/$(PROG_NAME).o: $(FULL_PROJ_OBJS)
+	mkdir -p $(@D)
+	$(LD) -r $(FULL_PROJ_OBJS) -o $@
+
+else ifneq ($(wildcard $(PROG_SRC_DIR)/$(PROG_NAME).c),)
+$(BUILD_DIR)/$(PROG_NAME).o: $(PROG_SRC_DIR)/$(PROG_NAME).c $(LIB_HEADERS)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) $< -o $@
 
