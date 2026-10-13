@@ -128,6 +128,10 @@ objdump_all: $(BUILD_DIR)/$(PROG_NAME).bin
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: clean-obj
+clean-obj:
+	rm -rf $(shell find $(BUILD_DIR) -name "*.o")
 	
 .FORCE:
 

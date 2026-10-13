@@ -2,6 +2,8 @@
 
 `include "bus/bus.svh"
 
+/* verilator lint_off WIDTHTRUNC */
+
 module ram_m #(
     parameter integer ADDRESS = 0,
     parameter integer SIZE = 16
@@ -14,7 +16,7 @@ module ram_m #(
 );
 
     localparam ADDR_WIDTH = $clog2(SIZE);
-    word_t mem [SIZE - 1:0];
+    word_t mem [SIZE / 4 - 1:0];
 
     enum logic [1:0] {
         STATE_READY,
@@ -122,3 +124,6 @@ module ram_m #(
     end
 
 endmodule
+
+/* verilator lint_on WIDTHTRUNC */
+

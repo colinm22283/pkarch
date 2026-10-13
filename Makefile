@@ -41,6 +41,10 @@ all: $(foreach t, $(TBS), run-$t)
 clean: $(foreach t, $(TBS), clean-$t)
 	cd $(PROG_TB_DIR) && $(MAKE) clean
 
+.PHONY: clean-obj
+clean-obj:
+	cd $(PROG_TB_DIR) && $(MAKE) clean-obj
+
 .PHONY: prog-%
 prog-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) run

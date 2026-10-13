@@ -11,6 +11,7 @@ module top_tb(
 
     parameter integer ROM_SIZE = 4096 * 4;
     parameter integer RAM_SIZE = 32'h20000;
+    parameter integer VRAM_SIZE = 32 * 32;
 
     string filename;
 
@@ -39,6 +40,15 @@ module top_tb(
     bus_siport_t sportfi;
     bus_soport_t sportfo;
 
+    bus_siport_t sportgi;
+    bus_soport_t sportgo;
+
+    bus_siport_t sporthi;
+    bus_soport_t sportho;
+
+    bus_siport_t sportii;
+    bus_soport_t sportio;
+
     ram_m #(0, ROM_SIZE) rom(
         .clk_i(clk),
         .nrst_i(nrst),
@@ -53,6 +63,14 @@ module top_tb(
 
         .sport_i(sportfi),
         .sport_o(sportfo)
+    );
+
+    ram_m #(32'h02000000, VRAM_SIZE) vram(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportgi),
+        .sport_o(sportgo)
     );
 
     serial_m #(32'h10000000) serial(
@@ -77,7 +95,7 @@ module top_tb(
         .commit_count_i(top.rob.commit_count_q)
     );
 
-    dummy_slave_m #(RAM_SIZE, 32'h10000000 - RAM_SIZE) dummy1(
+    dummy_slave_m #(ROM_SIZE, 32'h01000000 - ROM_SIZE) dummy1(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -85,7 +103,23 @@ module top_tb(
         .sport_o(sportdo)
     );
 
-    dummy_slave_m #(32'h10000004, 32'hFFFFFFFF - 32'h10000004) dummy2(
+    dummy_slave_m #(32'h01000000 + RAM_SIZE, 32'h02000000 - 32'h01000000 - RAM_SIZE) dummy2(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sporthi),
+        .sport_o(sportho)
+    );
+
+    dummy_slave_m #(32'h02000000 + VRAM_SIZE, 32'h10000000 - 32'h02000000 - VRAM_SIZE) dummy3(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportii),
+        .sport_o(sportio)
+    );
+
+    dummy_slave_m #(32'h10000004, 32'hFFFFFFFF - 32'h10000004) dummy4(
         .clk_i(clk),
         .nrst_i(nrst),
 
@@ -93,12 +127,12 @@ module top_tb(
         .sport_o(sporteo)
     );
 
-    top_m #(6) top(
+    top_m #(9) top(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ sportao, sportbo, sportco, sportdo, sporteo, sportfo }),
-        .mports_o({ sportai, sportbi, sportci, sportdi, sportei, sportfi })
+        .mports_i({ sportao, sportbo, sportco, sportdo, sporteo, sportfo, sportgo, sportho, sportio }),
+        .mports_o({ sportai, sportbi, sportci, sportdi, sportei, sportfi, sportgi, sporthi, sportii })
     );
 
     initial begin

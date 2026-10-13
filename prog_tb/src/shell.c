@@ -1,14 +1,11 @@
 #include <print.h>
+#include <stdio.h>
 #include <unistd.h>
 
 char command[256];
 
 int argc;
 char * argv[16];
-
-char getc(void) {
-    return *(volatile char *) 0x10000000;
-}
 
 void get_command(void) {
     int i;
