@@ -11,7 +11,6 @@
       let
         pkgs = import nixpkgs { inherit system; };
         
-        # Access the RISC-V 32-bit cross-compilation toolchain
         riscvPkgs = pkgs.pkgsCross.riscv32-embedded;
       in
       {
@@ -25,6 +24,11 @@
 
             riscvPkgs.buildPackages.binutils
             riscvPkgs.buildPackages.gcc
+
+            pkgs.libX11.dev
+            pkgs.libXi.dev
+            pkgs.libXrandr.dev
+            pkgs.libGL.dev
           ];
         };
       });
