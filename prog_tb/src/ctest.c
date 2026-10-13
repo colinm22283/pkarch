@@ -1,4 +1,5 @@
 #include <print.h>
+#include <stdio.h>
 
 int main() {
     print_hex(0x1FAFAFAF);

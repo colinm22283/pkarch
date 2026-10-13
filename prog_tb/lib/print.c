@@ -2,6 +2,10 @@
 
 char hex_lut[16] = "0123456789ABCDEF";
 
+void print_char(char c) {
+    *(volatile char *) 0x10000000 = c;
+}
+
 void print_str(const char * str) {
     for (int i = 0; str[i] != '\0'; i++) {
         *(volatile char *) 0x10000000 = str[i];
@@ -36,5 +40,14 @@ void print_dec(unsigned int num) {
     }
 
     print_str(buf + i);
+}
+
+void print_sdec(int num) {
+    if (num < 0) {
+        print_char('-');
+        num = -num;
+    }
+
+    print_dec(num);
 }
 

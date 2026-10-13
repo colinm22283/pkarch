@@ -1,19 +1,23 @@
 ENTRY(entry)
 
 MEMORY {
-    ram (rwx) : ORIGIN = 0, LENGTH = 16384
+    rom (rx)  : ORIGIN = 0x00000000, LENGTH = 16384
+    ram (rwx) : ORIGIN = 0x01000000, LENGTH = 0x20000
 }
 
 SECTIONS {
     . = 0x0;
 
-    .ram : {
+    .rom : {
         *(.startup*);
         *(.text*);
         *(.data*);
+        *(.rodata*)
+    } > rom
+
+    .ram : {
         *(.bss*);
         *(.sbss*);
-        *(.rodata*)
     } > ram
 
     /DISCARD/ : { *(*) }

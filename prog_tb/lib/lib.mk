@@ -5,6 +5,9 @@ LIB_INCLUDEDIR=include
 
 _LIB_OBJS+=startup.o
 _LIB_OBJS+=print.o
+_LIB_OBJS+=printf.o
+_LIB_OBJS+=put.o
+_LIB_OBJS+=input.o
 _LIB_OBJS+=exit.o
 _LIB_OBJS+=divmod.o
 

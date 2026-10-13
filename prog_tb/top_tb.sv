@@ -9,7 +9,8 @@ module top_tb(
     input  logic [7:0]  in_data
 );
 
-    parameter integer RAM_SIZE = 4096 * 4;
+    parameter integer ROM_SIZE = 4096 * 4;
+    parameter integer RAM_SIZE = 32'h20000;
 
     string filename;
 
@@ -35,12 +36,23 @@ module top_tb(
     bus_siport_t sportei;
     bus_soport_t sporteo;
 
-    ram_m #(0, RAM_SIZE) ram(
+    bus_siport_t sportfi;
+    bus_soport_t sportfo;
+
+    ram_m #(0, ROM_SIZE) rom(
         .clk_i(clk),
         .nrst_i(nrst),
 
         .sport_i(sportai),
         .sport_o(sportao)
+    );
+
+    ram_m #(32'h01000000, RAM_SIZE) ram(
+        .clk_i(clk),
+        .nrst_i(nrst),
+
+        .sport_i(sportfi),
+        .sport_o(sportfo)
     );
 
     serial_m #(32'h10000000) serial(
@@ -81,17 +93,17 @@ module top_tb(
         .sport_o(sporteo)
     );
 
-    top_m #(5) top(
+    top_m #(6) top(
         .clk_i(clk),
         .nrst_i(nrst),
 
-        .mports_i({ sportao, sportbo, sportco, sportdo, sporteo }),
-        .mports_o({ sportai, sportbi, sportci, sportdi, sportei })
+        .mports_i({ sportao, sportbo, sportco, sportdo, sporteo, sportfo }),
+        .mports_o({ sportai, sportbi, sportci, sportdi, sportei, sportfi })
     );
 
     initial begin
         int fd;
-        reg [7:0] mem [RAM_SIZE - 1:0];
+        reg [7:0] mem [ROM_SIZE - 1:0];
 
         clk_rst.RESET();
 
@@ -100,7 +112,7 @@ module top_tb(
         fd = $fopen(filename, "rb");
         $fread(mem, fd);
         $fclose(fd);
-        for (int i = 0; i < RAM_SIZE; i += 4) ram.mem[i / 4] = {
+        for (int i = 0; i < ROM_SIZE; i += 4) rom.mem[i / 4] = {
             mem[i + 3],
             mem[i + 2],
             mem[i + 1],
