@@ -104,7 +104,7 @@ PROJ_HEADERS=$(shell find $(PROG_SRC_DIR)/$(PROG_NAME)/$(PROJ_INCLUDE) -name "*.
 
 $(BUILD_DIR)/$(PROG_NAME)/%.o: $(PROG_SRC_DIR)/$(PROG_NAME)/%.c $(LIB_HEADERS) $(PROJ_HEADERS)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -I$(PROG_SRC_DIR)/$(PROG_NAME)/$(PROJ_INCLUDE) $< -o $@
 
 $(BUILD_DIR)/$(PROG_NAME).o: $(FULL_PROJ_OBJS)
 	mkdir -p $(@D)
