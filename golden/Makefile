@@ -77,7 +77,7 @@ $(BUILD_DIR)/out: $(BUILD_DIR)/sim.cpp $(DSN_SRCS) $(TB_SRCS) $(HEADERS)
 		$(DSN_SRCS) \
 		$(TB_SRCS)
 
-$(BUILD_DIR)/$(PROG_NAME).elf: $(BUILD_DIR)/$(PROG_NAME).o
+$(BUILD_DIR)/$(PROG_NAME).elf: $(BUILD_DIR)/$(PROG_NAME).o linker.ld
 	mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -T linker.ld $< -o $@
 

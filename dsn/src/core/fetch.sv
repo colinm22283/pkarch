@@ -6,7 +6,9 @@
 `include "test/logger.svh"
 `include "bus/icache.svh"
 
-module fetch_m(
+module fetch_m #(
+    parameter pc_t PC_START
+) (
     input wire clk_i,
     input wire nrst_i,
 
@@ -46,7 +48,7 @@ module fetch_m(
         if (!nrst) begin
             state <= STATE_RUN;
 
-            pc <= 0;
+            pc <= PC_START;
         end
         else begin
             case (state)

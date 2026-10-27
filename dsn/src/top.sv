@@ -14,7 +14,8 @@
 
 module top_m #(
     parameter MEMORY_PORTS = 1,
-    parameter MEMORY_CROSSBARS = MEMORY_PORTS
+    parameter MEMORY_CROSSBARS = MEMORY_PORTS,
+    parameter pc_t PC_START = 32'h00000000
 ) (
 `ifdef USE_POWER_PINS
     inout wire vccd1,
@@ -114,7 +115,9 @@ module top_m #(
     commit_i_t [COMMIT_COUNT - 1:0] comi, reg_comi;
     commit_o_t [COMMIT_COUNT - 1:0] como, reg_como;
 
-    fetch_m fetch(
+    fetch_m #(
+        .PC_START(PC_START)
+    ) fetch(
         .clk_i(clk_i),
         .nrst_i(nrst_i),
 

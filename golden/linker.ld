@@ -20,6 +20,8 @@ SECTIONS {
         *(.sbss*);
     } > ram
 
+    PROVIDE(tohost = 0x10000004);
+
     /DISCARD/ : { *(*) }
 }
 

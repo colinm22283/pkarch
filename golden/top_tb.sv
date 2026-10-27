@@ -100,7 +100,10 @@ module top_tb();
         .sport_o(sportgo)
     );
 
-    top_m #(7) top(
+    top_m #(
+        .MEMORY_PORTS(7),
+        .PC_START(32'h80000000)
+    ) top(
         .clk_i(clk),
         .nrst_i(nrst),
 
