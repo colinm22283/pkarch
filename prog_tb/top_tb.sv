@@ -119,7 +119,7 @@ module top_tb(
             mem[i + 0]
         };
 
-        #100000000000;
+        #1000000;
 
         $finish;
     end

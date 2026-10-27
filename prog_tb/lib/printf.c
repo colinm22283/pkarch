@@ -32,6 +32,11 @@ int vprintf(const char * restrict format, va_list args) {
                     print_sdec(v);
                 } break;
 
+                case 'c': {
+                    char v = va_arg(args, int);
+                    print_char(v);
+                } break;
+
                 case 's': {
                     const char * v = va_arg(args, const char *);
                     print_str(v);
