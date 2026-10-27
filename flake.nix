@@ -23,6 +23,9 @@
             pkgs.zlib
             pkgs.graphviz
 
+            pkgs.spike
+            pkgs.dtc
+
             riscvPkgs.buildPackages.binutils
             riscvPkgs.buildPackages.gcc
           ];

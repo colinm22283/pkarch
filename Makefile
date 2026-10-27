@@ -1,5 +1,6 @@
 export TB_DIR=$(CURDIR)/tb
 export PROG_TB_DIR=$(CURDIR)/prog_tb
+export GOLDEN_DIR=$(CURDIR)/golden
 export DSN_DIR=$(CURDIR)/dsn
 export SRC_DIR=$(DSN_DIR)/src
 export INCLUDE_DIR=$(DSN_DIR)/include
@@ -69,6 +70,18 @@ objdump-%:
 objdump_all-%:
 	cd $(PROG_TB_DIR) && PROG_NAME=$* $(MAKE) objdump_all
 
+.PHONY: golden_build-%
+golden_build-%:
+	cd $(GOLDEN_DIR) && PROG_NAME=$* $(MAKE) build
+
+.PHONY: golden-%
+golden-%:
+	cd $(GOLDEN_DIR) && PROG_NAME=$* $(MAKE) run
+
+.PHONY: golden
+golden:
+	cd $(GOLDEN_DIR) && $(MAKE) all
+
 .PHONY: run-%
 run-%:
 	cd $(TB_DIR)/$* && $(MAKE) run
@@ -84,3 +97,4 @@ clean-%:
 .PHONY: linecount
 linecount:
 	wc -l $(shell find . -type f -name '*.sv') $(shell find . -type f -name '*.svh') $(shell find . -type f -name '*.s')
+
