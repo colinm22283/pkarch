@@ -10,5 +10,6 @@ void putchar(char c);
 void puts(const char * str);
 
 char getc(void);
+static inline char getchar(void) { return getc(); }
 char * gets(char * buf, int size);
 

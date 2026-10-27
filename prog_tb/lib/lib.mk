@@ -10,6 +10,8 @@ _LIB_OBJS+=put.o
 _LIB_OBJS+=input.o
 _LIB_OBJS+=exit.o
 _LIB_OBJS+=divmod.o
+_LIB_OBJS+=stdlib.o
+_LIB_OBJS+=string.o
 
 CFLAGS+=-I$(LIB_INCLUDEDIR)
 

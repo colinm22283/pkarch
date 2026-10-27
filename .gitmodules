@@ -1,0 +1,6 @@
+[submodule "prog_tb/src/pkbasic"]
+	path = prog_tb/src/pkbasic
+	url = https://cmcgann.com/githttp/pkbasic.git
+[submodule "prog_tb/src/basic/pkbasic"]
+	path = prog_tb/src/basic/pkbasic
+	url = https://cmcgann.com/githttp/pkbasic.git
